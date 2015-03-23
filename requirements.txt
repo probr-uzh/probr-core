@@ -1,2 +1,2 @@
 Django==1.7.7
-wsgiref==0.1.2
+scapy==2.3.1
