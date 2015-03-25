@@ -58,3 +58,16 @@ target/
 
 # Database
 db.sqlite3
+
+# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
+*.iml
+
+## Directory-based project format:
+.idea/
+
+# Mongo Explorer plugin:
+ .idea/mongoSettings.xml
+
+## File-based project format:
+*.ipr
+*.iws
