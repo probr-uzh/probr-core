@@ -12,3 +12,5 @@ class Capture(BaseModel):
     latitude = models.FloatField(default=0)
 
     tags = TaggableManager()
+
+

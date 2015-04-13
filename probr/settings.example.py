@@ -1,6 +1,7 @@
 from base_settings import *
 
-
+BROKER_URL = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = [ 'json', ]
 
 # production database
 #DATABASES = {
