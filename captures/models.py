@@ -7,6 +7,8 @@ from utils.models import BaseModel
 
 class Capture(BaseModel):
     pcap = models.FileField(upload_to="pcap")
-    location = models.PointField()
+    
+    longitude = models.FloatField(default=0)
+    latitude = models.FloatField(default=0)
 
     tags = TaggableManager()
