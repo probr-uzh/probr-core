@@ -6,8 +6,8 @@ from utils.models import BaseModel
 
 
 DEVICE_TYPE_CHOICES = (
-    ('RPA', 'Raspberry Pii Model A'),
-    ('RPB', 'Raspberry Pii Model B'),
+    ('RPA', 'Raspberry Pi Model A'),
+    ('RPB', 'Raspberry Pi Model B'),
     ('DWR', 'DD-WRT Router'),
     ('OWR', 'OpenWRT Router'),
     ('UKW', 'Unknown'),
