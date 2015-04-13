@@ -39,7 +39,7 @@ class Status(BaseModel):
     used_disk = models.IntegerField(default=0)
 
     def memory_usage(self):
-        return self.used_memory/self.total_memory
+        return float(self.used_memory)/float(self.total_memory)
 
     def disk_usage(self):
-        return self.used_disky/self.total_disk
+        return float(self.used_disk)/float(self.total_disk);
