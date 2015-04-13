@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 import taggit.managers
 import uuid
-import django.contrib.gis.db.models.fields
 
 
 class Migration(migrations.Migration):
@@ -21,7 +20,8 @@ class Migration(migrations.Migration):
                 ('creation_timestamp', models.DateTimeField(auto_now_add=True, db_index=True)),
                 ('modification_timestamp', models.DateTimeField(auto_now=True, db_index=True)),
                 ('pcap', models.FileField(upload_to=b'pcap')),
-                ('location', django.contrib.gis.db.models.fields.PointField(srid=4326)),
+                ('longitude', models.FloatField(default=0)),
+                ('latitude', models.FloatField(default=0)),
                 ('tags', taggit.managers.TaggableManager(to='taggit.Tag', through='taggit.TaggedItem', help_text='A comma-separated list of tags.', verbose_name='Tags')),
             ],
             options={
