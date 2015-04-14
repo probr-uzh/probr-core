@@ -1,8 +1,10 @@
 from django.db import models
 import uuid
 # Create your models here.
-from taggit.managers import TaggableManager
+
 from utils.models import BaseModel
+from taggit.managers import TaggableManager
+from taggit.models import TaggedItemBase
 
 
 DEVICE_TYPE_CHOICES = (
@@ -13,17 +15,22 @@ DEVICE_TYPE_CHOICES = (
     ('UKW', 'Unknown'),
 )
 
+# Needed for taggit to work properly with non-integer primary keys, see Issue #1225 on Redmine
+class TaggedDevice(TaggedItemBase):
+    content_object = models.ForeignKey('Device')
+
+
 class Device(BaseModel):
     name = models.CharField(max_length=255, unique=True)
 
-    type = models.CharField(max_length=2, choices=DEVICE_TYPE_CHOICES, default="UKW")
+    type = models.CharField(max_length=3, choices=DEVICE_TYPE_CHOICES, default="UKW")
 
     wifi_chip = models.CharField(max_length=255, blank=True, default="")
 
     os = models.CharField(max_length=255, blank=True, default="")
     description = models.TextField(blank=True, default="")
 
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedDevice)
 
 
 class Status(BaseModel):
