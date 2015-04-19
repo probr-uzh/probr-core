@@ -76,3 +76,6 @@ db.sqlite3
 ## File-based project format:
 *.ipr
 *.iws
+
+# Local virtualenv auto configuration
+.env
