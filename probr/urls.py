@@ -17,6 +17,9 @@ urlpatterns = [
 
     #admin site
     url(r'^admin/', include(admin.site.urls)),
+
+    #default url
+    url(r'', include(admin.site.urls)),
 ]
 
 format_suffix_patterns(urlpatterns)
