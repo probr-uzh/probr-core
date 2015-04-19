@@ -1,38 +1,22 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
-from rest_framework import routers, serializers, viewsets
-from devices.models import Device
-
-# Serializers
-# define the API representation.
-
-class DeviceSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Device
-        #fields = ('url', 'username', 'email', 'is_staff')
+from devices.views import DeviceListView, DeviceDetailsView, StatusListView
+from rest_framework.urlpatterns import format_suffix_patterns
 
 
+urlpatterns = [
 
+    #list of all devices
+    url(r'devices/$', DeviceListView.as_view(), name='device-list'),
 
-# ViewSets
-# ViewSets define the view behavior.
+    #details of a device by uuid
+    url(r'devices/(?P<uuid>.+)/$', DeviceDetailsView.as_view(), name='device-details'),
 
-class DeviceViewSet(viewsets.ModelViewSet):
-    queryset = Device.objects.all()
-    serializer_class = DeviceSerializer
+    #list of all statuses
+    url(r'statuses/$', StatusListView.as_view(), name='status-list'),
 
-
-# Routers
-# provide an easy way of automatically determining the URL conf.
-
-router = routers.DefaultRouter()
-router.register(r'devices', DeviceViewSet)
-
-
-urlpatterns = patterns('',
-
-    #include the above defined router in the url patterns
-    url(r'^', include(router.urls)),
-
+    #admin site
     url(r'^admin/', include(admin.site.urls)),
-)
+]
+
+format_suffix_patterns(urlpatterns)

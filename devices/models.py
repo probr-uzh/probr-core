@@ -1,6 +1,5 @@
 from django.db import models
-import uuid
-# Create your models here.
+
 
 from utils.models import BaseModel
 from taggit.managers import TaggableManager
