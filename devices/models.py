@@ -31,6 +31,9 @@ class Device(BaseModel):
 
     tags = TaggableManager(through=TaggedDevice)
 
+    def __str__(self):
+        return self.name
+
 
 class Status(BaseModel):
     device = models.ForeignKey(Device, related_name="statuses")
