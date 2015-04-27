@@ -1,16 +1,16 @@
 from django.test import TestCase
+from django.core.files import File
 from captures.tasks import *
-from os import path
 import dpkt
 
 class TaskTestCase(TestCase):
 
     def setUp(self):
-        self.capture = Capture.objects.create()
+        self.pcapfile = File(open('captures/tests/resources/proberequests_smallsample.pcap'))
+        self.capture = Capture.objects.create(pcap=self.pcapfile)
 
     def test_unpack_pcap(self):
-        file = open(path.abspath('captures/tests/resources/proberequests_smallsample.pcap'))
-        pcapReader = dpkt.pcap.Reader(file)
+        pcapReader = dpkt.pcap.Reader(self.capture.pcap)
 
         for timestamp, packet in pcapReader:
             json = generate_json(packet)
