@@ -4,7 +4,6 @@ from django.db import models
 from taggit.managers import TaggableManager
 from utils.models import BaseModel
 
-
 class Capture(BaseModel):
     pcap = models.FileField(upload_to="pcap")
 
@@ -12,5 +11,4 @@ class Capture(BaseModel):
     latitude = models.FloatField(default=0)
 
     tags = TaggableManager()
-
 
