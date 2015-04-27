@@ -31,7 +31,7 @@ class Device(BaseModel):
 
     tags = TaggableManager(through=TaggedDevice)
 
-    def __str__(self):
+    def __unicode__(self):
         return self.name
 
 
