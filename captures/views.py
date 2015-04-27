@@ -1,6 +1,7 @@
-from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.decorators import api_view, renderer_classes, parser_classes
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
+from rest_framework.parsers import MultiPartParser, FormParser
 from models import Capture
 from serializers import CaptureSerializer
 
@@ -9,9 +10,12 @@ from serializers import CaptureSerializer
 
 @api_view(['POST','GET'])
 @renderer_classes((JSONRenderer,))
+@parser_classes((MultiPartParser, FormParser,))
 def upload_form(request):
     if request.method == 'POST':
-        instance = Capture(pcap=request.FILES['pcap'],longitude=request.DATA['longitude'],latitude=request.DATA['latitude'],tags=request.DATA['tags'])
+        instance = Capture(pcap=request.FILES['pcap'],longitude=request.DATA['longitude'],latitude=request.DATA['latitude'])
+        print("Tags: " + request.DATA['tags'])
+        instance.tags.add(request.DATA['tags'])
         instance.save()
         return Response('Capture upload successful')
 
