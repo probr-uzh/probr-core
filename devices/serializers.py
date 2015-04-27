@@ -5,6 +5,10 @@ from models import Device
 from models import Status
 
 class DeviceSerializer(serializers.ModelSerializer):
+
+    tags = serializers.StringRelatedField(many=True)
+
+
     class Meta:
         model = Device
 
