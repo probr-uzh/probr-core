@@ -1,26 +1,31 @@
-from rest_framework.decorators import api_view, renderer_classes, parser_classes
 from rest_framework.response import Response
+from rest_framework import generics
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import MultiPartParser, FormParser
 from models import Capture
 from serializers import CaptureSerializer
 
-# Create your views here.
 
+class CaptureUploadView(generics.ListCreateAPIView):
 
-@api_view(['POST','GET'])
-@renderer_classes((JSONRenderer,))
-@parser_classes((MultiPartParser, FormParser,))
-def upload_form(request):
-    if request.method == 'POST':
-        instance = Capture(pcap=request.FILES['pcap'],longitude=request.DATA['longitude'],latitude=request.DATA['latitude'])
-        print("Tags: " + request.DATA['tags'])
-        instance.tags.add(request.DATA['tags'])
-        instance.save()
-        return Response('Capture upload successful')
+    renderer_classes = (JSONRenderer,)
+    parser_classes = (MultiPartParser, FormParser,)
 
-    elif request.method == 'GET':
+    def get(self, request, *args, **kwargs):
         captures = Capture.objects.all();
         serializer = CaptureSerializer(captures,many=True);
         return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        instance = Capture(pcap=request.FILES['pcap'],longitude=request.DATA['longitude'],latitude=request.DATA['latitude'])
+        print("Tags: " + request.DATA['tags'])
+        instance.save()
+        tags = request.DATA['tags']
+        tag_list = tags.split(",")
+        for tag in tag_list:
+            instance.tags.add(tag)
+        instance.save()
+        return Response('Capture upload successful')
+
+
 
