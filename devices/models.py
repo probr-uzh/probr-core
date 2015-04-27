@@ -14,6 +14,12 @@ DEVICE_TYPE_CHOICES = (
     ('UKW', 'Unknown'),
 )
 
+
+COMMAND_STATUS_CHOICES = (
+    (0, 'Not executed yet'),
+    (1, 'Executed')
+)
+
 # Needed for taggit to work properly with non-integer primary keys, see Issue #1225 on Redmine
 class TaggedDevice(TaggedItemBase):
     content_object = models.ForeignKey('Device')
@@ -34,7 +40,6 @@ class Device(BaseModel):
     def __unicode__(self):
         return self.name
 
-
 class Status(BaseModel):
     device = models.ForeignKey(Device, related_name="statuses")
 
@@ -51,4 +56,18 @@ class Status(BaseModel):
         return float(self.used_memory)/float(self.total_memory)
 
     def disk_usage(self):
-        return float(self.used_disk)/float(self.total_disk);
+        return float(self.used_disk)/float(self.total_disk)
+
+    def __unicode__(self):
+        return unicode(self.device)+" memory:"+unicode(self.memory_usage())+""
+
+class Command(BaseModel):
+    device = models.ForeignKey(Device, related_name="commands")
+
+    execute = models.TextField()
+    result = models.TextField(blank=True, default="")
+
+    status = models.IntegerField(default=0, choices=COMMAND_STATUS_CHOICES)
+
+    def __unicode__(self):
+        return self.execute
