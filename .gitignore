@@ -1,7 +1,9 @@
 # Probr specific
 reload
 static/
+media/
 settings.py
+dump.rdb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
