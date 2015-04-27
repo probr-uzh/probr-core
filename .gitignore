@@ -4,6 +4,9 @@ static/
 media/
 settings.py
 dump.rdb
+uuid.txt
+
+.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -47,7 +47,6 @@ class CaptureTestCase(TestCase):
         print dl
         if pc.datalink() == 127: #Check if RadioTap
                 for timestamp, rawdata in pc:
-                        print timestamp
                         tap = dpkt.radiotap.Radiotap(rawdata)
                         signal_ssi=-(256-tap.ant_sig.db)        #Calculate signal strength
                         t_len=binascii.hexlify(rawdata[2:3])    #t_len field indicates the entire length of the radiotap data, including the radiotap header.
@@ -55,5 +54,6 @@ class CaptureTestCase(TestCase):
                         wlan = dpkt.ieee80211.IEEE80211(rawdata[t_len:])
                         if wlan.type == 0 and wlan.subtype == 4: # Indicates a probe request
                             ssid = wlan.ies[0].info
-                            mac=binascii.hexlify(wlan.mgmt.src)
-                            print "%s, %s (%d dBm)"%(mac,ssid,signal_ssi)
+                            mac_src=binascii.hexlify(wlan.mgmt.src)
+                            mac_dst=binascii.hexlify(wlan.mgmt.dst)
+                            print "%s->%s, %s (%d dBm)"%(mac_src,mac_dst,ssid,signal_ssi)
