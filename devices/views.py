@@ -1,6 +1,6 @@
 from rest_framework import generics, renderers
-from models import Device, Status
-from serializers import DeviceSerializer, StatusSerializer
+from models import Device, Status, Command
+from serializers import DeviceSerializer, StatusSerializer, CommandSerializer
 
 #Devices
 ##################################################
@@ -16,7 +16,7 @@ class DeviceDetailsView(DeviceListView):
 
     def get_queryset(self):
         uuid = self.kwargs['uuid']
-        return Device.objects.filter(uuid = uuid)
+        return Device.objects.filter(uuid=uuid)
 
 
 #Statuses
@@ -26,3 +26,16 @@ class StatusListView(generics.ListCreateAPIView):
     renderer_classes = [renderers.JSONRenderer]
     queryset = Status.objects.all()
     serializer_class = StatusSerializer
+
+
+#Commands
+##################################################
+
+class CommandListView(generics.ListCreateAPIView):
+    renderer_classes = [renderers.JSONRenderer]
+    queryset = Command.objects.all()
+    serializer_class = CommandSerializer
+
+    def get_queryset(self):
+        device = self.kwargs['device']
+        return Command.objects.filter(device=device)

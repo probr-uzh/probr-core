@@ -35,6 +35,12 @@ function registerDevice(){
     fi
 }
 
+function remoteExecute(){
+    result=$("$1 2>&1")
+    echo "executed  $1"
+    echo "result    $result"
+}
+
 function postStatus(){
     uuid=$(cat uuid.txt)
 
@@ -77,9 +83,9 @@ function main(){
         postStatus &
         sleep 5
     done
-
 }
 
+remoteExecute 'echo he'
 main
 
 

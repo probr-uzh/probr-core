@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
-from devices.views import DeviceListView, DeviceDetailsView, StatusListView
+from devices.views import DeviceListView, DeviceDetailsView, StatusListView, CommandListView
 from rest_framework.urlpatterns import format_suffix_patterns
 
 
@@ -14,6 +14,9 @@ urlpatterns = [
 
     #list of all statuses
     url(r'^api/statuses/$', StatusListView.as_view(), name='status-list'),
+
+    #details of a device by uuid
+    url(r'^api/commands/(?P<device>.+)/$', CommandListView.as_view(), name='command-list'),
 
     #admin site
     url(r'^admin/', include(admin.site.urls)),
