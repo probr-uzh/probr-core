@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Script specific vars
 VERSION="0.1 beta"
 
@@ -20,7 +20,7 @@ function registerDevice(){
 
 
     body_data=\{\"name\":\"197$NAME\",\"os\":\"$OS\",\"type\":\"$TYPE\",\"wifi_chip\":\"$WIFI\",\"description\":\"$DESCRIPTION\"\}
-    response=$(wget -qO- --method POST --content-on-error --header "$CONTENT_TYPE" --body-data "$body_data" $BASE_URL/api/devices/)
+    response=$(wget -qO- --post-data="$body_data" --header "$CONTENT_TYPE" -- $BASE_URL/api/devices/)
 
     [[ $response =~ $UUID_REGEX ]]
     uuid="${BASH_REMATCH[1]}"
@@ -54,7 +54,7 @@ function postStatus(){
 
     body_data=\{\"device\":\"$uuid\",\"cpu_load\":\"$cpu_load\",\"used_disk\":\"$used_disk\",\"total_disk\":\"$total_disk\",\"used_memory\":\"$used_memory\",\"total_memory\":\"$total_memory\"\}
 
-    response=$(wget -qO- --method POST --content-on-error --header "$CONTENT_TYPE" --body-data "$body_data" $BASE_URL/api/statuses/)
+    response=$(wget -qO- --post-data="$body_data" --header "$CONTENT_TYPE" -- $BASE_URL/api/statuses/)
 
     [[ $response =~ $UUID_REGEX ]]
     uuid="${BASH_REMATCH[1]}"
@@ -87,5 +87,3 @@ function main(){
 
 remoteExecute 'echo he'
 main
-
-
