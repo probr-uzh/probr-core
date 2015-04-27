@@ -51,4 +51,4 @@ class Status(BaseModel):
         return float(self.used_memory)/float(self.total_memory)
 
     def disk_usage(self):
-        return float(self.used_disk)/float(self.total_disk);
+        return float(self.used_disk)/float(self.total_disk)
