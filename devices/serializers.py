@@ -8,7 +8,6 @@ class DeviceSerializer(TaggitSerializer, serializers.ModelSerializer):
 
     tags = TagListSerializerField()
 
-
     class Meta:
         model = Device
 
