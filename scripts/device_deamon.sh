@@ -17,9 +17,9 @@ function registerDevice(){
     TYPE="OWR" #find a way to determine type
     WIFI="" #find a way to determine wifi_chip
     DESCRIPTION="added automatically with device script $VERSION"
+    TAGS="[\"test\",\"sometag\"]"
 
-
-    body_data=\{\"name\":\"197$NAME\",\"os\":\"$OS\",\"type\":\"$TYPE\",\"wifi_chip\":\"$WIFI\",\"description\":\"$DESCRIPTION\"\}
+    body_data=\{\"name\":\"197$NAME\",\"os\":\"$OS\",\"type\":\"$TYPE\",\"wifi_chip\":\"$WIFI\",\"description\":\"$DESCRIPTION\"\,\"tags\":$TAGS}
     response=$(wget -qO- --method POST --content-on-error --header "$CONTENT_TYPE" --body-data "$body_data" $BASE_URL/api/devices/)
 
     [[ $response =~ $UUID_REGEX ]]
