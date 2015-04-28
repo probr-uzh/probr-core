@@ -19,6 +19,13 @@ class DeviceDetailsView(DeviceListView):
         uuid = self.kwargs['uuid']
         return Device.objects.filter(uuid=uuid)
 
+class DeviceStatusesView(generics.ListAPIView):
+    renderer_classes = [renderers.JSONRenderer]
+    serializer_class = StatusSerializer
+
+    def get_queryset(self):
+        uuid = self.kwargs['uuid']
+        return Status.objects.filter(device_id = uuid)
 
 #Statuses
 ##################################################
