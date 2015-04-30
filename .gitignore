@@ -1,8 +1,13 @@
 # Probr specific
 reload
 static/
+media/
 settings.py
 media/
+dump.rdb
+uuid.txt
+
+.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,13 +1,12 @@
 __author__ = 'gmazlami'
-
+from taggit_serializer.serializers import TagListSerializerField,TaggitSerializer
 from rest_framework import serializers
-from models import Device
+from models import Device, Command
 from models import Status
 
-class DeviceSerializer(serializers.ModelSerializer):
+class DeviceSerializer(TaggitSerializer, serializers.ModelSerializer):
 
-    tags = serializers.StringRelatedField(many=True)
-
+    tags = TagListSerializerField()
 
     class Meta:
         model = Device
@@ -16,3 +15,7 @@ class DeviceSerializer(serializers.ModelSerializer):
 class StatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = Status
+
+class CommandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Command

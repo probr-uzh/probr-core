@@ -3,7 +3,7 @@ import uuid
 
 
 #automatically generated UUID field
-class UUIDField(models.CharField) :
+class UUIDField(models.CharField):
 
     def __init__(self, *args, **kwargs):
         kwargs['max_length'] = kwargs.get('max_length', 64 )
