@@ -16,4 +16,3 @@ class Capture(BaseModel):
 
     tags = TaggableManager(through=TaggedCapture)
 
-
