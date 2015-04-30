@@ -9,7 +9,7 @@ import dpkt
 class CaptureTestCase(TestCase):
 
     def setUp(self):
-        self.pcapFile = File(open("testfiles/vm-5.pcap"))
+        self.pcapFile = File(open("testfiles/vm-5.pcap", "rb"))
         self.capture = Capture.objects.create(pcap=self.pcapFile)
 
     def test_unpacking(self):
