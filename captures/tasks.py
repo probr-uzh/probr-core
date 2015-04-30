@@ -2,25 +2,47 @@ from __future__ import absolute_import
 
 from celery import shared_task
 from captures.models import Capture
-import json
 import dpkt
+import binascii
+import datetime
+from probr import mongodb
 
 @shared_task
 def unpack_capture(captureUUID):
     capture = Capture.objects.get(pk=captureUUID)
-    pcapReader = PcapReader(capture.pcap);
+    pcapReader = dpkt.pcap.Reader(capture.pcap)
 
-    for packet in pcapReader:
-        json = generate_json(packet)
-        #write_json(json)
+    for timestamp, packet in pcapReader:
+        jsonPacket = generate_json(packet)
+        write_to_mongo(jsonPacket)
 
 def generate_json(packet):
 
     tap = dpkt.radiotap.Radiotap(packet)
 
+    t_len = binascii.hexlify(packet[2:3])    #t_len field indicates the entire length of the radiotap data, including the radiotap header.
+    t_len = int(t_len,16)
+
+    wlan = dpkt.ieee80211.IEEE80211(packet[t_len:])
+
+    # todo: this can be extended to all necessary fields / data we need, done even on demand
     jsonPacket = {}
     jsonPacket['signal_strength'] = -(256-tap.ant_sig.db)
+    jsonPacket['ssid'] = wlan.ies[0].info
+    jsonPacket['mac_address_src'] = binascii.hexlify(wlan.mgmt.src)
+    jsonPacket['mac_address_dst'] = binascii.hexlify(wlan.mgmt.dst)
 
-    return json.dumps(jsonPacket)
+    return jsonPacket
 
-#def write_json(json):
+def write_to_mongo(jsonPacket):
+    db = mongodb.db
+    packets = db.packets
+
+    jsonPacket['inserted_at'] = datetime.datetime.utcnow()
+    packets.insert_one(jsonPacket)
+
+
+
+
+
+
