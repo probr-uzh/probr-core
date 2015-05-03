@@ -1,21 +1,34 @@
 #!/usr/bin/env bash
 VERSION='0.1.0 beta'
 # DEPENDENCIES
-# ./JSON.sh (https://github.com/dominictarr/JSON.sh) must be executable
+# ./JSON.sh from https://github.com/dominictarr/JSON.sh must be executable
 
 abort() {
-    # Do cleanup tasks here
-    echo "$(basename $0) exited with non-zero exit status. Exiting ..." >&2
+    echo "$(basename $0) exited with non-zero exit at line $1 status. Exiting ..." >&2
     exit 1
 }
-trap 'abort' ERR
+trap 'abort $LINENO' ERR
 
-UUID_REGEX='"uuid":"([A-Za-z0-9-]+)"'
-UUID_FILE='uuid.txt'
+clean_up() {
+    # You might want to do cleanup tasks here
+    echo "Exiting ..."
+    exit
+}
+trap 'clean_up' EXIT
+
 
 BASE_URL='http://127.0.0.1:8000'
 CONTENT_TYPE='Content-Type: application/json'
+UUID_FILE='uuid.txt'
 
+install_dependencies() {
+    if [[ ! -a JSON.sh ]]; then
+        wget 'https://raw.githubusercontent.com/dominictarr/JSON.sh/master/JSON.sh'
+        chmod +x JSON.sh
+    fi
+}
+
+# Execute an arbitrary bash command and return stdout and stderr
 execute() {
     result=$($1 2>&1 </dev/null)
     echo "executed  $1"
@@ -41,8 +54,18 @@ get() {
     echo $(wget --quiet --output-document=- -- "$BASE_URL$1")
 }
 
+# Read the device uuid from file
 device_uuid() {
     echo $(cat "$UUID_FILE")
+}
+
+# Extract uuid key from json
+# Arguments:
+#   json string
+extract_uuid() {
+    local uuid_regex='"uuid":"([A-Za-z0-9-]+)"'
+    [[ $1 =~ $uuid_regex ]]
+    echo ${BASH_REMATCH[1]}
 }
 
 register_device() {
@@ -55,13 +78,10 @@ register_device() {
     body_data='{"name":"'197$NAME'","os":"'$OS'","type":"'$TYPE'","wifi_chip":"'$WIFI'","description":"'$DESCRIPTION'"}'
     response=$(post '/api/devices/' "$body_data")
 
-    [[ $response =~ $UUID_REGEX ]]
-    uuid="${BASH_REMATCH[1]}"
+    local uuid
+    uuid=$(extract_uuid "$response")
 
-    echo "uuid=$uuid"
-
-    if [ $uuid ]
-    then
+    if [ $uuid ]; then
         echo "I managed to register myself, the uuid I received is: $uuid"
         echo "$uuid" > "$UUID_FILE"
     else
@@ -70,8 +90,7 @@ register_device() {
 }
 
 bootstrap_device() {
-    if [ -a "$UUID_REGEXID_FILE" ]
-    then
+    if [[ -s "$UUID_FILE" ]]; then
         echo "you are using: $(device_uuid)"
     else
         echo "first time execution, registering device"
@@ -80,8 +99,6 @@ bootstrap_device() {
 }
 
 post_status() {
-    uuid=$(device_uuid)
-
     total_memory=$(top -bn1 | awk '/KiB Mem/ { print $3 };')
     used_memory=$(top -bn1 | awk '/KiB Mem/ { print $5 };')
 
@@ -90,14 +107,14 @@ post_status() {
 
     cpu_load=$(top -bn1 | awk '/Cpu/ { print 100 - $8};')
 
-    body_data='{"device":"'$uuid'","cpu_load":"'$cpu_load'","used_disk":"'$used_disk'","total_disk":"'$total_disk'","used_memory":"'$used_memory'","total_memory":"'$total_memory'"}'
+    body_data='{"device":"'$(device_uuid)'","cpu_load":"'$cpu_load'","used_disk":"'$used_disk'","total_disk":"'$total_disk'","used_memory":"'$used_memory'","total_memory":"'$total_memory'"}'
     response=$(post '/api/statuses/' "$body_data")
 
-    [[ $response =~ $UUID_REGEX ]]
-    uuid="${BASH_REMATCH[1]}"
+    local uuid
+    uuid=$(extract_uuid "$response")
+    echo $uuid
 
-    if [ $uuid ]
-    then
+    if [[ $uuid ]]; then
         echo "I managed to post status, the uuid I received is: $uuid"
     else
         echo "there was an issue during post status: $response"
@@ -121,19 +138,17 @@ strip_quotes() {
 # Example:
 #   json_data '[0,"execute"] "echo Hello World!"' => echo Hello World!
 json_data() {
-    cut -f2 -d$'\t' "$1"
+    echo $(strip_quotes "$(cut -f2 -d$'\t' "$1")")
 }
 
 # Arguments:
 #   raw json string
 #   regex to parse JSON.sh output
+# TODO(Joel): Might want to provide a nicer API accepting variable number of arguments
+#             such as `parse_json "$raw_json" 0 execute` => [0,\"execute\"]
 parse_json() {
-    echo $1 | ./JSON.sh -l | grep --fixed-strings --regexp "$2" | json_data -
+    echo $(echo $1 | ./JSON.sh -l | grep --fixed-strings --regexp "$2" | json_data -)
 }
-
-# parse_commands() {
-
-# }
 
 execute_remote_commands() {
     local command
@@ -142,8 +157,8 @@ execute_remote_commands() {
 }
 
 main() {
+    # install_dependencies
     bootstrap_device
-    execute 'echo "Hello World!"'
     execute_remote_commands
 
     while :
@@ -154,7 +169,5 @@ main() {
     done
 }
 
-execute_remote_commands
-
 # Pass original parameters to main function
-# main "$@"
+main "$@"
