@@ -8,7 +8,8 @@ from serializers import CaptureSerializer
 
 class CaptureUploadView(generics.ListCreateAPIView):
 
-    renderer_classes = (JSONRenderer,)
+    #comment this in to disable Django Rest Framework Browsable API
+    #renderer_classes = (JSONRenderer,)
     parser_classes = (MultiPartParser, FormParser,)
 
     def get(self, request, *args, **kwargs):
