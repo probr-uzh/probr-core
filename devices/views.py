@@ -7,20 +7,23 @@ from serializers import DeviceSerializer, StatusSerializer, CommandSerializer
 ##################################################
 
 class DeviceListView(generics.ListCreateAPIView):
-    renderer_classes = [renderers.JSONRenderer]
+    #comment this in to disable Django Rest Framework Browsable API
+    #renderer_classes = [renderers.JSONRenderer]
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
 
 
 class DeviceDetailsView(DeviceListView):
-    renderer_classes = [renderers.JSONRenderer]
+    #comment this in to disable Django Rest Framework Browsable API
+    #renderer_classes = [renderers.JSONRenderer]
 
     def get_queryset(self):
         uuid = self.kwargs['uuid']
         return Device.objects.filter(uuid=uuid)
 
 class DeviceStatusesView(generics.ListAPIView):
-    renderer_classes = [renderers.JSONRenderer]
+    #comment this in to disable Django Rest Framework Browsable API
+    #renderer_classes = [renderers.JSONRenderer]
     serializer_class = StatusSerializer
 
     def get_queryset(self):
@@ -40,7 +43,8 @@ def get_client_ip(request):
 
 
 class StatusListView(generics.ListCreateAPIView):
-    renderer_classes = [renderers.JSONRenderer]
+    #comment this in to disable Django Rest Framework Browsable API
+    #renderer_classes = [renderers.JSONRenderer]
     queryset = Status.objects.all()
     serializer_class = StatusSerializer
 
@@ -67,7 +71,8 @@ class StatusListView(generics.ListCreateAPIView):
 ##################################################
 
 class CommandListView(generics.ListCreateAPIView):
-    renderer_classes = [renderers.JSONRenderer]
+    #comment this in to disable Django Rest Framework Browsable API
+    #renderer_classes = [renderers.JSONRenderer]
     queryset = Command.objects.all()
     serializer_class = CommandSerializer
 
