@@ -1,6 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework.renderers import JSONRenderer
+from serializers import CaptureSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from models import Capture
 from serializers import CaptureSerializer
@@ -10,6 +11,7 @@ class CaptureUploadView(generics.ListCreateAPIView):
 
     #comment this in to disable Django Rest Framework Browsable API
     #renderer_classes = (JSONRenderer,)
+    serializer_class = CaptureSerializer
     parser_classes = (MultiPartParser, FormParser,)
 
     def get(self, request, *args, **kwargs):
