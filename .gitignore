@@ -4,6 +4,7 @@ static/
 media/
 settings.py
 media/
+frontend/bower_components
 dump.rdb
 uuid.txt
 

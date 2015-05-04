@@ -1,0 +1,27 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <base href="/">
+    <title>Probr</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" type="text/css" href="{% static "bower_components/bootstrap/dist/css/bootstrap.css" %}">
+</head>
+<body ng-app="probrApp">
+
+<div ui-view=""></div>
+
+<script src="{% static "bower_components/angular/angular.js" %}"></script>
+<script src="{% static "bower_components/angular-ui-router/release/angular-ui-router.js" %}"></script>
+<script src="{% static "bower_components/angular-bootstrap/ui-bootstrap.js" %}"></script>
+<script src="{% static "bower_components/angular-django-rest-resource/angular-django-rest-resource.js" %}"></script>
+<script src="{% static "app/app.js" %}"></script>
+<script src="{% static "app/dashboard/dashboard.js" %}"></script>
+<script src="{% static "app/dashboard/dashboard.controller.js" %}"></script>
+<script src="{% static "app/resources/Device.service.js" %}"></script>
+<script src="{% static "components/navbar/navbar.controller.js" %}"></script>
+</body>
+</html>

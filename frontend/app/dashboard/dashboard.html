@@ -1,0 +1,23 @@
+<div ng-include="'static/components/navbar/navbar.html'"></div>
+
+<div class="container">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>UUID</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Created</th>
+        </tr>
+        </thead>
+        <tbody ng-repeat="device in devices">
+        <tr>
+            <td>{{ device.uuid }}</td>
+            <td>{{ device.name }}</td>
+            <td>{{ device.type }}</td>
+            <td>{{ device.creation_timestamp | date : 'short' }}</td>
+        </tr>
+
+        </tbody>
+    </table>
+</div>

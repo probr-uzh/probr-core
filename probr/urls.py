@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from devices.views import DeviceListView, DeviceDetailsView, StatusListView, CommandListView, DeviceStatusesView
 from rest_framework.urlpatterns import format_suffix_patterns
-
+from django.views.generic import TemplateView
 
 urlpatterns = [
 
@@ -36,6 +36,9 @@ urlpatterns = [
 
     #admin site
     url(r'^admin/', include(admin.site.urls)),
+
+    #angular frontend
+    url(r'^.*', TemplateView.as_view(template_name='index.html')),
 ]
 
 format_suffix_patterns(urlpatterns)
