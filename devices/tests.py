@@ -48,7 +48,7 @@ class StatusTestCase(TestCase):
 
 
 
-class DeviceTestCase(TestCase):   
+class DeviceTestCase(TestCase):
     def test_uuid(self):
         """ Tests uuid to be RFC 4122 conform """
         test_device = Device.objects.create(name="Test Device")

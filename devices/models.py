@@ -61,6 +61,9 @@ class Status(BaseModel):
     def __unicode__(self):
         return unicode(self.device)+" memory:"+unicode(self.memory_usage())+""
 
+    class Meta:
+        verbose_name_plural = "statuses"
+
 class Command(BaseModel):
     device = models.ForeignKey(Device, related_name="commands")
 
