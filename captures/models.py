@@ -1,6 +1,4 @@
 from django.db import models
-
-# Create your models here.
 from taggit.managers import TaggableManager
 from taggit.models import TaggedItemBase
 from utils.models import BaseModel
@@ -17,5 +15,4 @@ class Capture(BaseModel):
     latitude = models.FloatField(default=0)
 
     tags = TaggableManager(through=TaggedCapture)
-
 

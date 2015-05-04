@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'taggit',
+    'taggit_serializer',
     'rest_framework',
     'utils',
     'devices',

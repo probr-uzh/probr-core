@@ -1,11 +1,14 @@
-Django==1.8
-django-taggit==0.13.0
-djangorestframework==3.1.1
 amqp==1.4.6
 anyjson==0.3.3
 billiard==3.3.0.19
 celery==3.1.17
+Django==1.8
+django-taggit==0.13.0
+django-taggit-serializer==0.1.1
+djangorestframework==3.1.1
+dpkt==1.8.6
 kombu==3.0.24
 pytz==2015.2
 redis==2.10.3
 scapy==2.3.1
+pymongo==3.0.1
