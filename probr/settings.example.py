@@ -2,6 +2,7 @@ from base_settings import *
 
 BROKER_URL = 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = [ 'json', ]
+MONGO_URI = 'mongodb://localhost/probr_core'
 
 # production database
 #DATABASES = {
