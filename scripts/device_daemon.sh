@@ -17,7 +17,8 @@ clean_up() {
 trap 'clean_up' EXIT
 
 
-BASE_URL='http://127.0.0.1:8000'
+BASE_URL='https://probr.sook.ch'
+
 CONTENT_TYPE='Content-Type: application/json'
 UUID_FILE='uuid.txt'
 
