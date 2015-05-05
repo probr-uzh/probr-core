@@ -36,6 +36,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'compressor',
     'taggit',
     'taggit_serializer',
     'rest_framework',
@@ -110,6 +111,7 @@ BOWER_COMPONENTS_ROOT = os.path.join(BASE_DIR, 'frontend')
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
 )
 
 STATICFILES_DIRS = (
@@ -123,6 +125,11 @@ BOWER_INSTALLED_APPS = (
  'angular-bootstrap#0.13.0',
  'angular#1.3.15',
  'jquery#2.1.4'
+)
+
+# Compress
+COMPRESS_PRECOMPILERS = (
+    ('text/less', 'lessc {infile} {outfile}'),
 )
 
 # Media

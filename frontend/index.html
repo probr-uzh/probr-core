@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load compress %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,13 +9,18 @@
     <title>Probr</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
-    <link rel="stylesheet" type="text/css" href="{% static "bower_components/bootstrap/dist/css/bootstrap.css" %}">
+
+    {% compress css %}
+    <link rel="stylesheet" type="text/less" href="{% static "bower_components/bootstrap/less/bootstrap.less" %}">
     <link rel="stylesheet" type="text/css" href="{% static "assets/stylesheet.css" %}">
+    {% endcompress %}
+
 </head>
 <body ng-app="probrApp">
 
 <div ui-view=""></div>
 
+{% compress js %}
 <script src="{% static "bower_components/angular/angular.js" %}"></script>
 <script src="{% static "bower_components/angular-ui-router/release/angular-ui-router.js" %}"></script>
 <script src="{% static "bower_components/angular-bootstrap/ui-bootstrap.js" %}"></script>
@@ -26,5 +32,7 @@
 <script src="{% static "app/devices/devices.controller.js" %}"></script>
 <script src="{% static "app/resources/Device.service.js" %}"></script>
 <script src="{% static "components/navbar/navbar.controller.js" %}"></script>
+{% endcompress %}
+
 </body>
 </html>
