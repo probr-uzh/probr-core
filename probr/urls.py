@@ -12,10 +12,10 @@ urlpatterns = [
     url(r'^api/devices/$', DeviceListView.as_view(), name='device-list'),
 
     #details of a device by uuid
-    url(r'^api/devices/(?P<uuid>[^/]+)$', DeviceDetailsView.as_view(), name='device-details'),
+    url(r'^api/devices/(?P<uuid>[^/]+)/+$', DeviceDetailsView.as_view(), name='device-details'),
 
     #statuses associated with a certain device
-    url(r'^api/devices/(?P<uuid>[^/]+)/statuses$', DeviceStatusesView.as_view(), name='device-statuses'),
+    url(r'^api/devices/(?P<uuid>[^/]+)/statuses/+$', DeviceStatusesView.as_view(), name='device-statuses'),
 
     ###########################################
 

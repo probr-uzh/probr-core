@@ -11,13 +11,11 @@
     <meta name="viewport" content="width=device-width">
 
     {% compress css %}
-    <link rel="stylesheet" type="text/less" href="{% static "bower_components/bootstrap/less/bootstrap.less" %}">
-    <link rel="stylesheet" type="text/css" href="{% static "assets/stylesheet.css" %}">
+    <link rel="stylesheet" type="text/less" href="{% static "assets/stylesheet.less" %}">
     {% endcompress %}
 
 </head>
 <body ng-app="probrApp">
-
 <div ui-view=""></div>
 
 {% compress js %}

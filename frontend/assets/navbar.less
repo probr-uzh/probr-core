@@ -1,0 +1,60 @@
+.navbar {
+  border: none;
+  background-color: @accentcolor;
+  margin-bottom: 0px;
+
+  .navbar-brand {
+    color: white;
+
+    img {
+      margin-left: 5px;
+      padding-bottom: 2px;
+      height: 23px;
+    }
+  }
+
+  .navbar-brand.active {
+    color: @accentcolor;
+    background-color: white;
+  }
+
+  .navbar-text {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .navbar-nav {
+    margin-top: 0px;
+    > li > a {
+      color: white;
+    }
+    > li > a:hover {
+      background-color: @accentcolor_light;
+      color: white;
+    }
+
+    .active {
+      background-color: @accentcolor_light;
+    }
+
+  }
+
+  .navbar-toggle {
+    border: none;
+    background-color: transparent;
+    .icon-bar {
+      background-color: white;
+    }
+  }
+
+  .navbar-toggle:focus {
+    background-color: transparent;
+  }
+
+  .navbar-toggle:hover {
+    background-color: transparent;
+    .icon-bar {
+      background-color: @accentcolor_light;
+    }
+  }
+
+}

@@ -13,13 +13,14 @@ class DeviceListView(generics.ListCreateAPIView):
     serializer_class = DeviceSerializer
 
 
-class DeviceDetailsView(DeviceListView):
+class DeviceDetailsView(generics.RetrieveAPIView):
     #comment this in to disable Django Rest Framework Browsable API
     #renderer_classes = [renderers.JSONRenderer]
+    serializer_class = DeviceSerializer
 
-    def get_queryset(self):
+    def get_object(self):
         uuid = self.kwargs['uuid']
-        return Device.objects.filter(uuid=uuid)
+        return Device.objects.get(uuid=uuid)
 
 class DeviceStatusesView(generics.ListAPIView):
     #comment this in to disable Django Rest Framework Browsable API

@@ -1,0 +1,44 @@
+/** Form Adaptions **/
+
+.form-control {
+  background-color: @lightgrey;
+  border-radius: 0;
+  box-shadow: none;
+  border: 0px;
+  border-bottom: 1px inset;
+  border-color: @accentcolor;
+  color: @darkgrey;
+}
+
+.placeholder(darken(@lightgrey, 30%));
+
+.form-control:focus {
+  border-color: @accentcolor_light;
+  box-shadow: none;
+}
+
+.ta-toolbar {
+  padding-bottom: 15px;
+}
+
+.nav-pills > li > a {
+  background-color: @lightgrey;
+  border-radius: 0;
+}
+
+.nav-pills > li:first-child {
+  border-right: 2px solid white;
+}
+
+.nav-pills > li + li {
+  margin-left: 0px;
+  margin-bottom: 2px;
+  border-right: 2px solid white;
+}
+
+/** Buttons **/
+
+.btn {
+  border-radius: 0;
+  border-width: 1px;
+}

@@ -10,9 +10,15 @@ angular.module('probrApp')
     })
     .controller('DeviceStatusCtrl', function ($scope, $stateParams, Device) {
         $scope.device = {};
+        $scope.statuses = [];
 
-        var device = Device.find({ deviceId: $stateParams.id }, function () {
+        var device = Device.get({ deviceId: $stateParams.id }, function (device) {
             $scope.device = device;
+
+            Device.getStatus({ deviceId: $stateParams.id }, function (statuses) {
+                $scope.statuses = statuses;
+            });
+
         });
 
     });
