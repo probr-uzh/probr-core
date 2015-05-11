@@ -78,6 +78,8 @@ DATABASES = {
     }
 }
 
+MONGO_URI = 'mongodb://localhost/probr_core'
+
 # Rest-Framework
 # http://www.django-rest-framework.org/
 
