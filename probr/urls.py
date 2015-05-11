@@ -7,8 +7,6 @@ from django.views.generic import TemplateView
 
 urlpatterns = [
 
-    url(r'^$', WebsocketView.as_view(), name='index'),
-
     #Devices
 
     #list of all devices
