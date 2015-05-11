@@ -145,7 +145,8 @@ BOWER_INSTALLED_APPS = (
  'jquery#2.1.4',
  'font-awesome#4.3.0',
  'angular-websocket#1.0.9',
- 'angular-chart.js#0.7.1'
+ 'angular-chart.js#0.7.1',
+ 'lodash.git#3.8.0'
 )
 
 # Compress
