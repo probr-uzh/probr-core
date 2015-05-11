@@ -1,3 +1,4 @@
+from django.views.generic import TemplateView
 from rest_framework import generics, renderers
 from rest_framework.response import Response
 from models import Device, Status, Command
@@ -79,3 +80,6 @@ class CommandListView(generics.ListCreateAPIView):
     def get_queryset(self):
         device = self.kwargs['device']
         return Command.objects.filter(device=device, status=0)
+
+class WebsocketView(TemplateView):
+    template_name = "websockets.html"
