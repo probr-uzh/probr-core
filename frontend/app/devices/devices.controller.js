@@ -11,10 +11,21 @@ angular.module('probrApp')
     })
     .controller('DeviceStatusCtrl', function ($scope, $stateParams, Device, StatusSocket) {
 
-        var device = Device.get({deviceId: $stateParams.id}, function (device) {
+        $scope.chartOptions = {
+            scaleOverride: true,
+            scaleSteps: 10,
+            scaleStepWidth: 10,
+            scaleStartValue: 0
+        }
+
+        $scope.series = ['CPU-Load'];
+
+        Device.get({deviceId: $stateParams.id}, function (device) {
             $scope.device = device;
             StatusSocket.subscribeForDevice($scope.device.uuid);
-            var statuses = StatusSocket.collection;
+            $scope.statuses = StatusSocket.collection;
+            $scope.cpuData = StatusSocket.cpuDataCollection;
+            $scope.labels = StatusSocket.cpuDataLabels;
         });
 
     });
