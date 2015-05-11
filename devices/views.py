@@ -23,6 +23,15 @@ class DeviceDetailsView(generics.RetrieveAPIView):
         uuid = self.kwargs['uuid']
         return Device.objects.get(uuid=uuid)
 
+class DeviceCommandsView(generics.ListAPIView):
+    #comment this in to disable Django Rest Framework Browsable API
+    #renderer_classes = [renderers.JSONRenderer]
+    serializer_class = CommandSerializer
+
+    def get_queryset(self):
+        uuid = self.kwargs['uuid']
+        return Command.objects.filter(device_id = uuid, status=0)
+
 class DeviceStatusesView(generics.ListAPIView):
     #comment this in to disable Django Rest Framework Browsable API
     #renderer_classes = [renderers.JSONRenderer]
@@ -72,15 +81,23 @@ class StatusListView(generics.ListCreateAPIView):
 #Commands
 ##################################################
 
-class CommandListView(generics.ListCreateAPIView):
+
+class CommandRetrieveUpdateView(generics.UpdateAPIView):
     #comment this in to disable Django Rest Framework Browsable API
     #renderer_classes = [renderers.JSONRenderer]
     queryset = Command.objects.all()
     serializer_class = CommandSerializer
 
-    def get_queryset(self):
-        device = self.kwargs['device']
-        return Command.objects.filter(device=device, status=0)
+    def put(self, request, *args, **kwargs):
+        uuid = self.kwargs['uuid']
+
+        command = Command.objects.get(uuid=uuid)
+        serializer = CommandSerializer(command, request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response('Result update successful')
+        else:
+            return Response('Shit hit the fan!')
 
 class WebsocketView(TemplateView):
     template_name = "websockets.html"
