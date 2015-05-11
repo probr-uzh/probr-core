@@ -4,7 +4,7 @@ angular.module('probrApp')
     .factory('StatusSocket', function ($websocket, $timeout) {
 
         // Open a WebSocket connection
-        var dataStream = $websocket('wss://localhost:8000/ws/statuses?subscribe-broadcast');
+        var dataStream = $websocket('wss://probr.sook.ch:8000/ws/statuses?subscribe-broadcast');
 
         dataStream.onOpen(function () {
             console.log("opened connection");
