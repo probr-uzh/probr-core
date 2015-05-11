@@ -3,6 +3,10 @@ VERSION='0.1.0 beta'
 # DEPENDENCIES
 # ./JSON.sh from https://github.com/dominictarr/JSON.sh must be executable
 
+# Make the script working location independent
+BASEDIR=$(dirname $0)
+cd $BASEDIR
+
 abort() {
     echo "$(basename $0) exited with non-zero exit at line $1 status. Exiting ..." >&2
     exit 1
