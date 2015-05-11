@@ -37,10 +37,12 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'compressor',
     'ws4redis',
     'taggit',
     'taggit_serializer',
     'rest_framework',
+    'djangobower',
     'utils',
     'devices',
     'captures'
@@ -67,6 +69,9 @@ WSGI_APPLICATION = 'ws4redis.django_runserver.application'
 
 ROOT_URLCONF = 'probr.urls'
 
+TEMPLATE_DIRS = (
+    BASE_DIR + '/frontend/',
+)
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
@@ -118,6 +123,36 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR+STATIC_URL
+
+BOWER_COMPONENTS_ROOT = os.path.join(BASE_DIR, 'frontend')
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
+)
+
+STATICFILES_DIRS = (
+    'frontend',
+)
+
+BOWER_INSTALLED_APPS = (
+ 'angular-django-rest-resource#1.0.3',
+ 'bootstrap#3.3.4',
+ 'angular-ui-router#0.2.14',
+ 'angular-bootstrap#0.13.0',
+ 'angular#1.3.15',
+ 'jquery#2.1.4',
+ 'font-awesome#4.3.0',
+ 'angular-websocket#1.0.9',
+ 'angular-chart.js#0.7.1',
+ 'lodash#3.8.0'
+)
+
+# Compress
+COMPRESS_PRECOMPILERS = (
+    ('text/less', 'lessc {infile} {outfile}'),
+)
 
 # Media
 MEDIA_URL='/media/'

@@ -1,10 +1,12 @@
 from django.db import models
+from django.db.models import signals
 
-
-from utils.models import BaseModel
+from utils.models import BaseModel, publishPostSaveMessage
 from taggit.managers import TaggableManager
 from taggit.models import TaggedItemBase
 
+from ws4redis.publisher import RedisPublisher
+from ws4redis.redis_store import RedisMessage
 
 DEVICE_TYPE_CHOICES = (
     ('RPA', 'Raspberry Pi Model A'),
@@ -20,10 +22,11 @@ COMMAND_STATUS_CHOICES = (
     (1, 'Executed')
 )
 
+
+
 # Needed for taggit to work properly with non-integer primary keys, see Issue #1225 on Redmine
 class TaggedDevice(TaggedItemBase):
     content_object = models.ForeignKey('Device')
-
 
 class Device(BaseModel):
     name = models.CharField(max_length=255, unique=True)
@@ -37,8 +40,7 @@ class Device(BaseModel):
 
     tags = TaggableManager(through=TaggedDevice)
 
-    def __unicode__(self):
-        return self.name
+signals.post_save.connect(publishPostSaveMessage, sender=Device)
 
 class Status(BaseModel):
     device = models.ForeignKey(Device, related_name="statuses")
@@ -64,6 +66,8 @@ class Status(BaseModel):
     class Meta:
         verbose_name_plural = "statuses"
 
+signals.post_save.connect(publishPostSaveMessage, sender=Status)
+
 class Command(BaseModel):
     device = models.ForeignKey(Device, related_name="commands")
 
@@ -74,3 +78,5 @@ class Command(BaseModel):
 
     def __unicode__(self):
         return self.execute
+
+signals.post_save.connect(publishPostSaveMessage, sender=Command)

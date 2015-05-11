@@ -1,7 +1,8 @@
 from django.db import models
+from django.db.models import signals
 from taggit.managers import TaggableManager
 from taggit.models import TaggedItemBase
-from utils.models import BaseModel
+from utils.models import BaseModel, publishPostSaveMessage
 
 # Needed for taggit to work properly with non-integer primary keys, see Issue #1225 on Redmine
 class TaggedCapture(TaggedItemBase):
@@ -16,3 +17,4 @@ class Capture(BaseModel):
 
     tags = TaggableManager(through=TaggedCapture)
 
+signals.post_save.connect(publishPostSaveMessage, sender=Capture)

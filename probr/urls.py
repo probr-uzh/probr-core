@@ -3,11 +3,9 @@ from django.contrib import admin
 from devices.views import DeviceListView, DeviceDetailsView, StatusListView, CommandListView, DeviceStatusesView, \
     WebsocketView
 from rest_framework.urlpatterns import format_suffix_patterns
-
+from django.views.generic import TemplateView
 
 urlpatterns = [
-
-    url(r'^$', WebsocketView.as_view(), name='index'),
 
     #Devices
 
@@ -15,10 +13,10 @@ urlpatterns = [
     url(r'^api/devices/$', DeviceListView.as_view(), name='device-list'),
 
     #details of a device by uuid
-    url(r'^api/devices/(?P<uuid>[^/]+)$', DeviceDetailsView.as_view(), name='device-details'),
+    url(r'^api/devices/(?P<uuid>[^/]+)/+$', DeviceDetailsView.as_view(), name='device-details'),
 
     #statuses associated with a certain device
-    url(r'^api/devices/(?P<uuid>[^/]+)/statuses$', DeviceStatusesView.as_view(), name='device-statuses'),
+    url(r'^api/devices/(?P<uuid>[^/]+)/statuses/+$', DeviceStatusesView.as_view(), name='device-statuses'),
 
     ###########################################
 
@@ -39,6 +37,9 @@ urlpatterns = [
 
     #admin site
     url(r'^admin/', include(admin.site.urls)),
+
+    #angular frontend
+    url(r'^.*', TemplateView.as_view(template_name='index.html')),
 ]
 
 format_suffix_patterns(urlpatterns)
