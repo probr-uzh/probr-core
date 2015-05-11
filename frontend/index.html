@@ -19,15 +19,15 @@
 <div ui-view=""></div>
 
 {% compress js %}
+    <script src="{% static "bower_components/lodash/lodash.js" %}"></script>
+    <script src="{% static "bower_components/Chart.js/Chart.js" %}"></script>
     <script src="{% static "bower_components/angular/angular.js" %}"></script>
     <script src="{% static "bower_components/angular-ui-router/release/angular-ui-router.js" %}"></script>
     <script src="{% static "bower_components/angular-bootstrap/ui-bootstrap.js" %}"></script>
     <script src="{% static "bower_components/angular-django-rest-resource/angular-django-rest-resource.js" %}"></script>
     <script src="{% static "bower_components/jquery/dist/jquery.js" %}"></script>
-    <script src="{% static "bower_components/highcharts-release/highcharts.src.js" %}"></script>
-    <script src="{% static "bower_components/highcharts-release/highcharts-more.src.js" %}"></script>
-    <script src="{% static "bower_components/highcharts-release/modules/solid-gauge.src.js" %}"></script>
-    <script src="{% static "bower_components/highcharts-ng/dist/highcharts-ng.js" %}"></script>
+    <script src="{% static "bower_components/angular-chart.js/angular-chart.js" %}"></script>
+    <script src="{% static "bower_components/angular-websocket/angular-websocket.js" %}"></script>
     <script src="{% static "app/app.js" %}"></script>
     <script src="{% static "app/dashboard/dashboard.js" %}"></script>
     <script src="{% static "app/dashboard/dashboard.controller.js" %}"></script>
@@ -35,6 +35,8 @@
     <script src="{% static "app/devices/devices.controller.js" %}"></script>
     <script src="{% static "app/devices/deviceStatus/deviceStatus.directive.js" %}"></script>
     <script src="{% static "app/resources/Device.service.js" %}"></script>
+    <script src="{% static "app/resources/Status.service.js" %}"></script>
+    <script src="{% static "app/resources/Status.socket.js" %}"></script>
     <script src="{% static "components/navbar/navbar.controller.js" %}"></script>
 {% endcompress %}
 

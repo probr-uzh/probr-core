@@ -5,8 +5,10 @@
     <h2>Registered Devices</h2>
 
     <div class="row">
-        <div ng-repeat="device in devices">
-            <device-status device="device"></device-status>
+        <div class="col-lg-12">
+            <div ng-repeat="device in devices">
+                <a ng-href="/device/{{ device.uuid }}/status">{{ device.name }}</a>
+            </div>
         </div>
     </div>
 
