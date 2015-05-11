@@ -124,7 +124,10 @@ BOWER_INSTALLED_APPS = (
  'angular-ui-router#0.2.14',
  'angular-bootstrap#0.13.0',
  'angular#1.3.15',
- 'jquery#2.1.4'
+ 'jquery#2.1.4',
+ 'font-awesome#4.3.0',
+ 'highcharts-ng#0.0.8',
+ 'highcharts-release#4.1.5',
 )
 
 # Compress

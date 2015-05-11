@@ -4,25 +4,10 @@
 
     <h2>Registered Devices</h2>
 
-    <table class="table table-striped table-hover">
-        <thead>
-        <tr>
-            <th>UUID</th>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Created</th>
-            <th>Health</th>
-        </tr>
-        </thead>
-        <tbody ng-repeat="device in devices">
-            <tr>
-                <td><a href="device/{{ device.uuid }}/status">{{ device.uuid }}</a></td>
-                <td>{{ device.name }}</td>
-                <td>{{ device.type }}</td>
-                <td>{{ device.creation_timestamp | date : 'short' }}</td>
-                <td>{{ device.health }}</td>
-            </tr>
+    <div class="row">
+        <div ng-repeat="device in devices">
+            <device-status device="device"></device-status>
+        </div>
+    </div>
 
-        </tbody>
-    </table>
 </div>

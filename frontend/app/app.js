@@ -3,7 +3,8 @@
 angular.module('probrApp', [
     'ui.router',
     'ui.bootstrap',
-    'djangoRESTResources'
+    'djangoRESTResources',
+    'highcharts-ng'
 ])
     .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
         $urlRouterProvider.otherwise('/');
