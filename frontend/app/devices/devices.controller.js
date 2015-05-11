@@ -15,7 +15,8 @@ angular.module('probrApp')
             scaleOverride: true,
             scaleSteps: 10,
             scaleStepWidth: 10,
-            scaleStartValue: 0
+            scaleStartValue: 0,
+            maintainAspectRatio: false
         }
 
         $scope.series = ['CPU-Load'];

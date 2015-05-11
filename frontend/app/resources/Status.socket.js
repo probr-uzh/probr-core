@@ -1,10 +1,11 @@
 'use strict';
 
 angular.module('probrApp')
-    .factory('StatusSocket', function ($websocket, $timeout) {
+    .factory('StatusSocket', function ($websocket, $timeout, $location, $filter) {
 
         // Open a WebSocket connection
-        var dataStream = $websocket('wss://probr.sook.ch/ws/statuses?subscribe-broadcast');
+        var ws = ($location.protocol() == "https" ? "wss" : "ws");
+        var dataStream = $websocket(ws + '://' + $location.host() + ':' + $location.port() + '/ws/statuses?subscribe-broadcast');
 
         dataStream.onOpen(function () {
             console.log("opened connection");
@@ -12,29 +13,23 @@ angular.module('probrApp')
 
         var collection = [];
         var cpuDataCollection = [[]];
-        var cpuDataLabels = [[]];
+        var cpuDataLabels = [];
         var deviceFilter = [];
 
         dataStream.onMessage(function (message) {
             console.log("got message");
             var statusObj = JSON.parse(message.data);
-
             statusObj.timestamp = message.timeStamp;
 
             if (_.includes(statusObj.device, deviceFilter)) {
                 collection.push(statusObj);
 
                 cpuDataCollection[0].push(statusObj.cpu_load);
+                cpuDataLabels.push($filter('date')(statusObj.timestamp, 'HH:mm:ss'));
 
-                if (statusObj.timestamp !== undefined && statusObj.timestamp !== null) {
-                    cpuDataLabels.push(statusObj.timestamp);
-                } else {
-                    cpuDataLabels.push(0);
-                }
-
-                if (cpuDataCollection.length > 10) {
-                    cpuDataCollection.pop();
-                    cpuDataLabels.pop();
+                if (cpuDataCollection[0].length > 10) {
+                    cpuDataCollection.shift();
+                    cpuDataLabels.shift();
                 }
 
             }
