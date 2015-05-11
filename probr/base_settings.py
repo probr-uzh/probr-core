@@ -80,6 +80,15 @@ DATABASES = {
 
 MONGO_URI = 'mongodb://localhost/probr_core'
 
+# Celery settings
+BROKER_URL = 'redis://localhost:6379/'
+
+#: Only add pickle to this list if your broker is secured
+#: from unwanted access (see userguide/security.html)
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
 # Rest-Framework
 # http://www.django-rest-framework.org/
 
