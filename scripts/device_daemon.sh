@@ -43,7 +43,7 @@ execute() {
 # Returns:
 #   http response
 post() {
-    echo $(wget --quiet --output-document=- --header "$CONTENT_TYPE" --post-data="$2" -- "$BASE_URL$1")
+    echo $(wget --no-check-certificate --quiet --output-document=- --header "$CONTENT_TYPE" --post-data="$2" -- "$BASE_URL$1")
 }
 
 # Issues an http get request to the probr server
@@ -52,7 +52,7 @@ post() {
 # Returns:
 #   http response
 get() {
-    echo $(wget --quiet --output-document=- -- "$BASE_URL$1")
+    echo $(wget --no-check-certificate --quiet --output-document=- -- "$BASE_URL$1")
 }
 
 # Read the device uuid from file
@@ -70,13 +70,13 @@ extract_uuid() {
 }
 
 register_device() {
-    NAME=$HOSTNAME
+    NAME=$HOSTNAME # TODO: hostname is very unlikely a unique device name
     OS=$(uname -a)
     TYPE='RPB'  # TODO: find a way to determine type
     WIFI=''     # TODO: find a way to determine wifi_chip
     DESCRIPTION="Added automatically with device script $VERSION"
 
-    body_data='{"name":"'197$NAME'","os":"'$OS'","type":"'$TYPE'","wifi_chip":"'$WIFI'","description":"'$DESCRIPTION'"}'
+    body_data='{"name":"'$NAME'","os":"'$OS'","tags":[],"type":"'$TYPE'","wifi_chip":"'$WIFI'","description":"'$DESCRIPTION'"}'
     response=$(post '/api/devices/' "$body_data")
 
     local uuid
@@ -106,7 +106,7 @@ post_status() {
     total_disk=$(df -k . | awk 'NR==2 { print $4 };')
     used_disk=$(df -k . | awk 'NR==2 { print $3 };')
 
-    cpu_load=$(top -bn1 | awk '/Cpu/ { print 100 - $8};')
+    cpu_load=$(top -bn2 | awk '/Cpu/ { print 100 - $8};' | tail -n1)
 
     body_data='{"device":"'$(device_uuid)'","cpu_load":"'$cpu_load'","used_disk":"'$used_disk'","total_disk":"'$total_disk'","used_memory":"'$used_memory'","total_memory":"'$total_memory'"}'
     response=$(post '/api/statuses/' "$body_data")
