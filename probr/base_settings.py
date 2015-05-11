@@ -30,6 +30,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
+    'django_admin_bootstrapped',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -37,6 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'compressor',
+    'ws4redis',
     'taggit',
     'taggit_serializer',
     'rest_framework',
@@ -56,9 +58,16 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'probr.urls'
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.static',
+    'ws4redis.context_processors.default',
+)
 
-WSGI_APPLICATION = 'probr.wsgi.application'
+WEBSOCKET_URL = '/ws/'
+WSGI_APPLICATION = 'ws4redis.django_runserver.application'
+
+ROOT_URLCONF = 'probr.urls'
 
 TEMPLATE_DIRS = (
     BASE_DIR + '/frontend/',
@@ -75,6 +84,15 @@ DATABASES = {
 }
 
 MONGO_URI = 'mongodb://localhost/probr_core'
+
+# Celery settings
+BROKER_URL = 'redis://localhost:6379/'
+
+#: Only add pickle to this list if your broker is secured
+#: from unwanted access (see userguide/security.html)
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
 
 # Rest-Framework
 # http://www.django-rest-framework.org/

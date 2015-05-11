@@ -1,10 +1,13 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
-from devices.views import DeviceListView, DeviceDetailsView, StatusListView, CommandListView, DeviceStatusesView
+from devices.views import DeviceListView, DeviceDetailsView, StatusListView, CommandListView, DeviceStatusesView, \
+    WebsocketView
 from rest_framework.urlpatterns import format_suffix_patterns
 from django.views.generic import TemplateView
 
 urlpatterns = [
+
+    url(r'^$', WebsocketView.as_view(), name='index'),
 
     #Devices
 
