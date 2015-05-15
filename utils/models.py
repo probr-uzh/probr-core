@@ -8,6 +8,9 @@ import uuid
 from django.forms import model_to_dict
 from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage
+import logging
+
+logger = logging.getLogger(__name__)
 
 class UUIDField(models.CharField):
 
@@ -24,8 +27,13 @@ class UUIDField(models.CharField):
         else:
             return super(models.CharField, self).pre_save(model_instance, add)
 
-def publishMessage(topic, message="update"):
-    redis_publisher = RedisPublisher(facility=topic, broadcast=True)
+def publishMessage(topic, message="update", groups=[]):
+
+    if not groups:
+        redis_publisher = RedisPublisher(facility=topic, broadcast=True)
+    else:
+        redis_publisher = RedisPublisher(facility=topic, groups=groups)
+
     message = RedisMessage(message)
     redis_publisher.publish_message(message)
 
@@ -33,7 +41,14 @@ def publishPostSaveMessage(sender, instance, created, **kwargs):
     payload = serializers.serialize('json', [instance, ])
     struct = json.loads(payload)
     payload = json.dumps(struct[0]['fields'])
-    publishMessage(instance._meta.verbose_name_plural,message=payload)
+
+    # also publish to foreign key fields, to enable grouping/filtering on client-side
+    for field in instance._meta.fields:
+        if field.get_internal_type() == "ForeignKey":
+            group = field.name + '-' + getattr(instance, field.name).uuid
+            publishMessage(instance._meta.verbose_name_plural, message=payload, groups=[group])
+
+    publishMessage(instance._meta.verbose_name_plural, message=payload)
 
 class BaseModel(models.Model):
     #uuid = models.UUIDField("ID", primary_key=True, default=uuid.uuid4)

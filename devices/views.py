@@ -81,6 +81,3 @@ class CommandListView(generics.ListCreateAPIView):
     def get_queryset(self):
         device = self.kwargs['device']
         return Command.objects.filter(device=device, status=0)
-
-class WebsocketView(TemplateView):
-    template_name = "websockets.html"

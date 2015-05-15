@@ -30,9 +30,15 @@ body {
   color: white;
 }
 
+.chart-container {
+  canvas {
+    display: block; // fixes resizing issue, see https://github.com/nnnick/Chart.js/issues/1006
+  }
+}
+
 // injector
 @import 'bootstrap-adaptions.less';
 @import 'mixins.less';
 @import 'navbar.less';
-@import '../app/devices/deviceStatus/deviceStatus.less';
+@import '../app/devices/deviceCpuChart/deviceCpuChart.less';
 // endinjector

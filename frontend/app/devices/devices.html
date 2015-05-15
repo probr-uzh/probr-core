@@ -5,8 +5,9 @@
     <h2>Registered Devices</h2>
 
     <div class="row">
-        <div class="col-lg-12">
-            <div ng-repeat="device in devices">
+        <div ng-repeat="device in devices">
+            <div class="col-lg-3">
+                <device-cpu-chart device="device"></device-cpu-chart>
                 <a ng-href="/device/{{ device.uuid }}/status">{{ device.name }}</a>
             </div>
         </div>

@@ -4,9 +4,7 @@
 
     <h1>Device Status for {{ device.name }}</h1>
 
-    <canvas id="line" class="chart chart-line chart-cpu" data="cpuData" labels="labels" legend="false"
-            series="series"
-            options="chartOptions" height="300"></canvas>
+    <device-cpu-chart  cpu-data-collection="cpuDataCollection" cpu-data-labels="cpuDataLabels"></device-cpu-chart>
 
     <table class="table table-striped table-hover">
         <thead>
