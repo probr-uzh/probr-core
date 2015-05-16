@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-VERSION='0.1.0 beta'
+#!/usr/bin/env ash
+VERSION='0.1.1 beta'
 # DEPENDENCIES
 # ./JSON.sh from https://github.com/dominictarr/JSON.sh must be executable
 
@@ -11,7 +11,7 @@ abort() {
     echo "$(basename $0) exited with non-zero exit at line $1 status. Exiting ..." >&2
     exit 1
 }
-trap 'abort $LINENO' ERR
+trap 'abort $LINENO' 1 2
 
 clean_up() {
     # You might want to do cleanup tasks here
@@ -21,7 +21,8 @@ clean_up() {
 trap 'clean_up' EXIT
 
 
-BASE_URL='https://probr.sook.ch'
+BASE_HOST='probr.sook.ch'
+BASE_URL="https://$BASE_HOST"
 
 CONTENT_TYPE='Content-Type: application/json'
 UUID_FILE='uuid.txt'
@@ -40,6 +41,8 @@ execute() {
     echo "result    $result"
 }
 
+
+
 # Issues an http post request with json payload to the probr server
 # Arguments:
 #   url
@@ -47,7 +50,14 @@ execute() {
 # Returns:
 #   http response
 post() {
-    echo $(wget --no-check-certificate --quiet --output-document=- --header "$CONTENT_TYPE" --post-data="$2" -- "$BASE_URL$1")
+    if [ -n $(wget --help|grep post-data) ]; then
+        local CONTENT_LEN=$(echo  $2 | wc -c)
+        local raw_payload="POST $1 HTTP/1.0\r\nHost: $BASE_HOST\r\n$CONTENT_TYPE\r\nContent-Length: $CONTENT_LEN\r\n\r\n$2"
+        echo $( (echo $raw_payload && sleep 5) | openssl s_client -connect $BASE_HOST:443 2>&1 )
+    else
+
+        echo $(wget --no-check-certificate --quiet --output-document=- --header "$CONTENT_TYPE" --post-data="$2" -- "$BASE_URL$1")
+    fi
 }
 
 # Issues an http get request to the probr server
@@ -61,17 +71,16 @@ get() {
 
 # Read the device uuid from file
 device_uuid() {
-    echo $(cat "$UUID_FILE")
+    cat "$UUID_FILE"
 }
 
 # Extract uuid key from json
 # Arguments:
 #   json string
 extract_uuid() {
-    local uuid_regex='"uuid":"([A-Za-z0-9-]+)"'
-    [[ $1 =~ $uuid_regex ]]
-    echo ${BASH_REMATCH[1]}
+    echo $1 | grep -o "\"[A-Za-z0-9-]\{36\}\"" | grep -o "[A-Za-z0-9-]\{36\}"
 }
+
 
 register_device() {
     NAME=$HOSTNAME # TODO: hostname is very unlikely a unique device name
@@ -82,7 +91,6 @@ register_device() {
 
     body_data='{"name":"'$NAME'","os":"'$OS'","tags":[],"type":"'$TYPE'","wifi_chip":"'$WIFI'","description":"'$DESCRIPTION'"}'
     response=$(post '/api/devices/' "$body_data")
-
     local uuid
     uuid=$(extract_uuid "$response")
 
@@ -152,7 +160,7 @@ json_data() {
 # TODO(Joel): Might want to provide a nicer API accepting variable number of arguments
 #             such as `parse_json "$raw_json" 0 execute` => [0,\"execute\"]
 parse_json() {
-    echo $(echo $1 | ./JSON.sh -l | grep --fixed-strings --regexp "$2" | json_data -)
+    echo $(echo $1 | ./JSON.sh -l | grep -e "$2" | json_data -)
 }
 
 execute_remote_commands() {
@@ -162,7 +170,7 @@ execute_remote_commands() {
 }
 
 main() {
-    # install_dependencies
+    install_dependencies
     bootstrap_device
     execute_remote_commands
 
