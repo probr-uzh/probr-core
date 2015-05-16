@@ -45,4 +45,3 @@ def write_to_mongo(jsonPacket):
 
 
 
-

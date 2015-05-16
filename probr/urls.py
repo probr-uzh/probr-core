@@ -1,7 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
-from devices.views import DeviceListView, DeviceDetailsView, StatusListView, CommandListView, DeviceStatusesView, \
-    WebsocketView
+from devices.views import DeviceListView, DeviceDetailsView, StatusListView, DeviceStatusesView,WebsocketView, CommandRetrieveUpdateView,DeviceCommandsView
 from rest_framework.urlpatterns import format_suffix_patterns
 from django.views.generic import TemplateView
 
@@ -20,6 +19,9 @@ urlpatterns = [
     #statuses associated with a certain device
     url(r'^api/devices/(?P<uuid>[^/]+)/statuses/+$', DeviceStatusesView.as_view(), name='device-statuses'),
 
+    #commands associated with a certain device
+    url(r'^api/devices/(?P<uuid>[^/]+)/commands/+$', DeviceCommandsView.as_view(), name='device-commands'),
+
     ###########################################
 
     #Statuses
@@ -34,8 +36,8 @@ urlpatterns = [
     url(r'^api/captures/$', include('captures.urls')),
 
     ###########################################
-    #details of a device by uuid
-    url(r'^api/commands/(?P<device>.+)/$', CommandListView.as_view(), name='command-list'),
+
+    url(r'^api/commands/(?P<uuid>.+)/$', CommandRetrieveUpdateView.as_view(), name='command-retrieve-update'),
 
     #admin site
     url(r'^admin/', include(admin.site.urls)),
