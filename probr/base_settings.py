@@ -39,10 +39,12 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'compressor',
     'ws4redis',
     'taggit',
     'taggit_serializer',
     'rest_framework',
+    'djangobower',
     'utils',
     'devices',
     'captures'
@@ -131,6 +133,10 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'compressor.finders.CompressorFinder',
+)
+
+TEMPLATE_DIRS = (
+    BASE_DIR + '/frontend/',
 )
 
 STATICFILES_DIRS = (

@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
-from devices.views import DeviceListView, DeviceDetailsView, StatusListView, DeviceStatusesView, CommandRetrieveUpdateView,DeviceCommandsView
+from devices.views import DeviceListView, DeviceDetailsView, StatusListView, DeviceStatusesView, CommandRetrieveUpdateView, CommandListView, DeviceCommandsView
 from rest_framework.urlpatterns import format_suffix_patterns
 from django.views.generic import TemplateView
 
@@ -35,7 +35,13 @@ urlpatterns = [
 
     ###########################################
 
-    url(r'^api/commands/(?P<uuid>.+)/$', CommandRetrieveUpdateView.as_view(), name='command-retrieve-update'),
+    #Commands
+
+    #list of all commands
+    url(r'^api/commands/$', CommandListView.as_view(), name='command-list'),
+
+    #details of a command by uuid
+    url(r'^api/commands/(?P<uuid>[^/]+)/+$', CommandRetrieveUpdateView.as_view(), name='command-retrieve-update'),
 
     #admin site
     url(r'^admin/', include(admin.site.urls)),

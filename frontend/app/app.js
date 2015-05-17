@@ -10,6 +10,9 @@ angular.module('probrApp', [
     .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
         $urlRouterProvider.otherwise('/');
         $locationProvider.html5Mode(true);
+
+        $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+        $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
     })
 
     .run(function ($rootScope) {

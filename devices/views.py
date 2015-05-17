@@ -77,9 +77,24 @@ class StatusListView(generics.ListCreateAPIView):
         return Response(serializer.to_representation(status))
 
 
-
 #Commands
 ##################################################
+
+class CommandListView(generics.ListCreateAPIView):
+    queryset = Command.objects.all()
+    serializer_class = CommandSerializer
+
+    def post(self, request, *args, **kwargs):
+        command = Command()
+        command.execute = request.data['execute']
+
+        device = Device.objects.get(uuid=request.data['device'])
+        command.device = device
+
+        command.save()
+        serializer = CommandSerializer()
+
+        return Response(serializer.to_representation(command))
 
 
 class CommandRetrieveUpdateView(generics.UpdateAPIView):
@@ -102,5 +117,4 @@ class CommandRetrieveUpdateView(generics.UpdateAPIView):
             return Response('Result update successful')
         else:
             return Response('Shit hit the fan!')
-
 

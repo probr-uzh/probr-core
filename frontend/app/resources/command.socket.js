@@ -21,8 +21,8 @@ angular.module('probrApp')
         dataStream.onMessage(function (message) {
 
             $rootScope.$apply(function() {
-                console.log("new command");
                 var commandObj = JSON.parse(message.data);
+                console.log(commandObj);
                 collection.push(commandObj);
             });
 
