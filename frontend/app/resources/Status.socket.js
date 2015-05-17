@@ -1,10 +1,10 @@
 'use strict';
 
 angular.module('probrApp')
-    .factory('StatusSocket', function ($websocket, $timeout, $location, $filter) {
+    .factory('StatusSocket', function ($rootScope, $websocket, $timeout, $location, $filter) {
 
         var filterString = "";
-        var bufferLength = 20;
+        var bufferLength = 10;
 
         var collection = [];
         var cpuDataCollection = [[]];
@@ -18,30 +18,43 @@ angular.module('probrApp')
             console.log("opened connection");
         });
 
+        dataStream.onClose(function () {
+            console.log("closed connection");
+        });
+
         dataStream.onMessage(function (message) {
-            console.log("got message");
-            var statusObj = JSON.parse(message.data);
-            statusObj.timestamp = message.timeStamp;
 
-            collection.push(statusObj);
+            $rootScope.$apply(function() {
+                console.log("new status");
+                var statusObj = JSON.parse(message.data);
+                statusObj.timestamp = message.timeStamp;
 
-            cpuDataCollection[0].push(statusObj.cpu_load);
-            cpuDataLabels.push($filter('date')(statusObj.timestamp, 'HH:mm:ss'));
+                collection.push(statusObj);
 
-            if (cpuDataCollection[0].length > bufferLength) {
-                cpuDataCollection.shift();
-                cpuDataLabels.shift();
-            }
+                cpuDataCollection[0].push(statusObj.cpu_load);
+                cpuDataLabels.push($filter('date')(statusObj.timestamp, 'HH:mm:ss'));
+
+                if (cpuDataCollection[0].length > bufferLength) {
+                    cpuDataCollection[0].shift();
+                    cpuDataLabels.shift();
+                }
+            });
 
         }, {filter: filterString});
 
         return {
-            stream: dataStream,
-            collection: collection,
-            cpuDataLabels: cpuDataLabels,
-            cpuDataCollection: cpuDataCollection,
-            filterString: filterString,
-            bufferSize: bufferLength
-        };
+            collection: function () {
+                return collection;
+            },
+            cpuDataLabels: function () {
+                return cpuDataLabels;
+            },
+            cpuDataCollection: function () {
+                return cpuDataCollection;
+            },
+            setFilter: function (filter) {
+                filterString = filter;
+            }
+        }
 
     });

@@ -3,8 +3,8 @@
 @import '../bower_components/angular-chart.js/angular-chart.less';
 @import url(//fonts.googleapis.com/css?family=Roboto:300,400,500,700);
 
-@icon-font-path: '../bower_components/bootstrap/fonts/';
-@fa-font-path: '../bower_components/font-awesome/fonts';
+@icon-font-path: '../../../bower_components/bootstrap/fonts';
+@fa-font-path: '../../../bower_components/font-awesome/fonts';
 
 @accentcolor: #008cc4;
 @accentcolor_light: lighten(@accentcolor, 20%);
@@ -34,6 +34,36 @@ body {
   canvas {
     display: block; // fixes resizing issue, see https://github.com/nnnick/Chart.js/issues/1006
   }
+}
+
+.card {
+
+}
+
+.card {
+
+  color: lighten(@lightgrey, 20%);
+  background-color: white;
+  border: 1px solid darken(@lightgrey, 5%);
+
+  .card-content {
+	padding: 15px;
+	height: 220px;
+	text-align: center;
+
+  }
+
+  .card-title {
+	font-size: 16px;
+  }
+
+}
+
+.card-section-header {
+  font-size: 13px;
+  color: darken(@lightgrey, 25%);
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 // injector

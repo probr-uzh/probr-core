@@ -9,14 +9,21 @@ angular.module('probrApp')
         });
 
     })
-    .controller('DeviceStatusCtrl', function ($scope, $stateParams, Device, StatusSocket) {
+    .controller('DeviceStatusCtrl', function ($scope, $stateParams, Device, StatusSocket, Command, CommandSocket) {
 
-        $scope.cpuDataCollection = StatusSocket.cpuDataCollection;
-        $scope.cpuDataLabels = StatusSocket.cpuDataLabels;
+        $scope.commandSocket = CommandSocket;
+
+        $scope.submitCmd = function() {
+            $scope.recentCommand = new Command({ execute: $scope.cmd, device: $scope.device.uuid });
+            $scope.recentCommand.$save(function () {
+                console.log("posted cmd");
+            });
+        }
 
         Device.get({deviceId: $stateParams.id}, function (device) {
             $scope.device = device;
-            StatusSocket.filterString = $scope.device.uuid;
+            $scope.statusSocket = StatusSocket;
+            StatusSocket.setFilter($scope.device.uuid);
         });
 
     });

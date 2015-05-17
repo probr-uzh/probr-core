@@ -17,7 +17,8 @@ angular.module('probrApp')
                     scaleSteps: 10,
                     scaleStepWidth: 10,
                     scaleStartValue: 0,
-                    maintainAspectRatio: false
+                    maintainAspectRatio: false,
+                    animation: false
                 }, scope.chart);
 
                 scope.series = ['CPU-Load'];

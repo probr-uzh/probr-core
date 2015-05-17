@@ -10,6 +10,8 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import mimetypes
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -124,6 +126,10 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR+STATIC_URL
 
+mimetypes.add_type("application/font-woff", ".woff?v=4.3.0", True)
+mimetypes.add_type("application/font-woff", ".woff2?v=4.3.0", True)
+mimetypes.add_type("application/font-ttf", ".ttf?v=4.3.0", True)
+
 BOWER_COMPONENTS_ROOT = os.path.join(BASE_DIR, 'frontend')
 
 STATICFILES_FINDERS = (
@@ -146,7 +152,8 @@ BOWER_INSTALLED_APPS = (
  'font-awesome#4.3.0',
  'angular-websocket#1.0.9',
  'angular-chart.js#0.7.1',
- 'lodash#3.8.0'
+ 'lodash#3.8.0',
+ 'font-awesome#4.3.0',
 )
 
 # Compress

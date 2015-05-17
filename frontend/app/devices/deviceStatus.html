@@ -4,26 +4,58 @@
 
     <h1>Device Status for {{ device.name }}</h1>
 
-    <device-cpu-chart  cpu-data-collection="cpuDataCollection" cpu-data-labels="cpuDataLabels"></device-cpu-chart>
+    <div class="row">
+        <div class="col-md-6">
 
-    <table class="table table-striped table-hover">
-        <thead>
-        <tr>
-            <th>IP</th>
-            <th>CPU</th>
-            <th>Memory</th>
-            <th>Disk</th>
-        </tr>
-        </thead>
-        <tbody ng-repeat="status in statuses | orderBy:'timeStamp' track by $index">
-        <tr>
-            <td>{{ status.ip }}</td>
-            <td>{{ status.cpu_load }}</td>
-            <td>{{ status.used_memory }} / {{ status.total_memory }}</td>
-            <td>{{ status.used_disk }} / {{ status.total_disk }}</td>
-        </tr>
+            <form ng-submit="submitCmd()">
+                <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Enter your command" ng-model="cmd">
+                <button type="submit" class="btn btn-default">Execute</button>
+            </form>
 
-        </tbody>
-    </table>
+            <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th>cmd</th>
+                    <th>result</th>
+                </tr>
+                </thead>
+                <tbody ng-repeat="command in commandSocket.collection()">
+                <tr>
+                    <td>{{ command.execute }}</td>
+                    <td>{{ command.result }}</td>
+                </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+        <div class="col-md-6">
+
+            <device-cpu-chart cpu-data-collection="statusSocket.cpuDataCollection()"
+                              cpu-data-labels="statusSocket.cpuDataLabels()">
+            </device-cpu-chart>
+
+            <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th>IP</th>
+                    <th>CPU</th>
+                    <th>Memory</th>
+                    <th>Disk</th>
+                </tr>
+                </thead>
+                <tbody ng-repeat="status in statusSocket.collection() | orderBy:'timeStamp' track by $index">
+                <tr>
+                    <td>{{ status.ip }}</td>
+                    <td>{{ status.cpu_load }}</td>
+                    <td>{{ status.used_memory }} / {{ status.total_memory }}</td>
+                    <td>{{ status.used_disk }} / {{ status.total_disk }}</td>
+                </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
 
 </div>

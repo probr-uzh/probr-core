@@ -6,9 +6,11 @@
 
     <div class="row">
         <div ng-repeat="device in devices">
-            <div class="col-lg-3">
-                <device-cpu-chart device="device"></device-cpu-chart>
-                <a ng-href="/device/{{ device.uuid }}/status">{{ device.name }}</a>
+            <div class="col-sm-3">
+                <div class="card">
+                    <device-cpu-chart collection="statusSocket.cpuDataCollection()" cpu-data-labels="statusSocket.cpuDataLabels()"></device-cpu-chart>
+                    <i class="fa fa-server"></i> <a ng-href="/device/{{ device.uuid }}/status">{{ device.name }}</a>
+                </div>
             </div>
         </div>
     </div>
