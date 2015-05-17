@@ -39,12 +39,10 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'compressor',
     'ws4redis',
     'taggit',
     'taggit_serializer',
     'rest_framework',
-    'djangobower',
     'utils',
     'devices',
     'captures'
@@ -71,9 +69,6 @@ WSGI_APPLICATION = 'ws4redis.django_runserver.application'
 
 ROOT_URLCONF = 'probr.urls'
 
-TEMPLATE_DIRS = (
-    BASE_DIR + '/frontend/',
-)
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
