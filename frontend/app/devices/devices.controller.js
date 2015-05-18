@@ -1,30 +1,43 @@
 'use strict';
 
 angular.module('probrApp')
-    .controller('DevicesCtrl', function ($scope, Device) {
-        $scope.devices = [];
-
-        var devices = Device.query({}, function () {
+    .controller('DevicesCtrl', function ($scope, Device, djResourceSocket) {
+        Device.query({}, function (devices) {
+            var deviceSocket = new djResourceSocket.Instance($scope);
+            deviceSocket.attachToResource(devices, "devices");
             $scope.devices = devices;
         });
-
     })
-    .controller('DeviceStatusCtrl', function ($scope, $stateParams, Device, StatusSocket, Command, CommandSocket) {
+    .controller('DeviceStatusCtrl', function ($scope, $stateParams, Status, Device, Command, djResourceSocket) {
 
-        $scope.commandSocket = CommandSocket;
+        var statusLimit = 10;
+        var deviceId = $stateParams.id;
 
-        $scope.submitCmd = function() {
-            $scope.recentCommand = new Command({ execute: $scope.cmd, device: $scope.device.uuid });
+        Command.byDevice({deviceId: deviceId}, function (commands) {
+             var commandSocket = new djResourceSocket.Instance($scope);
+            commandSocket.attachToResource(commands, "commands");
+            commandSocket.setFilter(deviceId);
+            $scope.commands = commands;
+        });
+
+        Device.getStatus({deviceId: deviceId, limit: statusLimit}, function (statuses) {
+            var statusSocket = new djResourceSocket.Instance($scope);
+            statusSocket.attachToResource(statuses, "statuses");
+            statusSocket.setFilter(deviceId);
+            statusSocket.setBufferSize(statusLimit);
+            $scope.statuses = statuses;
+        });
+
+        Device.get({deviceId: deviceId}, function (device) {
+            $scope.device = device;
+        });
+
+        $scope.submitCmd = function () {
+            $scope.recentCommand = new Command({execute: $scope.cmd, device: $scope.device.uuid});
             $scope.recentCommand.$save(function () {
                 console.log("posted cmd");
             });
         }
-
-        Device.get({deviceId: $stateParams.id}, function (device) {
-            $scope.device = device;
-            $scope.statusSocket = StatusSocket;
-            StatusSocket.setFilter($scope.device.uuid);
-        });
 
     });
 ;

@@ -68,6 +68,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 WEBSOCKET_URL = '/ws/'
 WSGI_APPLICATION = 'ws4redis.django_runserver.application'
+WS4REDIS_EXPIRE = 0
 
 ROOT_URLCONF = 'probr.urls'
 
@@ -123,9 +124,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR+STATIC_URL
 
-mimetypes.add_type("application/font-woff", ".woff?v=4.3.0", True)
-mimetypes.add_type("application/font-woff", ".woff2?v=4.3.0", True)
-mimetypes.add_type("application/font-ttf", ".ttf?v=4.3.0", True)
+mimetypes.add_type("application/font-woff", ".woff", True)
+mimetypes.add_type("application/font-woff2", ".woff2", True)
+mimetypes.add_type("application/font-ttf", ".ttf", True)
 
 BOWER_COMPONENTS_ROOT = os.path.join(BASE_DIR, 'frontend')
 
