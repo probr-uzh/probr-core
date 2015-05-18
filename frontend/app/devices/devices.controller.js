@@ -5,7 +5,7 @@ angular.module('probrApp')
         Device.query({}, function (devices) {
             var deviceSocket = new djResourceSocket.Instance($scope);
             deviceSocket.attachToResource(devices, "devices");
-            $scope.devices = devices.results;
+            $scope.devices = devices;
         });
     })
     .controller('DeviceStatusCtrl', function ($scope, $stateParams, Status, Device, Command, djResourceSocket) {
@@ -17,7 +17,7 @@ angular.module('probrApp')
              var commandSocket = new djResourceSocket.Instance($scope);
             commandSocket.attachToResource(commands, "commands");
             commandSocket.setFilter(deviceId);
-            $scope.commands = commands.results;
+            $scope.commands = commands;
         });
 
         Device.getStatus({deviceId: deviceId, limit: statusLimit}, function (statuses) {
@@ -25,7 +25,7 @@ angular.module('probrApp')
             statusSocket.attachToResource(statuses, "statuses");
             statusSocket.setFilter(deviceId);
             statusSocket.setBufferSize(statusLimit);
-            $scope.statuses = statuses.results;
+            $scope.statuses = statuses;
         });
 
         Device.get({deviceId: deviceId}, function (device) {
