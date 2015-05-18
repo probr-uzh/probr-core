@@ -4,7 +4,7 @@ angular.module('probrApp')
     .controller('DashboardCtrl', function ($scope, Device) {
         $scope.devices = [];
         var devices = Device.query({}, function () {
-            $scope.devices = devices;
+            $scope.devices = devices.results;
         });
 
     });
