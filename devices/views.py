@@ -1,6 +1,7 @@
 from django.views.generic import TemplateView
 from rest_framework import generics, renderers
 from rest_framework.response import Response
+from rest_framework.parsers import JSONParser
 from models import Device, Status, Command
 from serializers import DeviceSerializer, StatusSerializer, CommandSerializer
 
@@ -102,6 +103,7 @@ class CommandRetrieveUpdateView(generics.UpdateAPIView):
     #renderer_classes = [renderers.JSONRenderer]
     queryset = Command.objects.all()
     serializer_class = CommandSerializer
+    parser_classes = (JSONParser,)
 
     def get_queryset(self):
         device = self.kwargs['device']
@@ -111,10 +113,13 @@ class CommandRetrieveUpdateView(generics.UpdateAPIView):
         uuid = self.kwargs['uuid']
 
         command = Command.objects.get(uuid=uuid)
-        serializer = CommandSerializer(command, request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response('Result update successful')
+
+        if command is None:
+            return Response('There is no such device with uuid: ' + str(uuid))
         else:
-            return Response('Shit hit the fan!')
+            command.result = request.data['result']
+            command.status = 0;
+            command.save()
+            return Response('Result update successful')
+
 
