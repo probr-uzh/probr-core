@@ -55,7 +55,7 @@ angular.module('probrApp')
                                 _.merge(currentObj, dataObj);
                             } else {
                                 so.resource.push(dataObj);
-                                if (resource.length > so.bufferSize) {
+                                if (so.resource.length > so.bufferSize) {
                                     so.resource.shift();
                                 }
                             }
