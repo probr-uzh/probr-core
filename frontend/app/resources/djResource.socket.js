@@ -43,6 +43,7 @@ angular.module('probrApp')
 
             this.dataStream.onMessage(function (message) {
 
+                var results = so.resource.results;
                 var dataObj = JSON.parse(message.data);
                 dataObj.timestamp = message.timeStamp;
 
@@ -50,13 +51,13 @@ angular.module('probrApp')
                 {
                     $rootScope.$apply(function () {
                         if (dataObj.uuid !== undefined) {
-                            var currentObj = _.find(so.resource, 'uuid', dataObj.uuid)
+                            var currentObj = _.find(results, 'uuid', dataObj.uuid)
                             if (currentObj !== undefined) {
                                 _.merge(currentObj, dataObj);
                             } else {
-                                so.resource.push(dataObj);
+                                results.push(dataObj);
                                 if (resource.length > so.bufferSize) {
-                                    so.resource.shift();
+                                    results.shift();
                                 }
                             }
                         }
