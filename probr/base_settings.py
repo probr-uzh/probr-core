@@ -10,7 +10,6 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-import mimetypes
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
@@ -126,10 +125,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR+STATIC_URL
-
-mimetypes.add_type("application/font-woff", ".woff", True)
-mimetypes.add_type("application/font-woff2", ".woff2", True)
-mimetypes.add_type("application/font-ttf", ".ttf", True)
 
 BOWER_COMPONENTS_ROOT = os.path.join(BASE_DIR, 'frontend')
 
