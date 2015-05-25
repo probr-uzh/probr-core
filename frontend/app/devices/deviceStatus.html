@@ -8,8 +8,12 @@
         <div class="col-md-6">
 
             <form ng-submit="submitCmd()">
-                <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Enter your command" ng-model="cmd">
-                <button type="submit" class="btn btn-default">Execute</button>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Enter your command" ng-model="cmd">
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-default" type="button">Execute</button>
+                    </span>
+                </div>
             </form>
 
             <table class="table table-striped table-hover">
@@ -19,7 +23,7 @@
                     <th>result</th>
                 </tr>
                 </thead>
-                <tbody ng-repeat="command in commandSocket.collection()">
+                <tbody ng-repeat="command in commands | orderBy:'creation_timestamp' : true">
                 <tr>
                     <td>{{ command.execute }}</td>
                     <td>{{ command.result }}</td>
@@ -31,9 +35,7 @@
         </div>
         <div class="col-md-6">
 
-            <device-cpu-chart cpu-data-collection="statusSocket.cpuDataCollection()"
-                              cpu-data-labels="statusSocket.cpuDataLabels()">
-            </device-cpu-chart>
+            <device-cpu-chart statuses="statuses"></device-cpu-chart>
 
             <table class="table table-striped table-hover">
                 <thead>
@@ -44,7 +46,7 @@
                     <th>Disk</th>
                 </tr>
                 </thead>
-                <tbody ng-repeat="status in statusSocket.collection() | orderBy:'timeStamp' track by $index">
+                <tbody ng-repeat="status in statuses | orderBy: 'creation_timestamp' : true">
                 <tr>
                     <td>{{ status.ip }}</td>
                     <td>{{ status.cpu_load }}</td>

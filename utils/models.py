@@ -40,6 +40,7 @@ def publishMessage(topic, message="update", groups=[]):
 def publishPostSaveMessage(sender, instance, created, **kwargs):
     payload = serializers.serialize('json', [instance, ])
     struct = json.loads(payload)
+    struct[0]['fields']['uuid'] = instance.uuid # also send uuid
     payload = json.dumps(struct[0]['fields'])
 
     # also publish to foreign key fields, to enable grouping/filtering on client-side

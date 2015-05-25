@@ -10,7 +10,6 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-import mimetypes
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
@@ -68,6 +67,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 WEBSOCKET_URL = '/ws/'
 WSGI_APPLICATION = 'ws4redis.django_runserver.application'
+WS4REDIS_EXPIRE = 0
 
 ROOT_URLCONF = 'probr.urls'
 
@@ -98,9 +98,12 @@ CELERY_RESULT_SERIALIZER = 'json'
 
 REST_FRAMEWORK = {
 
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100,
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny'
     ]
+
 }
 
 # Internationalization
@@ -122,10 +125,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR+STATIC_URL
-
-mimetypes.add_type("application/font-woff", ".woff?v=4.3.0", True)
-mimetypes.add_type("application/font-woff", ".woff2?v=4.3.0", True)
-mimetypes.add_type("application/font-ttf", ".ttf?v=4.3.0", True)
 
 BOWER_COMPONENTS_ROOT = os.path.join(BASE_DIR, 'frontend')
 
