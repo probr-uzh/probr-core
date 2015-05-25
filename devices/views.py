@@ -109,7 +109,7 @@ class CommandRetrieveUpdateView(generics.UpdateAPIView):
         device = self.kwargs['device']
         return Command.objects.filter(device=device, status=0)
 
-    def put(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         uuid = self.kwargs['uuid']
 
         command = Command.objects.get(uuid=uuid)
