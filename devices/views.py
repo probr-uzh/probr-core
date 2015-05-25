@@ -118,8 +118,6 @@ class CommandRetrieveUpdateView(generics.UpdateAPIView):
             return Response('There is no such device with uuid: ' + str(uuid))
         else:
             command.result = request.data['result']
-            command.status = 0;
+            command.status = 1 # Set command status to "executed" on result update
             command.save()
             return Response('Result update successful')
-
-
