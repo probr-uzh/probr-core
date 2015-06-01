@@ -40,16 +40,17 @@ def publishMessage(topic, message="update", groups=[]):
 def publishPostSaveMessage(sender, instance, created, **kwargs):
     payload = serializers.serialize('json', [instance, ])
     struct = json.loads(payload)
+    struct[0]['fields']['type'] = instance._meta.verbose_name_plural + ':update'
     struct[0]['fields']['uuid'] = instance.uuid # also send uuid
     payload = json.dumps(struct[0]['fields'])
 
     # also publish to foreign key fields, to enable grouping/filtering on client-side
-    for field in instance._meta.fields:
-        if field.get_internal_type() == "ForeignKey":
-            group = field.name + '-' + getattr(instance, field.name).uuid
-            publishMessage(instance._meta.verbose_name_plural, message=payload, groups=[group])
+    # for field in instance._meta.fields:
+    #    if field.get_internal_type() == "ForeignKey":
+    #        group = field.name + '-' + getattr(instance, field.name).uuid
+    #        publishMessage(instance._meta.verbose_name_plural, message=payload, groups=[group])
 
-    publishMessage(instance._meta.verbose_name_plural, message=payload)
+    publishMessage("socket", message=payload)
 
 class BaseModel(models.Model):
     #uuid = models.UUIDField("ID", primary_key=True, default=uuid.uuid4)

@@ -15,7 +15,7 @@ angular.module('probrApp', [
         $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
     })
 
-    .run(function ($rootScope) {
-
+    .run(function ($rootScope, resourceSocket) {
+        resourceSocket.connect();
     })
 ;
