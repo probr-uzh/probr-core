@@ -1,19 +1,19 @@
 from django.views.generic import TemplateView
 from rest_framework import generics, renderers
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.parsers import JSONParser
+from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
+from devices.renderers import PlainTextCommandRenderer, PlainTextCommandsRenderer
 from models import Device, Status, Command
 from serializers import DeviceSerializer, StatusSerializer, CommandSerializer
 
 #Devices
 ##################################################
-
 class DeviceListView(generics.ListCreateAPIView):
     #comment this in to disable Django Rest Framework Browsable API
-    #renderer_classes = [renderers.JSONRenderer]
+    #renderer_classes = [PlainTextRenderer]
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
-
 
 class DeviceDetailsView(generics.RetrieveAPIView):
     #comment this in to disable Django Rest Framework Browsable API
@@ -24,100 +24,47 @@ class DeviceDetailsView(generics.RetrieveAPIView):
         uuid = self.kwargs['uuid']
         return Device.objects.get(uuid=uuid)
 
-class DeviceCommandsView(generics.ListAPIView):
-    #comment this in to disable Django Rest Framework Browsable API
-    #renderer_classes = [renderers.JSONRenderer]
-    serializer_class = CommandSerializer
-
-    def get_queryset(self):
-        uuid = self.kwargs['uuid']
-        return Command.objects.filter(device_id = uuid, status=0)
-
-class DeviceStatusesView(generics.ListAPIView):
-    #comment this in to disable Django Rest Framework Browsable API
-    #renderer_classes = [renderers.JSONRenderer]
-    serializer_class = StatusSerializer
-
-    def get_queryset(self):
-        uuid = self.kwargs['uuid']
-        return Status.objects.filter(device_id = uuid)
-
 #Statuses
 ##################################################
-
-def get_client_ip(request):
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
-
-
 class StatusListView(generics.ListCreateAPIView):
-    #comment this in to disable Django Rest Framework Browsable API
-    #renderer_classes = [renderers.JSONRenderer]
     queryset = Status.objects.all()
+    filter_fields = ('device',)
     serializer_class = StatusSerializer
 
-    def post(self, request, *args, **kwargs):
-        status = Status()
-        status.cpu_load = request.data['cpu_load']
-        status.used_memory = request.data['used_memory']
-        status.total_memory = request.data['total_memory']
-        status.used_disk = request.data['used_disk']
-        status.total_disk = request.data['total_disk']
+    def get_client_ip(self, request):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
 
-        device = Device.objects.get(uuid=request.data['device'])
-        status.device = device
-
-        status.ip = get_client_ip(request)
-        status.save()
-        serializer = StatusSerializer()
-
-        return Response(serializer.to_representation(status))
-
+    def perform_create(self, serializer):
+        serializer.save(ip=self.get_client_ip(self.request))
 
 #Commands
 ##################################################
-
-class CommandListView(generics.ListCreateAPIView):
-    queryset = Command.objects.all()
-    serializer_class = CommandSerializer
-
-    def post(self, request, *args, **kwargs):
-        command = Command()
-        command.execute = request.data['execute']
-
-        device = Device.objects.get(uuid=request.data['device'])
-        command.device = device
-
-        command.save()
-        serializer = CommandSerializer()
-
-        return Response(serializer.to_representation(command))
-
-
-class CommandRetrieveUpdateView(generics.UpdateAPIView):
+class CommandListView(generics.ListAPIView):
     #comment this in to disable Django Rest Framework Browsable API
-    #renderer_classes = [renderers.JSONRenderer]
-    queryset = Command.objects.all()
+    renderer_classes = [renderers.JSONRenderer,PlainTextCommandsRenderer]
     serializer_class = CommandSerializer
-    parser_classes = (JSONParser,)
+    queryset = Command.objects.all()
+    filter_fields = ('status','device',)
 
-    def get_queryset(self):
-        device = self.kwargs['device']
-        return Command.objects.filter(device=device, status=0)
+
+class CommandDetailsView(generics.RetrieveAPIView):
+    #comment this in to disable Django Rest Framework Browsable API
+    renderer_classes = [PlainTextCommandRenderer,JSONRenderer]
+    serializer_class = CommandSerializer
+    parser_classes = (MultiPartParser, FormParser,)
+
+    def get_object(self):
+        uuid = self.kwargs['uuid']
+        return Command.objects.get(uuid=uuid)
 
     def post(self, request, *args, **kwargs):
-        uuid = self.kwargs['uuid']
-
-        command = Command.objects.get(uuid=uuid)
-
-        if command is None:
-            return Response('There is no such device with uuid: ' + str(uuid))
-        else:
-            command.result = request.data['result']
-            command.status = 1 # Set command status to "executed" on result update
-            command.save()
-            return Response('Result update successful')
+        command = self.get_object()
+        command.result = request.FILES['result'].read()
+        command.status = 2
+        command.save()
+        return Response('Capture upload successful')

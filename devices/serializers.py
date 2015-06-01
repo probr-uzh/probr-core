@@ -5,12 +5,10 @@ from models import Device, Command
 from models import Status
 
 class DeviceSerializer(TaggitSerializer, serializers.ModelSerializer):
-
     tags = TagListSerializerField()
 
     class Meta:
         model = Device
-
 
 class StatusSerializer(serializers.ModelSerializer):
     class Meta:

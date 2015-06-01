@@ -97,7 +97,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 # http://www.django-rest-framework.org/
 
 REST_FRAMEWORK = {
-
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 100,
     'DEFAULT_PERMISSION_CLASSES': [
@@ -158,7 +158,7 @@ BOWER_INSTALLED_APPS = (
 
 # Compress
 COMPRESS_PRECOMPILERS = (
-    ('text/less', 'lessc {infile} {outfile}'),
+    ('text/less', '/usr/local/bin/lessc {infile} {outfile}'),
 )
 
 # Media
