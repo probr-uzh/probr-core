@@ -14,6 +14,7 @@ angular.module('probrApp')
 
         Command.byDevice({deviceId: deviceId}, function (commands) {
             $scope.commands = commands;
+            resourceSocket.updateResource($scope, commands, 'commands');
         });
 
         Device.getStatus({deviceId: deviceId, limit: statusLimit}, function (statuses) {

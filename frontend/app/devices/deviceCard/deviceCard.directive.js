@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('probrApp')
-    .directive('deviceCard', function ($filter) {
+    .directive('deviceCard', function ($filter, $location) {
         return {
             restrict: 'EA',
             scope: {
@@ -9,6 +9,10 @@ angular.module('probrApp')
             },
             templateUrl: 'static/app/devices/deviceCard/deviceCard.html',
             link: function (scope, elements, attr) {
+
+                scope.goToDevice = function() {
+                    $location.path('/device/' + scope.device.uuid + '/status');
+                }
 
                 /*
                 var pushToUI = function (statusObj) {

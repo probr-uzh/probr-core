@@ -1,21 +1,39 @@
-.navbar {
-  border: none;
+@activeNavBarBG: transparent;
+@activeNavBarFontColor: @accentcolor_contrast;
+
+.hamster-cage {
+  height: 90px;
   background-color: @accentcolor;
+  border-bottom: 1px darken(@lightgrey, 20%) solid;
+
+  .container {
+    background-color: white;
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+}
+
+.navbar {
+
+  padding-top: 20px;
+  height: 75px;
+  border: none;
+  background-color: @lightgrey;
   margin-bottom: 0px;
 
   .navbar-brand {
-    color: white;
+    color: @darkgrey;
 
     img {
-      margin-left: 5px;
-      padding-bottom: 2px;
-      height: 23px;
+      position: absolute;
+      margin-top: -120px;
+      height: 150px;
     }
   }
 
-  .navbar-brand.active {
-    color: @accentcolor;
-    background-color: white;
+  .navbar-brand .active {
+    color: @activeNavBarFontColor;
+    background-color: @activeNavBarBG;
   }
 
   .navbar-text {
@@ -23,17 +41,31 @@
   }
 
   .navbar-nav {
+    background-color: @lightgrey;
     margin-top: 0px;
+
     > li > a {
-      color: white;
-    }
-    > li > a:hover {
-      background-color: @accentcolor_light;
-      color: white;
+      color: @accentcolor;
     }
 
-    .active {
-      background-color: @accentcolor_light;
+    > li > a:hover {
+      color: @activeNavBarFontColor;
+      background-color: @activeNavBarBG;
+    }
+
+    .active > a {
+      color: @activeNavBarFontColor;
+      background-color: @activeNavBarBG;
+    }
+
+    .active > a:hover {
+      color: @activeNavBarFontColor;
+      background-color: @activeNavBarBG;
+    }
+
+    .active a:focus {
+      color: @activeNavBarFontColor;
+      background-color: @activeNavBarBG;
     }
 
   }
@@ -42,7 +74,7 @@
     border: none;
     background-color: transparent;
     .icon-bar {
-      background-color: white;
+      background-color: @accentcolor;
     }
   }
 
@@ -53,8 +85,7 @@
   .navbar-toggle:hover {
     background-color: transparent;
     .icon-bar {
-      background-color: @accentcolor_light;
+      background-color: @activeNavBarBG;
     }
   }
-
 }

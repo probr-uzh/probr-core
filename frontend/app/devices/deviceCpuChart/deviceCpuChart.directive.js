@@ -43,8 +43,8 @@ angular.module('probrApp')
 
                 scope.chartOptions = _.assign({
                     scaleOverride: true,
-                    scaleSteps: 10,
-                    scaleStepWidth: 10,
+                    scaleSteps: 5,
+                    scaleStepWidth: 20,
                     scaleStartValue: 0,
                     maintainAspectRatio: false,
                     animation: false
