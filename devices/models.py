@@ -19,7 +19,8 @@ DEVICE_TYPE_CHOICES = (
 
 COMMAND_STATUS_CHOICES = (
     (0, 'Not executed yet'),
-    (1, 'Executed')
+    (1, 'Executing'),
+    (2, 'Executed')
 )
 
 

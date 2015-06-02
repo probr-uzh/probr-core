@@ -1,4 +1,4 @@
-#!/usr/bin/env ash
+#!/usr/bin/env bash
 VERSION='0.1.1 beta'
 # DEPENDENCIES
 # ./JSON.sh from https://github.com/dominictarr/JSON.sh must be executable
@@ -28,20 +28,27 @@ CONTENT_TYPE='Content-Type: application/json'
 UUID_FILE='uuid.txt'
 
 install_dependencies() {
-    if [[ ! -a JSON.sh ]]; then
+    if [ ! -f JSON.sh ]; then
         wget 'https://raw.githubusercontent.com/dominictarr/JSON.sh/master/JSON.sh'
         chmod +x JSON.sh
     fi
 }
 
+# Performs regular expression matching using extended regex (i.e., no escaping required)
+# Arguments:
+#   string
+#   regexp with at least one capture group
+# Example:
+#   extract '"id":"example_id"' '"id":"([a-zA-Z-_]+)"'
+extract() {
+	echo $1 | sed -r 's/^.*'$2'.*$/\1/'
+}
+
 # Execute an arbitrary bash command and return stdout and stderr
 execute() {
     result=$($1 2>&1 </dev/null)
-    echo "executed  $1"
-    echo "result    $result"
+    echo $result
 }
-
-
 
 # Issues an http post request with json payload to the probr server
 # Arguments:
@@ -50,14 +57,15 @@ execute() {
 # Returns:
 #   http response
 post() {
-    if [ -n $(wget --help|grep post-data) ]; then
-        local CONTENT_LEN=$(echo  $2 | wc -c)
-        local raw_payload="POST $1 HTTP/1.0\r\nHost: $BASE_HOST\r\n$CONTENT_TYPE\r\nContent-Length: $CONTENT_LEN\r\n\r\n$2"
-        echo $( (echo $raw_payload && sleep 5) | openssl s_client -connect $BASE_HOST:443 2>&1 )
-    else
+#    WGETCHECK=$(wget --help|grep -o post-data)
+#    if [ -n "$WGETCHECK" ]; then
+#        local CONTENT_LEN=$(echo  $2 | wc -c)
+#        local raw_payload="POST $1 HTTP/1.0\r\nHost: $BASE_HOST\r\n$CONTENT_TYPE\r\nContent-Length: $CONTENT_LEN\r\n\r\n$2"
+#        echo $( (echo $raw_payload && sleep 5) | openssl s_client -connect $BASE_HOST:443 2>&1 )
+#    else
 
         echo $(wget --no-check-certificate --quiet --output-document=- --header "$CONTENT_TYPE" --post-data="$2" -- "$BASE_URL$1")
-    fi
+#    fi
 }
 
 # Issues an http get request to the probr server
@@ -76,16 +84,17 @@ device_uuid() {
 
 # Extract uuid key from json
 # Arguments:
-#   json string
+#   json string containing a "uuid"
 extract_uuid() {
-    echo $1 | grep -o "\"[A-Za-z0-9-]\{36\}\"" | grep -o "[A-Za-z0-9-]\{36\}"
+    # UUID regex based on: http://jonalmeida.com/posts/2014/05/20/testing-for-a-correct-uuid/
+    local uuid_regex='"uuid":"([0-9a-fA-F]{8}-?[0-9a-fA-F]{4}-?4[0-9a-fA-F]{3}-?[89abAB][0-9a-fA-F]{3}-?[0-9a-fA-F]{12})"'
+    extract "$1" "$uuid_regex"
 }
-
 
 register_device() {
     NAME=$HOSTNAME # TODO: hostname is very unlikely a unique device name
     OS=$(uname -a)
-    TYPE='RPB'  # TODO: find a way to determine type
+    TYPE='RPB'  # TODO: find a way to determine device type
     WIFI=''     # TODO: find a way to determine wifi_chip
     DESCRIPTION="Added automatically with device script $VERSION"
 
@@ -95,18 +104,18 @@ register_device() {
     uuid=$(extract_uuid "$response")
 
     if [ $uuid ]; then
-        echo "I managed to register myself, the uuid I received is: $uuid"
         echo "$uuid" > "$UUID_FILE"
+        echo "\"$NAME\" successfully registered with device uuid $uuid"
     else
-        echo "there was an issue during registration: $response"
+        echo "Error during device registration. Got response: $response"
     fi
 }
 
 bootstrap_device() {
-    if [[ -s "$UUID_FILE" ]]; then
-        echo "you are using: $(device_uuid)"
+    if [ -s "$UUID_FILE" ]; then
+        echo "Reusing device uuid $(device_uuid)"
     else
-        echo "first time execution, registering device"
+        echo "First time execution, registering device ..."
         register_device
     fi
 }
@@ -125,18 +134,12 @@ post_status() {
 
     local uuid
     uuid=$(extract_uuid "$response")
-    echo $uuid
 
-    if [[ $uuid ]]; then
-        echo "I managed to post status, the uuid I received is: $uuid"
+    if [ $uuid ]; then
+        echo "Successfully posted status with uuid $uuid"
     else
-        echo "there was an issue during post status: $response"
+        echo "Error during posting status. Got response $response"
     fi
-}
-
-# Queries the probr server for non-executed commands
-get_commands() {
-    echo $(get "/api/commands/$(device_uuid)/")
 }
 
 # Strips single ' and double " quoted strings according to http://stackoverflow.com/a/758116
@@ -157,27 +160,49 @@ json_data() {
 # Arguments:
 #   raw json string
 #   regex to parse JSON.sh output
+# TODO: Debug escaping behavior
 # TODO(Joel): Might want to provide a nicer API accepting variable number of arguments
 #             such as `parse_json "$raw_json" 0 execute` => [0,\"execute\"]
 parse_json() {
-    echo $(echo $1 | ./JSON.sh -l | grep -e "$2" | json_data -)
+    echo $(echo $1 | ./JSON.sh -l | grep --fixed-strings --regexp "$2" | json_data -)
 }
 
-execute_remote_commands() {
-    local command
-    command=$(parse_json "$(get_commands)" "[0,\"execute\"]")
-    execute "$command"
+# Queries the probr server for non-executed commands
+get_commands() {
+    echo $(get "/api/devices/$(device_uuid)/commands/")
+}
+
+# Arguments:
+#   result
+#   command uuid
+submit_result() {
+    body_data='{"result":"'$1'"}'
+    response=$(post "/api/commands/$2/" "$body_data")
+}
+
+# TODO: Support multi-command execution
+# TODO: Refactor this (e.g., query get_commands only once)
+# TODO: Properly handle result escaping (maybe via file upload) !
+execute_commands() {
+    commands=$(get_commands)
+    first_command=$(parse_json "$commands" "[\"results\",0,\"execute\"]")
+    first_uuid=$(parse_json "$commands" "[\"results\",0,\"uuid\"]")
+    if [ $first_command ]; then
+        result=$(execute "$first_command")
+        submit_result "$result" "$first_uuid"
+        echo "Successfully executed \"$first_command\" and submitted result: $result"
+    fi
 }
 
 main() {
     install_dependencies
     bootstrap_device
-    execute_remote_commands
 
     while :
     do
-        echo "infinite loop [ hit CTRL+C to stop]"
+        echo "Infinite loop [ hit CTRL+C to stop]"
         post_status
+        execute_commands
         sleep 5
     done
 }
