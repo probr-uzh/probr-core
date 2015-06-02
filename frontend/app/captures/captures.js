@@ -5,7 +5,7 @@ angular.module('probrApp')
         $stateProvider
             .state('captures', {
                 url: '/captures',
-                templateUrl: 'static/app/captures/captures.html',
+                templateUrl: '/static/app/captures/captures.html',
                 controller: 'CapturesCtrl'
             });
         ;

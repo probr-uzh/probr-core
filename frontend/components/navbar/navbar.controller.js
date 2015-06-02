@@ -5,11 +5,11 @@ angular.module('probrApp')
 
         $scope.menu = [{
             'title': 'Devices',
-            'link': '/devices'
+            'link': '/web/devices'
         },
             {
                 'title': 'Captures',
-                'link': '/captures'
+                'link': '/web/captures'
             }];
 
         $scope.isActive = function (route) {

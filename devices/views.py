@@ -41,7 +41,7 @@ class StatusListView(generics.ListCreateAPIView):
 
 #Commands
 ##################################################
-class CommandListView(generics.ListAPIView):
+class CommandListView(generics.ListCreateAPIView):
     renderer_classes = [renderers.JSONRenderer,PlainTextCommandsRenderer]
     serializer_class = CommandSerializer
     queryset = Command.objects.all()

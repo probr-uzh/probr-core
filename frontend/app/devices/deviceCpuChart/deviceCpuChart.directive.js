@@ -8,7 +8,7 @@ angular.module('probrApp')
                 chart: '=',
                 statuses: '=',
             },
-            templateUrl: 'static/app/devices/deviceCpuChart/deviceCpuChart.html',
+            templateUrl: '/static/app/devices/deviceCpuChart/deviceCpuChart.html',
             link: function (scope, elements, attr) {
 
                 var pushToUI = function (statusObj) {

@@ -5,7 +5,7 @@ angular.module('probrApp')
         var Device = $resource('/api/devices/:deviceId/', {deviceId: '@uuid'},
             {
                 query: { method: 'GET', isArray: false },
-                getStatus: {method: 'GET', url: '/api/devices/:deviceId/statuses/', isArray: false }
+                getStatus: {method: 'GET', url: '/api/statuses?device=:deviceId', isArray: false }
             }
         );
         return Device;

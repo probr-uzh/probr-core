@@ -7,11 +7,11 @@ angular.module('probrApp')
             scope: {
                 device: '=',
             },
-            templateUrl: 'static/app/devices/deviceCard/deviceCard.html',
+            templateUrl: '/static/app/devices/deviceCard/deviceCard.html',
             link: function (scope, elements, attr) {
 
                 scope.goToDevice = function() {
-                    $location.path('/device/' + scope.device.uuid + '/status');
+                    $location.path('device/' + scope.device.uuid + '/status');
                 }
 
                 /*

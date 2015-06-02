@@ -9,8 +9,8 @@ angular.module('probrApp', [
     'luegg.directives'
 ])
     .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider, $resourceProvider) {
-        $urlRouterProvider.otherwise('/devices');
-        $locationProvider.html5Mode(true);
+        $urlRouterProvider.otherwise('devices');
+        $locationProvider.html5Mode({ enabled: true, requireBase: true, rewriteLinks: true });
 
         $resourceProvider.defaults.stripTrailingSlashes = false;
         $httpProvider.defaults.xsrfCookieName = 'csrftoken';

@@ -5,7 +5,7 @@ angular.module('probrApp')
         var Command = $resource('/api/commands/:commandId/', { commandId: '@uuid' },
             {
                 query: { method: 'GET', isArray: false },
-                byDevice: {method: 'GET', url: '/api/devices/:deviceId/commands/', isArray: false }
+                byDevice: {method: 'GET', url: '/api/commands?device=:deviceId', isArray: false }
             }
         );
         return Command;

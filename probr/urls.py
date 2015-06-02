@@ -11,7 +11,7 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
 
     #angular frontend
-    url(r'^$', TemplateView.as_view(template_name='index.html')),
+    url(r'^web/*', TemplateView.as_view(template_name='index.html')),
 ]
 
 format_suffix_patterns(urlpatterns)
