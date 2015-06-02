@@ -1,5 +1,6 @@
 from django.views.generic import TemplateView
 from rest_framework import generics, renderers
+from rest_framework.mixins import DestroyModelMixin
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
@@ -10,14 +11,10 @@ from serializers import DeviceSerializer, StatusSerializer, CommandSerializer
 #Devices
 ##################################################
 class DeviceListView(generics.ListCreateAPIView):
-    #comment this in to disable Django Rest Framework Browsable API
-    #renderer_classes = [PlainTextRenderer]
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
 
-class DeviceDetailsView(generics.RetrieveAPIView):
-    #comment this in to disable Django Rest Framework Browsable API
-    #renderer_classes = [renderers.JSONRenderer]
+class DeviceDetailsView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = DeviceSerializer
 
     def get_object(self):
@@ -45,15 +42,13 @@ class StatusListView(generics.ListCreateAPIView):
 #Commands
 ##################################################
 class CommandListView(generics.ListAPIView):
-    #comment this in to disable Django Rest Framework Browsable API
     renderer_classes = [renderers.JSONRenderer,PlainTextCommandsRenderer]
     serializer_class = CommandSerializer
     queryset = Command.objects.all()
     filter_fields = ('status','device',)
 
 
-class CommandDetailsView(generics.RetrieveAPIView):
-    #comment this in to disable Django Rest Framework Browsable API
+class CommandDetailsView(generics.RetrieveUpdateDestroyAPIView):
     renderer_classes = [PlainTextCommandRenderer,JSONRenderer]
     serializer_class = CommandSerializer
     parser_classes = (MultiPartParser, FormParser,)
