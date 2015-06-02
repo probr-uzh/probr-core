@@ -1,0 +1,26 @@
+<div ng-include="'static/components/navbar/navbar.html'"></div>
+
+<div class="container">
+
+    <h1>Captures</h1>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <table class="table table-striped">
+                <tr>
+                    <th>UUID</th>
+                    <th>pcap</th>
+                    <th>Lat / Lng</th>
+                    <th>Uploaded</th>
+                </tr>
+                <tr ng-repeat="capture in captures">
+                    <td>{{ capture.uuid }}</td>
+                    <td>{{ capture.pcap }}</td>
+                    <td>{{ capture.latitude }} / {{ capture.longitude }}</td>
+                    <td>{{ capture.creation_timestamp | date : short }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+</div>

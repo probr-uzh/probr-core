@@ -3,14 +3,16 @@
 angular.module('probrApp', [
     'ui.router',
     'ui.bootstrap',
-    'djangoRESTResources',
+    'ngResource',
     'angular-websocket',
-    'chart.js'
+    'chart.js',
+    'luegg.directives'
 ])
-    .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
-        $urlRouterProvider.otherwise('/');
+    .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider, $resourceProvider) {
+        $urlRouterProvider.otherwise('/devices');
         $locationProvider.html5Mode(true);
 
+        $resourceProvider.defaults.stripTrailingSlashes = false;
         $httpProvider.defaults.xsrfCookieName = 'csrftoken';
         $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
     })

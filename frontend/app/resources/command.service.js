@@ -1,10 +1,11 @@
 'use strict';
 
 angular.module('probrApp')
-    .factory('Command', function (djResource) {
-        var Command = djResource('/api/commands/:commandId/', {commandId: '@id'},
+    .factory('Command', function ($resource) {
+        var Command = $resource('/api/commands/:commandId/', { commandId: '@uuid' },
             {
-                byDevice: {method: 'GET', url: '/api/devices/:deviceId/commands/', isArray: true}
+                query: { method: 'GET', isArray: false },
+                byDevice: {method: 'GET', url: '/api/devices/:deviceId/commands/', isArray: false }
             }
         );
         return Command;

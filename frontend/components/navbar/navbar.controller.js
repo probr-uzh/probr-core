@@ -4,12 +4,12 @@ angular.module('probrApp')
     .controller('NavbarCtrl', function ($scope, $location) {
 
         $scope.menu = [{
-            'title': 'Manage Devices',
+            'title': 'Devices',
             'link': '/devices'
         },
             {
-                'title': 'Schedule Commands',
-                'link': '/commands'
+                'title': 'Captures',
+                'link': '/captures'
             }];
 
         $scope.isActive = function (route) {

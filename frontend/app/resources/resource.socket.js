@@ -60,7 +60,7 @@ angular.module('probrApp')
                     return false;
                 });
 
-                if (resource && dataObj[resource.uuidFilter] in resource) {
+                if (resource && dataObj[resource.uuidFilter] !== null) {
                     $rootScope.$apply(function () {
                         if (dataObj.uuid !== undefined) {
                             var currentObj = _.find(resource, 'uuid', dataObj.uuid)
