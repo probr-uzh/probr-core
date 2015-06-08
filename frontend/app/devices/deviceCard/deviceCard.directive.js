@@ -1,16 +1,20 @@
 'use strict';
 
 angular.module('probrApp')
-    .directive('deviceCpuChart', function ($filter) {
+    .directive('deviceCard', function ($filter, $location) {
         return {
             restrict: 'EA',
             scope: {
-                chart: '=',
-                statuses: '=',
+                device: '=',
             },
-            templateUrl: '/static/app/devices/deviceCpuChart/deviceCpuChart.html',
+            templateUrl: '/static/app/devices/deviceCard/deviceCard.html',
             link: function (scope, elements, attr) {
 
+                scope.goToDevice = function() {
+                    $location.path('device/' + scope.device.uuid + '/status');
+                }
+
+                /*
                 var pushToUI = function (statusObj) {
                     scope.cpuDataCollection[0].push(statusObj.cpu_load);
                     scope.cpuDataLabels.push($filter('date')(statusObj.creation_timestamp, 'HH:mm:ss'));
@@ -43,15 +47,15 @@ angular.module('probrApp')
 
                 scope.chartOptions = _.assign({
                     scaleOverride: true,
-                    scaleSteps: 5,
-                    scaleStepWidth: 20,
+                    scaleSteps: 10,
+                    scaleStepWidth: 10,
                     scaleStartValue: 0,
                     maintainAspectRatio: false,
                     animation: false
                 }, scope.chart);
 
                 scope.series = ['CPU-Load'];
-
+                */
 
             }
         }

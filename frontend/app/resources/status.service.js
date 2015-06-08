@@ -1,11 +1,11 @@
 'use strict';
 
 angular.module('probrApp')
-    .factory('Status', function (djResource) {
-
-        var Status = djResource('/api/statuses/:statusId/', {statusId: '@id'}
-
+    .factory('Status', function ($resource) {
+        var Status = $resource('/api/statuses/:statusId/', {statusId: '@uuid'},
+            {
+                query: {method: 'GET', isArray: false }
+            }
         );
-
         return Status;
     });

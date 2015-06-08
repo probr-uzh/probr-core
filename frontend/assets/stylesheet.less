@@ -3,10 +3,11 @@
 @import '../bower_components/angular-chart.js/angular-chart.less';
 @import url(//fonts.googleapis.com/css?family=Roboto:300,400,500,700);
 
-@icon-font-path: '../../../bower_components/bootstrap/fonts';
-@fa-font-path: '../../../bower_components/font-awesome/fonts';
+@icon-font-path: '../../../static/bower_components/bootstrap/fonts';
+@fa-font-path: '../../../static/bower_components/font-awesome/fonts';
 
 @accentcolor: #008cc4;
+@accentcolor_contrast: #00ceff;
 @accentcolor_light: lighten(@accentcolor, 20%);
 @accentcolor_dark: darken(@accentcolor, 5%);
 
@@ -20,6 +21,17 @@ html {
 // Font
 body {
   font-family: "Roboto", Arial, Helvetica, sans-serif;
+  background-color: @lightgrey;
+  color: @darkgrey;
+}
+
+a {
+  color: @darkgrey;
+}
+
+a:hover {
+  color: @accentcolor_contrast;
+  text-decoration: none;
 }
 
 .browsehappy {
@@ -63,9 +75,10 @@ body {
 
 }
 
-.card-section-header {
-  font-size: 13px;
-  color: darken(@lightgrey, 25%);
+h1 {
+  padding: 0px;
+  font-size: 16px;
+  color: darken(@lightgrey, 50%);
   margin-top: 10px;
   margin-bottom: 10px;
 }
@@ -75,4 +88,6 @@ body {
 @import 'mixins.less';
 @import 'navbar.less';
 @import '../app/devices/deviceCpuChart/deviceCpuChart.less';
+@import '../app/devices/deviceCard/deviceCard.less';
+@import '../app/devices/devices.less';
 // endinjector

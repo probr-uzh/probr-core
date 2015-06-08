@@ -1,4 +1,5 @@
 from django.test import TestCase
+from rest_framework.test import APIRequestFactory, APIClient
 from devices.models import Device, Status
 from django.db import IntegrityError
 import re
@@ -120,3 +121,34 @@ class DeviceTestCase(TestCase):
         uuid = test_device.uuid
         test_device = Device.objects.get(uuid=uuid)
         self.assertEqual(test_device.description, "Device on upper floor. Used to track people across the office.")
+
+
+class ApiTest(TestCase):
+
+    def test_device(self):
+        client = APIClient()
+        response = client.post('/api/devices/', {'name': 'new device','os':'test os','description':'test description','tags':['first','second','third'],'wifi_chip':'test wifi chip'}, format='json')
+
+        response = client.get('/api/devices/')
+        # test if count is there
+        self.assertContains(response,'count')
+        # test if tags are there
+        self.assertContains(response,'first')
+
+        response = client.get('/api/devices/'+Device.objects.all()[0].uuid+'/')
+        # test if tags are there
+        self.assertContains(response,'first')
+
+    def test_status(self):
+        client = APIClient()
+        response = client.post('/api/devices/', {'name': 'new device','os':'test os','description':'test description','tags':['first','second','third'],'wifi_chip':'test wifi chip'}, format='json')
+
+        response = client.get('/api/devices/')
+        # test if count is there
+        self.assertContains(response,'count')
+        # test if tags are there
+        self.assertContains(response,'first')
+
+        response = client.get('/api/devices/'+Device.objects.all()[0].uuid+'/')
+        # test if tags are there
+        self.assertContains(response,'first')

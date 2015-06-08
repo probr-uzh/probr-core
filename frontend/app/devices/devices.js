@@ -5,12 +5,12 @@ angular.module('probrApp')
         $stateProvider
             .state('devices', {
                 url: '/devices',
-                templateUrl: 'static/app/devices/devices.html',
+                templateUrl: '/static/app/devices/devices.html',
                 controller: 'DevicesCtrl'
             })
             .state('deviceStatus', {
                 url: '/device/:id/status',
-                templateUrl: 'static/app/devices/deviceStatus.html',
+                templateUrl: '/static/app/devices/deviceStatus.html',
                 controller: 'DeviceStatusCtrl'
             });
         ;

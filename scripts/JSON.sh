@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# TODO: There seems to be a sh incompatibility within this script.
+# Using sh on the Pi resulted in the following error messages and an empty result:
+# EXPECTED EOF GOT test
+# EXPECTED EOF GOT test
 
 throw () {
   echo "$*" >&2

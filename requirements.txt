@@ -18,3 +18,4 @@ pymongo==3.0.1
 pytz==2015.2
 redis==2.10.3
 six==1.9.0
+django-filter==0.10.0

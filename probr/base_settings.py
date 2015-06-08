@@ -97,7 +97,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 # http://www.django-rest-framework.org/
 
 REST_FRAMEWORK = {
-
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 100,
     'DEFAULT_PERMISSION_CLASSES': [
@@ -132,6 +132,7 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'compressor.finders.CompressorFinder',
+    'djangobower.finders.BowerFinder'
 )
 
 TEMPLATE_DIRS = (
@@ -154,11 +155,13 @@ BOWER_INSTALLED_APPS = (
  'angular-chart.js#0.7.1',
  'lodash#3.8.0',
  'font-awesome#4.3.0',
+ 'angular-resource#1.4.0',
+ 'angular-scroll-glue#2.0.5'
 )
 
 # Compress
 COMPRESS_PRECOMPILERS = (
-    ('text/less', 'lessc {infile} {outfile}'),
+    ('text/less', '/usr/local/bin/lessc {infile} {outfile}'),
 )
 
 # Media

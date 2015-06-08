@@ -19,7 +19,8 @@ DEVICE_TYPE_CHOICES = (
 
 COMMAND_STATUS_CHOICES = (
     (0, 'Not executed yet'),
-    (1, 'Executed')
+    (1, 'Executing'),
+    (2, 'Executed')
 )
 
 
@@ -39,6 +40,9 @@ class Device(BaseModel):
     description = models.TextField(blank=True, default="")
 
     tags = TaggableManager(through=TaggedDevice)
+
+    def __unicode__(self):
+        return self.name
 
 signals.post_save.connect(publishPostSaveMessage, sender=Device)
 
@@ -75,6 +79,14 @@ class Command(BaseModel):
     result = models.TextField(blank=True, default="")
 
     status = models.IntegerField(default=0, choices=COMMAND_STATUS_CHOICES)
+
+    def save(self, *args, **kwargs):
+        """
+        We don't want carriage returns in a shell script,
+        make sure all lines are separated by \n
+        """
+        self.execute = "\n".join(self.execute.splitlines())
+        super(Command, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return self.execute

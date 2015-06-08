@@ -1,6 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from views import CaptureUploadView
 
-urlpatterns = patterns('captures.views',
-    url('', CaptureUploadView.as_view()),
-)
+
+urlpatterns = [
+    #Devices
+    url(r'^api/captures/$', CaptureUploadView.as_view(), name='capture-upload'),
+]
