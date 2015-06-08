@@ -42,14 +42,14 @@ class StatusListView(generics.ListCreateAPIView):
 #Commands
 ##################################################
 class CommandListView(generics.ListCreateAPIView):
-    renderer_classes = [renderers.JSONRenderer,PlainTextCommandsRenderer]
+    renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer,PlainTextCommandsRenderer]
     serializer_class = CommandSerializer
     queryset = Command.objects.all()
     filter_fields = ('status','device',)
 
 
 class CommandDetailsView(generics.RetrieveUpdateDestroyAPIView):
-    renderer_classes = [PlainTextCommandRenderer,JSONRenderer]
+    renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer,PlainTextCommandRenderer]
     serializer_class = CommandSerializer
     parser_classes = (MultiPartParser, FormParser,)
 
