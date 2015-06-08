@@ -41,6 +41,9 @@ class Device(BaseModel):
 
     tags = TaggableManager(through=TaggedDevice)
 
+    def __unicode__(self):
+        return self.name
+
 signals.post_save.connect(publishPostSaveMessage, sender=Device)
 
 class Status(BaseModel):
