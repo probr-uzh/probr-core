@@ -80,6 +80,14 @@ class Command(BaseModel):
 
     status = models.IntegerField(default=0, choices=COMMAND_STATUS_CHOICES)
 
+    def save(self, *args, **kwargs):
+        """
+        We don't want carriage returns in a shell script,
+        make sure all lines are separated by \n
+        """
+        self.execute = "\n".join(self.execute.splitlines())
+        super(Command, self).save(*args, **kwargs)
+
     def __unicode__(self):
         return self.execute
 
