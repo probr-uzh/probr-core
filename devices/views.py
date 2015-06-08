@@ -51,7 +51,7 @@ class CommandListView(generics.ListCreateAPIView):
 class CommandDetailsView(generics.RetrieveUpdateDestroyAPIView):
     renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer,PlainTextCommandRenderer]
     serializer_class = CommandSerializer
-    parser_classes = (MultiPartParser, FormParser,)
+    parser_classes = (MultiPartParser, FormParser,JSONParser,)
 
     def get_object(self):
         uuid = self.kwargs['uuid']
@@ -59,7 +59,11 @@ class CommandDetailsView(generics.RetrieveUpdateDestroyAPIView):
 
     def post(self, request, *args, **kwargs):
         command = self.get_object()
-        command.result = request.FILES['result'].read()
-        command.status = 2
+
+        if request.META['CONTENT_TYPE'] == "application/json":
+            command.status = request.data['status']
+        else:
+            command.result = request.FILES['result'].read()
+            command.status = 2
         command.save()
-        return Response('Capture upload successful')
+        return Response('Command result saved')
