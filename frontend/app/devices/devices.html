@@ -6,7 +6,7 @@
 
     <div class="row">
         <div class="col-xs-3" ng-repeat="device in devices">
-            <device-card device="device"></device-card>
+            <device-card device="device" delete-device="deleteDevice(device)"></device-card>
         </div>
     </div>
 

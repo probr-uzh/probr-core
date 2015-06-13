@@ -1,11 +1,28 @@
 'use strict';
 
 angular.module('probrApp')
-    .controller('DevicesCtrl', function ($scope, Device, resourceSocket) {
+    .controller('DevicesCtrl', function ($scope, Device, resourceSocket, $modal, $templateCache) {
         Device.query({}, function (resultObj) {
             $scope.devices = resultObj.results;
             resourceSocket.updateResource($scope, $scope.devices, 'devices');
         });
+
+        $scope.deleteDevice = function (device) {
+            var modalInstance = $modal.open({
+                animation: true,
+                templateUrl: '/static/app/modals/deleteModalContent.html',
+                controller: 'DeviceDeleteModalCtrl',
+            });
+
+            modalInstance.result.then(function () {
+                var deviceResource = new Device(device);
+                deviceResource.$delete(function (resultObj) {
+                    $scope.devices.splice($scope.devices.indexOf(device), 1);
+                });
+            }, function () {
+
+            });
+        };
     })
     .controller('DeviceStatusCtrl', function ($scope, $stateParams, Status, Device, Command, resourceSocket) {
 
@@ -33,5 +50,16 @@ angular.module('probrApp')
             });
         }
 
+    })
+
+    .controller('DeviceDeleteModalCtrl', function ($scope, $modalInstance) {
+        $scope.ok = function () {
+            $modalInstance.close();
+        };
+
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
     });
+;
 ;
