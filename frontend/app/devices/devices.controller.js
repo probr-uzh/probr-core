@@ -19,7 +19,7 @@ angular.module('probrApp')
 
         Device.getStatus({deviceId: deviceId, limit: statusLimit}, function (resultObj) {
             $scope.statuses = resultObj.results;
-            resourceSocket.updateResource($scope, $scope.statuses, 'statuses', 'device', 10);
+            resourceSocket.updateResource($scope, $scope.statuses, 'status', 'device', 10);
         });
 
         Device.get({deviceId: deviceId}, function (resultObj) {
