@@ -13,10 +13,10 @@ def unpack_capture(captureUUID):
     pcapReader = dpkt.pcap.Reader(capture.pcap)
 
     for timestamp, packet in pcapReader:
-        jsonPacket = generate_json(packet)
+        jsonPacket = generate_json(packet, timestamp)
         write_to_mongo(jsonPacket)
 
-def generate_json(packet):
+def generate_json(packet, timestamp):
 
     tap = dpkt.radiotap.Radiotap(packet)
 
@@ -27,6 +27,7 @@ def generate_json(packet):
 
     # todo: this can be extended to all necessary fields / data we need, done even on demand
     jsonPacket = {}
+    jsonPacket['time'] = timestamp
     jsonPacket['signal_strength'] = -(256-tap.ant_sig.db)
     jsonPacket['ssid'] = wlan.ies[0].info
     jsonPacket['mac_address_src'] = binascii.hexlify(wlan.mgmt.src)
