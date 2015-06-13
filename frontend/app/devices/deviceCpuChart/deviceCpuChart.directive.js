@@ -7,6 +7,7 @@ angular.module('probrApp')
             scope: {
                 chart: '=',
                 statuses: '=',
+                labels: '=',
             },
             templateUrl: '/static/app/devices/deviceCpuChart/deviceCpuChart.html',
             link: function (scope, elements, attr) {
@@ -49,6 +50,13 @@ angular.module('probrApp')
                     maintainAspectRatio: false,
                     animation: false
                 }, scope.chart);
+
+                if (scope.labels == false) {
+                    scope.chartOptions.showScale = false;
+                    scope.chartOptions.scaleShowLabels = false;
+                    scope.chartOptions.showTooltips = false;
+                    scope.chartOptions.pointDot = false;
+                }
 
                 scope.series = ['CPU-Load'];
 
