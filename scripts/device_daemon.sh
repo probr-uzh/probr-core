@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-VERSION='0.2'
+VERSION='0.2.1'
 BASE_HOST='probr.sook.ch'
 BASE_URL="https://$BASE_HOST"
 UUID_FILE='uuid.txt'
@@ -95,17 +95,11 @@ bootstrap_device() {
 }
 
 post_status() {
-    #total_memory=$(top -bn1 | awk '/KiB Mem/ { print $3 };')
-    #used_memory=$(top -bn1 | awk '/KiB Mem/ { print $5 };')
-    #total_disk=$(df -k . | awk 'NR==2 { print $4 };')
-    #used_disk=$(df -k . | awk 'NR==2 { print $3 };')
-    #cpu_load=$(top -bn2 | awk '/Cpu/ { print 100 - $8};' | tail -n1)
-
-    total_memory=100
-    used_memory=10
-    total_disk=1000
-    used_disk=100
-    cpu_load=0.1
+    total_memory=$(top -bn1 | awk '/KiB Mem/ { print $3 };')
+    used_memory=$(top -bn1 | awk '/KiB Mem/ { print $5 };')
+    total_disk=$(df -k . | awk 'NR==2 { print $4 };')
+    used_disk=$(df -k . | awk 'NR==2 { print $3 };')
+    cpu_load=$(top -bn2 | awk '/Cpu/ { print 100 - $8};' | tail -n1)
 
     body_data='{"device":"'$(device_uuid)'","cpu_load":"'$cpu_load'","used_disk":"'$used_disk'","total_disk":"'$total_disk'","used_memory":"'$used_memory'","total_memory":"'$total_memory'"}'
     response=$(post '/api/statuses/' "$body_data")
@@ -169,8 +163,11 @@ set_command_status() {
 
 # Arguments
 #   commanduuid
-cleanup_command() {
+finished_command() {
     submit_result "commands/$1.log" $1
+    # kill own children
+    pkill -P $(<"commands/$1.pid")
+    # clean up files
     rm commands/$1*
     exit
 }
@@ -180,7 +177,7 @@ cleanup_command() {
 #   logFilePath
 #   commandUUID
 execute_in_background() {
-    (trap "cleanup_command $3" EXIT; source $1) 1>$2 2>&1 &
+    (trap "finished_command $3" EXIT; source $1) >$2 2>&1 &
     echo $!>"commands/$3.pid"
     echo $!
 }
@@ -215,7 +212,7 @@ main() {
     while :
     do
         echo "Infinite loop [hit CTRL+C to stop]"
-        #post_status
+        post_status
         execute_commands
         sleep 5
     done
