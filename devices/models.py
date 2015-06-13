@@ -69,6 +69,7 @@ class Status(BaseModel):
 
     class Meta:
         verbose_name_plural = "statuses"
+        ordering = ['-creation_timestamp']
 
 signals.post_save.connect(publishPostSaveMessage, sender=Status)
 
