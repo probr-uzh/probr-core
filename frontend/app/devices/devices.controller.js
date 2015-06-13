@@ -4,7 +4,7 @@ angular.module('probrApp')
     .controller('DevicesCtrl', function ($scope, Device, resourceSocket) {
         Device.query({}, function (resultObj) {
             $scope.devices = resultObj.results;
-            resourceSocket.updateResource($scope, $scope.devices, 'devices');
+            resourceSocket.updateResource($scope, $scope.devices, 'device');
         });
     })
     .controller('DeviceStatusCtrl', function ($scope, $stateParams, Status, Device, Command, resourceSocket) {
