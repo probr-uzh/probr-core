@@ -12,7 +12,7 @@ angular.module('probrApp')
             resource.bufferSize = bufferSize || 0;
 
             // remove resource object when its scope gets destroyed
-            $scope.$on('destroy', function () {
+            $scope.$on('$destroy', function () {
                 so.watchedResources.splice(so.watchedResources.indexOf(resource), 1);
             });
 
