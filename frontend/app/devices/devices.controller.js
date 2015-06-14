@@ -1,10 +1,10 @@
 'use strict';
 
 angular.module('probrApp')
-    .controller('DevicesCtrl', function ($scope, Device, resourceSocket, $modal, $templateCache) {
+    .controller('DevicesCtrl', function ($scope, Device, resourceSocket, $modal) {
         Device.query({}, function (resultObj) {
             $scope.devices = resultObj.results;
-            resourceSocket.updateResource($scope, $scope.devices, 'device');
+            resourceSocket.updateResource($scope, $scope.devices, 'device', 'uuid', 100);
 
             _.forEach($scope.devices, function (device) {
                 Device.getStatus({deviceId: device.uuid, limit: 10}, function (resultObj) {

@@ -40,7 +40,7 @@ def publishMessage(topic, message="update", groups=[]):
 def publishPostSaveMessage(sender, instance, created, **kwargs):
     payload = serializers.serialize('json', [instance, ])
     struct = json.loads(payload)
-    struct[0]['fields']['type'] = instance._meta.verbose_name + ':update'
+    struct[0]['fields']['object_type'] = instance._meta.verbose_name + ':update'
     struct[0]['fields']['uuid'] = instance.uuid # also send uuid
     payload = json.dumps(struct[0]['fields'])
 

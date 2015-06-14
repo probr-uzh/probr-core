@@ -15,7 +15,7 @@ class CaptureTaskTestCase(TestCase):
         packetList = []
 
         for timestamp, packet in pcapReader:
-            jsonObj = generate_json(packet)
+            jsonObj = generate_json(packet, timestamp)
             packetList.append(jsonObj)
 
         self.assertEqual(packetList[0]["mac_address_src"], "cc08e06156a1")
@@ -43,7 +43,7 @@ class CaptureTaskTestCase(TestCase):
         packets = db.packets
 
         for timestamp, packet in pcapReader:
-            jsonObj = generate_json(packet)
+            jsonObj = generate_json(packet, timestamp)
             write_to_mongo(jsonObj)
             packetList.append(jsonObj)
 
