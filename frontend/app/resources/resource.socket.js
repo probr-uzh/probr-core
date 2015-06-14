@@ -53,28 +53,24 @@ angular.module('probrApp')
                 dataObj.timestamp = message.timeStamp;
 
                 var resource = _.find(so.watchedResources, function (obj) {
-                    if ((obj.objectName + ':update') === dataObj.type) {
+                    if ((obj.objectName + ':update') === dataObj.object_type) {
                         if (obj[0] !== undefined && obj[0].hasOwnProperty(obj.uuidFilter)) {
-                            if (dataObj[obj.uuidFilter] === obj[0][obj.uuidFilter]) {
-                                return true;
-                            }
+                            return true;
                         }
                     }
 
                     return false;
                 });
 
-                if (resource && dataObj[resource.uuidFilter] !== null) {
+                if (resource) {
                     $rootScope.$apply(function () {
-                        if (dataObj.uuid !== undefined) {
-                            var currentObj = _.find(resource, 'uuid', dataObj.uuid)
-                            if (currentObj !== undefined) {
-                                _.merge(currentObj, dataObj);
-                            } else {
-                                resource.push(dataObj);
-                                if (resource.bufferSize > 0 && resource.length > resource.bufferSize) {
-                                    resource.shift();
-                                }
+                        var currentObj = _.find(resource, resource.uuidFilter, dataObj.uuid)
+                        if (currentObj !== undefined) {
+                            _.merge(currentObj, dataObj);
+                        } else {
+                            resource.push(dataObj);
+                            if (resource.bufferSize > 0 && resource.length > resource.bufferSize) {
+                                resource.shift();
                             }
                         }
                     });

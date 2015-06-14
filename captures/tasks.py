@@ -5,6 +5,8 @@ from captures.models import Capture
 import dpkt
 import binascii
 import datetime
+from utils.models import publishMessage
+import json
 from probr import mongodb
 
 @shared_task
@@ -15,6 +17,10 @@ def unpack_capture(captureUUID):
     for timestamp, packet in pcapReader:
         jsonPacket = generate_json(packet, timestamp)
         write_to_mongo(jsonPacket)
+
+        # broadcast to socket
+        jsonPacket['object_type'] = 'packet:update'
+        publishMessage("socket", message=json.dumps(jsonPacket))
 
 def generate_json(packet, timestamp):
 
