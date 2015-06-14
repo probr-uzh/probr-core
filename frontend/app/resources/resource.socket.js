@@ -12,7 +12,7 @@ angular.module('probrApp')
             resource.bufferSize = bufferSize || 0;
 
             // remove resource object when its scope gets destroyed
-            $scope.$on('destroy', function () {
+            $scope.$on('$destroy', function () {
                 so.watchedResources.splice(so.watchedResources.indexOf(resource), 1);
             });
 
@@ -53,8 +53,12 @@ angular.module('probrApp')
                 dataObj.timestamp = message.timeStamp;
 
                 var resource = _.find(so.watchedResources, function (obj) {
-                    if ((obj.objectName + ':update') == dataObj.type) {
-                        return true;
+                    if ((obj.objectName + ':update') === dataObj.type) {
+                        if (obj[0] !== undefined && obj[0].hasOwnProperty(obj.uuidFilter)) {
+                            if (dataObj[obj.uuidFilter] === obj[0][obj.uuidFilter]) {
+                                return true;
+                            }
+                        }
                     }
 
                     return false;

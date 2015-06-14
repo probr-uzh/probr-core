@@ -1,8 +1,12 @@
-<a ng-href="device/{{ device.uuid }}/status">
-    <div class="card" ng-click="goToDevice()">
-        <div class="card-content card-size-3">
-            <strong>{{ device.name }}</strong><br>
+<div class="card">
+    <div class="card-content card-size-3">
+        <span class="fa fa-trash-o pull-right" ng-click="delete(device)"></span>
+
+        <a ng-href="device/{{ device.uuid }}/status">
+            <span class="fa fa-circle" ng-class="onlineIndicator()"></span> <strong>{{ device.name }}</strong><br>
             Type: <strong>{{ device.type }}</strong><br>
-        </div>
+        </a>
+
+        <device-cpu-chart statuses="statuses" labels="false"></device-cpu-chart>
     </div>
-</a>
+</div>

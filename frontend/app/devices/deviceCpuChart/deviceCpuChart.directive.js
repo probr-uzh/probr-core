@@ -1,12 +1,13 @@
 'use strict';
 
 angular.module('probrApp')
-    .directive('deviceCpuChart', function ($filter) {
+    .directive('deviceCpuChart', function ($filter, resourceSocket) {
         return {
             restrict: 'EA',
             scope: {
                 chart: '=',
                 statuses: '=',
+                labels: '=',
             },
             templateUrl: '/static/app/devices/deviceCpuChart/deviceCpuChart.html',
             link: function (scope, elements, attr) {
@@ -24,15 +25,12 @@ angular.module('probrApp')
                 scope.cpuDataCollection = [[]];
                 scope.cpuDataLabels = [];
 
-                _.forEach(scope.statuses, function (statusObj) {
-                    pushToUI(statusObj);
-                });
-
                 scope.$watchCollection(
                     "statuses",
                     function (newValue, oldValue) {
 
                         var diff = _.difference(newValue, oldValue);
+                        diff.reverse();
 
                         _.forEach(diff, function (statusObj) {
                             pushToUI(statusObj);
@@ -49,6 +47,13 @@ angular.module('probrApp')
                     maintainAspectRatio: false,
                     animation: false
                 }, scope.chart);
+
+                if (scope.labels == false) {
+                    scope.chartOptions.showScale = false;
+                    scope.chartOptions.scaleShowLabels = false;
+                    scope.chartOptions.showTooltips = false;
+                    scope.chartOptions.pointDot = false;
+                }
 
                 scope.series = ['CPU-Load'];
 
