@@ -3,7 +3,7 @@
         <span class="fa fa-trash-o pull-right" ng-click="delete(device)"></span>
 
         <a ng-href="device/{{ device.uuid }}/status">
-            <strong>{{ device.name }}</strong><br>
+            <span class="fa fa-circle" ng-class="onlineIndicator()"></span> <strong>{{ device.name }}</strong><br>
             Type: <strong>{{ device.type }}</strong><br>
         </a>
 

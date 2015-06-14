@@ -11,13 +11,22 @@ angular.module('probrApp')
             templateUrl: '/static/app/devices/deviceCard/deviceCard.html',
             link: function (scope, elements, attr) {
 
+                scope.onlineIndicator = function() {
+                    if (scope.recentStatus !== undefined) {
+                        return "online";
+                    }
+
+                    return "offline";
+                }
+
                 scope.delete = function () {
                     scope.deleteDevice(scope.device)
                 };
 
                 Device.getStatus({deviceId: scope.device.uuid, limit: 10}, function (resultObj) {
                     scope.statuses = resultObj.results;
-                    resourceSocket.updateResource(scope, scope.statuses, 'statuses', 'device', 10);
+                    scope.recentStatus = scope.statuses[0];
+                    resourceSocket.updateResource(scope, scope.statuses, 'status', 'device', 10);
                 });
 
             }

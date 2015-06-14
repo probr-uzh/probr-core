@@ -2,10 +2,10 @@
 
 <div class="container">
 
-    <h1>Device Status for {{ device.name }}</h1>
+    <h1>{{ device.name }}</h1>
 
-    <div class="row">
-        <div class="col-md-12">
+    <div class="row"  style="margin-bottom: 30px;">
+        <div class="col-xs-12">
             <div class="console" scroll-glue>
                 <div ng-repeat="command in commands | orderBy: 'creation_timestamp' : false">
                     <span class="console-execute">
@@ -25,12 +25,23 @@
             </form>
         </div>
     </div>
-    <hr>
-    <div class="row">
-        <div class="col-md-12">
-
+    <div class="row"  style="margin-bottom: 30px;">
+        <div class="col-xs-12">
             <device-cpu-chart statuses="statuses"></device-cpu-chart>
-
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="card">
+                <div class="card-content card-size-12">
+                    <strong>OS: </strong> {{ device.os }}<br/>
+                    <i>{{ device.description }}</i><br/>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
             <table class="table table-striped table-hover">
                 <thead>
                 <tr>

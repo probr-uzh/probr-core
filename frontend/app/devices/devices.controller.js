@@ -5,6 +5,15 @@ angular.module('probrApp')
         Device.query({}, function (resultObj) {
             $scope.devices = resultObj.results;
             resourceSocket.updateResource($scope, $scope.devices, 'device');
+
+            _.forEach($scope.devices, function (device) {
+                Device.getStatus({deviceId: device.uuid, limit: 10}, function (resultObj) {
+                    device.statuses = resultObj.results;
+                    device.statuses.reverse();
+                    resourceSocket.updateResource($scope, device.statuses, 'status', 'device', 10);
+                });
+            })
+
         });
 
         $scope.deleteDevice = function (device) {
@@ -23,6 +32,26 @@ angular.module('probrApp')
 
             });
         };
+
+        $scope.onlineIndicator = function (statuses) {
+            if (statuses !== undefined && statuses.length > 0 && new Date(statuses[statuses.length - 1].creation_timestamp) > new Date(new Date().getTime() - 15000)) {
+
+                var tmpDate = statuses[statuses.length - 1].creation_timestamp;
+                setTimeout(function () {
+                    // haven't gotten new updates in 15 seconds
+                    if (tmpDate === statuses[statuses.length - 1].creation_timestamp) {
+                        $scope.$apply(function() {
+                            statuses[statuses.length - 1].creation_timestamp = new Date(new Date().getTime() - 20000).toISOString(); // change to force offline status
+                        });
+                    }
+                }, 15000);
+
+                return "online";
+            }
+
+            return "offline";
+        }
+
     })
     .controller('DeviceStatusCtrl', function ($scope, $stateParams, Status, Device, Command, resourceSocket) {
 
@@ -36,6 +65,7 @@ angular.module('probrApp')
 
         Device.getStatus({deviceId: deviceId, limit: statusLimit}, function (resultObj) {
             $scope.statuses = resultObj.results;
+            $scope.statuses.reverse();
             resourceSocket.updateResource($scope, $scope.statuses, 'status', 'device', 10);
         });
 

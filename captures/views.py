@@ -12,13 +12,9 @@ class CaptureUploadView(generics.ListCreateAPIView):
 
     #comment this in to disable Django Rest Framework Browsable API
     #renderer_classes = (JSONRenderer,)
+    queryset = Capture.objects.all()
     serializer_class = CaptureSerializer
     parser_classes = (MultiPartParser, FormParser,)
-
-    def get(self, request, *args, **kwargs):
-        captures = Capture.objects.all();
-        serializer = CaptureSerializer(captures,many=True);
-        return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
         instance = Capture(pcap=request.FILES['pcap'],longitude=request.DATA['longitude'],latitude=request.DATA['latitude'])

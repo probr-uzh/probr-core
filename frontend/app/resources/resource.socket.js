@@ -53,8 +53,12 @@ angular.module('probrApp')
                 dataObj.timestamp = message.timeStamp;
 
                 var resource = _.find(so.watchedResources, function (obj) {
-                    if ((obj.objectName + ':update') == dataObj.type) {
-                        return true;
+                    if ((obj.objectName + ':update') === dataObj.type) {
+                        if (obj[0] !== undefined && obj[0].hasOwnProperty(obj.uuidFilter)) {
+                            if (dataObj[obj.uuidFilter] === obj[0][obj.uuidFilter]) {
+                                return true;
+                            }
+                        }
                     }
 
                     return false;

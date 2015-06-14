@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('probrApp')
-    .directive('deviceCpuChart', function ($filter) {
+    .directive('deviceCpuChart', function ($filter, resourceSocket) {
         return {
             restrict: 'EA',
             scope: {
@@ -25,15 +25,12 @@ angular.module('probrApp')
                 scope.cpuDataCollection = [[]];
                 scope.cpuDataLabels = [];
 
-                _.forEach(scope.statuses, function (statusObj) {
-                    pushToUI(statusObj);
-                });
-
                 scope.$watchCollection(
                     "statuses",
                     function (newValue, oldValue) {
 
                         var diff = _.difference(newValue, oldValue);
+                        diff.reverse();
 
                         _.forEach(diff, function (statusObj) {
                             pushToUI(statusObj);

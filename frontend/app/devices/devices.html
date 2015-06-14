@@ -6,7 +6,22 @@
 
     <div class="row">
         <div class="col-xs-3" ng-repeat="device in devices">
-            <device-card device="device" delete-device="deleteDevice(device)"></device-card>
+
+            <div class="card">
+                <div class="card-content card-size-3">
+                    <span class="fa fa-trash-o pull-right" ng-click="deleteDevice(device)"></span>
+
+                    <a ng-href="device/{{ device.uuid }}/status">
+                        <span class="fa fa-circle" ng-class="onlineIndicator(device.statuses)"></span>
+                        <strong>{{ device.name }}</strong><br>
+                    </a>
+                    CPU: <strong>{{ device.statuses[9].cpu_load }} %</strong><br>
+                    Type: <strong>{{ device.type }}</strong><br>
+
+                    <device-cpu-chart statuses="device.statuses" labels="false"></device-cpu-chart>
+                </div>
+            </div>
+
         </div>
     </div>
 
