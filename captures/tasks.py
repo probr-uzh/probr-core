@@ -19,7 +19,7 @@ def unpack_capture(captureUUID):
         write_to_mongo(jsonPacket)
 
         # broadcast to socket
-        jsonPacket['object_type'] = 'packet:update'
+        jsonPacket["object_type"] = "packet:update"
         publishMessage("socket", message=json.dumps(jsonPacket))
 
 def generate_json(packet, timestamp):

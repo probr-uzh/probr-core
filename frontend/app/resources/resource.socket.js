@@ -52,29 +52,40 @@ angular.module('probrApp')
                 var dataObj = JSON.parse(message.data);
                 dataObj.timestamp = message.timeStamp;
 
-                var resource = _.find(so.watchedResources, function (obj) {
-                    if ((obj.objectName + ':update') === dataObj.object_type) {
-                        if (obj[0] !== undefined && obj[0].hasOwnProperty(obj.uuidFilter)) {
-                            return true;
-                        }
+                var resources = [];
+                _.forEach(so.watchedResources, function (resource) {
+                    if ((resource.objectName + ':update') === dataObj.object_type) {
+                        _.forEach(resource, function (res) {
+                            if (res.hasOwnProperty(resource.uuidFilter) && res[resource.uuidFilter] == dataObj[resource.uuidFilter]) {
+                                resources.push(resource);
+                            }
+                        });
                     }
-
-                    return false;
                 });
 
-                if (resource) {
+                _.forEach(resources, function (resource) {
                     $rootScope.$apply(function () {
-                        var currentObj = _.find(resource, resource.uuidFilter, dataObj.uuid)
+
+                        var currentObj = _.find(resource, function (obj) {
+                            if (obj.uuid === dataObj[resource.uuidFilter]) {
+                                return true;
+                            }
+                            return false;
+                        });
+
                         if (currentObj !== undefined) {
                             _.merge(currentObj, dataObj);
                         } else {
+                            //if (dataObj[resource.uuidFilter] === resource[0][resource.uuidFilter]) {
                             resource.push(dataObj);
                             if (resource.bufferSize > 0 && resource.length > resource.bufferSize) {
                                 resource.shift();
                             }
+                            //}
                         }
+
                     });
-                }
+                });
 
             });
 
