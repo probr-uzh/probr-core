@@ -2,10 +2,14 @@
 
 angular.module('probrApp')
     .controller('CapturesCtrl', function ($scope, Capture, resourceSocket) {
-        Capture.query({}, function (resultObj) {
+
+        var pageLength = 20;
+        $scope.realTimeCaptures = [];
+
+        Capture.query({ limit: pageLength }, function (resultObj) {
             $scope.captures = resultObj.results;
-            $scope.numberOfCaptures = resultObj.count;
-            resourceSocket.updateResource($scope, $scope.captures, 'capture', 'uuid');
+            $scope.capturesCount = resultObj.count;
+            resourceSocket.updateResource($scope, $scope.realTimeCaptures, 'capture', 0, true);
         });
     });
 ;

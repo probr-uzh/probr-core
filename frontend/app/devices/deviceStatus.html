@@ -7,7 +7,7 @@
     <div class="row"  style="margin-bottom: 30px;">
         <div class="col-xs-12">
             <div class="console" scroll-glue>
-                <div ng-repeat="command in commands | orderBy: 'creation_timestamp' : false">
+                <div ng-repeat="command in commands | orderBy: 'creation_timestamp' : false track by command.uuid">
                     <span class="console-execute">
                         <i class="fa fa-cog" ng-show="command.status === 0"></i>
                         <i class="fa fa-cog fa-spin" ng-show="command.status === 1"></i>
@@ -52,7 +52,7 @@
                     <th>Disk</th>
                 </tr>
                 </thead>
-                <tbody ng-repeat="status in statuses | orderBy: 'creation_timestamp' : true">
+                <tbody ng-repeat="status in statuses | orderBy: 'creation_timestamp' : true track by status.uuid">
                 <tr>
                     <td>{{ status.creation_timestamp | date : 'dd.MM.yyyy \- HH:mm:ss' }}</td>
                     <td>{{ status.ip }}</td>

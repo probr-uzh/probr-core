@@ -2,17 +2,28 @@
 
 angular.module('probrApp')
     .controller('DevicesCtrl', function ($scope, Device, resourceSocket, $modal) {
+
         Device.query({}, function (resultObj) {
             $scope.devices = resultObj.results;
-            resourceSocket.updateResource($scope, $scope.devices, 'device', 'uuid', 100);
+            resourceSocket.updateResource($scope, $scope.devices, 'device', 0, true);
 
             _.forEach($scope.devices, function (device) {
                 Device.getStatus({deviceId: device.uuid, limit: 10}, function (resultObj) {
                     device.statuses = resultObj.results;
-                    device.statuses.reverse();
-                    resourceSocket.updateResource($scope, device.statuses, 'status', 'device', 10);
+                    resourceSocket.updateResource($scope, device.statuses, 'status', 10, true, 'device', device.uuid);
                 });
             })
+
+            // a new device has been added, attach socket properly
+            $scope.$watchCollection('devices', function (newValue, oldValue) {
+                var diff = _.difference(newValue, oldValue);
+                _.forEach(diff, function (obj) {
+                    Device.getStatus({deviceId: obj.uuid, limit: 10}, function (resultObj) {
+                        obj.statuses = resultObj.results;
+                        resourceSocket.updateResource($scope, obj.statuses, 'status', 10, true, 'device', obj.uuid);
+                    });
+                });
+            });
 
         });
 
@@ -33,18 +44,21 @@ angular.module('probrApp')
             });
         };
 
+        var timeout;
         $scope.onlineIndicator = function (statuses) {
-            if (statuses !== undefined && statuses.length > 0 && new Date(statuses[statuses.length - 1].creation_timestamp) > new Date(new Date().getTime() - 20000)) {
+            var timeoutInterval = 15000;
+            if (statuses !== undefined && statuses.length > 0 && new Date(statuses[statuses.length - 1].creation_timestamp) > new Date(new Date().getTime() - timeoutInterval)) {
 
                 var tmpDate = statuses[statuses.length - 1].creation_timestamp;
-                setTimeout(function () {
+                clearTimeout(timeout);
+                timeout = setTimeout(function () {
                     // haven't gotten new updates in 15 seconds
                     if (tmpDate === statuses[statuses.length - 1].creation_timestamp) {
-                        $scope.$apply(function() {
-                            statuses[statuses.length - 1].creation_timestamp = new Date(new Date().getTime() - 20000).toISOString(); // change to force offline status
+                        $scope.$apply(function () {
+                            statuses[statuses.length - 1].creation_timestamp = new Date(new Date().getTime() - timeoutInterval).toISOString(); // change to force offline status
                         });
                     }
-                }, 15000);
+                }, timeoutInterval);
 
                 return "online";
             }
@@ -61,13 +75,12 @@ angular.module('probrApp')
 
         Command.byDevice({deviceId: deviceId}, function (resultObj) {
             $scope.commands = resultObj.results;
-            resourceSocket.updateResource($scope, $scope.commands, 'command', 'uuid');
+            resourceSocket.updateResource($scope, $scope.commands, 'command', 0, true, 'device', deviceId);
         });
 
         Device.getStatus({deviceId: deviceId, limit: statusLimit}, function (resultObj) {
             $scope.statuses = resultObj.results;
-            //$scope.statuses.reverse();
-            resourceSocket.updateResource($scope, $scope.statuses, 'status', 'device', 10);
+            resourceSocket.updateResource($scope, $scope.statuses, 'status', statusLimit, true, 'device', deviceId);
         });
 
         Device.get({deviceId: deviceId}, function (resultObj) {
@@ -77,7 +90,6 @@ angular.module('probrApp')
         $scope.submitCmd = function () {
             $scope.recentCommand = new Command({execute: $scope.cmd, device: $scope.device.uuid});
             $scope.recentCommand.$save(function (result) {
-                $scope.commands.push(result);
                 $scope.cmd = '';
             });
         }

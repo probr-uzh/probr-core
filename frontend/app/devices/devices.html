@@ -15,7 +15,7 @@
                         <span class="fa fa-circle" ng-class="onlineIndicator(device.statuses)"></span>
                         <strong>{{ device.name }}</strong><br>
                     </a>
-                    CPU: <strong>{{ device.statuses[9].cpu_load }} %</strong><br>
+                    CPU: <strong>{{ device.statuses[device.statuses.length - 1].cpu_load }} %</strong><br>
                     Type: <strong>{{ device.type }}</strong><br>
 
                     <device-cpu-chart statuses="device.statuses" labels="false"></device-cpu-chart>
