@@ -11,6 +11,7 @@ from ws4redis.redis_store import RedisMessage
 DEVICE_TYPE_CHOICES = (
     ('RPA', 'Raspberry Pi Model A'),
     ('RPB', 'Raspberry Pi Model B'),
+    ('ODR', 'ODROID'),
     ('DWR', 'DD-WRT Router'),
     ('OWR', 'OpenWRT Router'),
     ('UKW', 'Unknown'),
