@@ -57,6 +57,7 @@ angular.module('probrApp')
 
         var statusLimit = 10;
         var deviceId = $stateParams.id;
+        $scope.commands = [];
 
         Command.byDevice({deviceId: deviceId}, function (resultObj) {
             $scope.commands = resultObj.results;
@@ -65,7 +66,7 @@ angular.module('probrApp')
 
         Device.getStatus({deviceId: deviceId, limit: statusLimit}, function (resultObj) {
             $scope.statuses = resultObj.results;
-            $scope.statuses.reverse();
+            //$scope.statuses.reverse();
             resourceSocket.updateResource($scope, $scope.statuses, 'status', 'device', 10);
         });
 
@@ -75,7 +76,8 @@ angular.module('probrApp')
 
         $scope.submitCmd = function () {
             $scope.recentCommand = new Command({execute: $scope.cmd, device: $scope.device.uuid});
-            $scope.recentCommand.$save(function () {
+            $scope.recentCommand.$save(function (result) {
+                //$scope.commands.push(result);
                 $scope.cmd = '';
             });
         }
