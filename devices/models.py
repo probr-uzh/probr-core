@@ -31,7 +31,7 @@ class TaggedDevice(TaggedItemBase):
     content_object = models.ForeignKey('Device')
 
 class Device(BaseModel):
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
 
     type = models.CharField(max_length=3, choices=DEVICE_TYPE_CHOICES, default="UKW")
 
