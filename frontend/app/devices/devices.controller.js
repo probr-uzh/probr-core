@@ -34,7 +34,7 @@ angular.module('probrApp')
         };
 
         $scope.onlineIndicator = function (statuses) {
-            if (statuses !== undefined && statuses.length > 0 && new Date(statuses[statuses.length - 1].creation_timestamp) > new Date(new Date().getTime() - 15000)) {
+            if (statuses !== undefined && statuses.length > 0 && new Date(statuses[statuses.length - 1].creation_timestamp) > new Date(new Date().getTime() - 20000)) {
 
                 var tmpDate = statuses[statuses.length - 1].creation_timestamp;
                 setTimeout(function () {
@@ -61,7 +61,7 @@ angular.module('probrApp')
 
         Command.byDevice({deviceId: deviceId}, function (resultObj) {
             $scope.commands = resultObj.results;
-            resourceSocket.updateResource($scope, $scope.commands, 'command', 'device');
+            resourceSocket.updateResource($scope, $scope.commands, 'command', 'uuid');
         });
 
         Device.getStatus({deviceId: deviceId, limit: statusLimit}, function (resultObj) {
@@ -77,7 +77,7 @@ angular.module('probrApp')
         $scope.submitCmd = function () {
             $scope.recentCommand = new Command({execute: $scope.cmd, device: $scope.device.uuid});
             $scope.recentCommand.$save(function (result) {
-                //$scope.commands.push(result);
+                $scope.commands.push(result);
                 $scope.cmd = '';
             });
         }
