@@ -207,6 +207,7 @@ execute_commands() {
 }
 
 main() {
+    sleep 20
     bootstrap_device
 
     while :
