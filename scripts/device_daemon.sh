@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-VERSION='0.2.1'
+VERSION='0.2.2'
 BASE_HOST='probr.sook.ch'
 BASE_URL="https://$BASE_HOST"
 UUID_FILE='uuid.txt'
