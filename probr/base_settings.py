@@ -46,7 +46,7 @@ INSTALLED_APPS = (
     'djangobower',
     'utils',
     'devices',
-    'captures'
+    'captures',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -164,6 +164,15 @@ COMPRESS_PRECOMPILERS = (
     ('text/less', '/usr/local/bin/lessc {infile} {outfile}'),
 )
 
+
+
 # Media
 MEDIA_URL='/media/'
 MEDIA_ROOT = BASE_DIR+MEDIA_URL
+
+
+# Handlers
+PROBR_HANDLERS = [
+    'handlers.WebsocketHandler',
+    'handlers.MongoDBHandler',
+]

@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.core.files import File
+from captures.handlers import generate_json, MongoDBHandler
 from captures.tasks import *
 import dpkt
 from probr import mongodb
@@ -7,6 +8,7 @@ from probr import mongodb
 class CaptureTaskTestCase(TestCase):
     def setUp(self):
         self.pcapfile = File(open('captures/tests/resources/proberequests_smallsample.pcap', 'rb'))
+
         self.capture = Capture.objects.create(pcap=self.pcapfile)
 
     def test_unpack_pcap(self):
@@ -34,6 +36,13 @@ class CaptureTaskTestCase(TestCase):
         self.assertEqual(packetList[1]["mac_address_dst"], "ffffffffffff")
 
     def test_insert_mongo(self):
+
+        mongoHandler = MongoDBHandler()
+        mongoHandler.handle(self.capture)
+
+
+        self.capture.pcap.open()
+
         pcapReader = dpkt.pcap.Reader(self.capture.pcap)
 
         packetList = []
@@ -42,9 +51,9 @@ class CaptureTaskTestCase(TestCase):
         db = mongodb.db
         packets = db.packets
 
+
         for timestamp, packet in pcapReader:
             jsonObj = generate_json(packet, timestamp)
-            write_to_mongo(jsonObj)
             packetList.append(jsonObj)
 
         for packet in packets.find():
@@ -58,7 +67,7 @@ class CaptureTaskTestCase(TestCase):
 
     def tearDown(self):
 
-        self.capture.pcap.delete()
+        #self.capture.pcap.delete()
 
         db = mongodb.db
         packets = db.packets

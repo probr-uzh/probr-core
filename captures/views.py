@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import generics
-from tasks import unpack_capture
 from rest_framework.renderers import JSONRenderer
+from captures.tasks import processCapture
 from serializers import CaptureSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from models import Capture
@@ -24,7 +24,7 @@ class CaptureUploadView(generics.ListCreateAPIView):
         for tag in tag_list:
             instance.tags.add(tag)
         instance.save()
-        unpack_capture.delay(instance.pk)
+        processCapture.delay(instance.pk)
         return Response('Capture upload successful')
 
 
