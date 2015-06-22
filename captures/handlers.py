@@ -29,6 +29,7 @@ def generate_json(packet, timestamp):
 
 class MongoDBHandler(object):
     def handle(self, capture):
+        capture.pcap.open()
         pcapReader = dpkt.pcap.Reader(capture.pcap)
 
         for timestamp, packet in pcapReader:
@@ -41,6 +42,7 @@ class MongoDBHandler(object):
 
 class WebsocketHandler(object):
     def handle(self, capture):
+        capture.pcap.open()
         pcapReader = dpkt.pcap.Reader(capture.pcap)
 
         for timestamp, packet in pcapReader:
