@@ -141,6 +141,7 @@ TEMPLATE_DIRS = (
 
 STATICFILES_DIRS = (
     'frontend',
+    'scripts'
 )
 
 BOWER_INSTALLED_APPS = (
