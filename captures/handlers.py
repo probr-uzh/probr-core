@@ -22,7 +22,7 @@ def generate_json(capture, packet, timestamp):
     jsonPacket['capture_uuid'] = capture.uuid
 
     if len(capture.tags.all()) > 0:
-       jsonPacket['tags'] = capture.tags.names()
+       jsonPacket['tags'] = list(capture.tags.names())
 
     jsonPacket['time'] = timestamp
     jsonPacket['signal_strength'] = -(256-tap.ant_sig.db)

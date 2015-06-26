@@ -10,7 +10,7 @@ class CaptureTaskTestCase(TestCase):
         self.pcapfile = File(open('captures/tests/resources/proberequests_smallsample.pcap', 'rb'))
 
         self.capture = Capture.objects.create(pcap=self.pcapfile)
-        self.capture.tags.add("Test");
+        self.capture.tags.add("test", "test2");
 
     def test_unpack_pcap(self):
         pcapReader = dpkt.pcap.Reader(self.capture.pcap)
@@ -21,16 +21,19 @@ class CaptureTaskTestCase(TestCase):
             jsonObj = generate_json(self.capture, packet, timestamp)
             packetList.append(jsonObj)
 
+        self.assertEqual(packetList[0]["capture_uuid"], self.capture.uuid)
         self.assertEqual(packetList[0]["mac_address_src"], "cc08e06156a1")
         self.assertEqual(packetList[0]["ssid"], "")
         self.assertEqual(packetList[0]["signal_strength"], -83)
         self.assertEqual(packetList[0]["mac_address_dst"], "ffffffffffff")
 
+        self.assertEqual(packetList[1]["capture_uuid"], self.capture.uuid)
         self.assertEqual(packetList[1]["mac_address_src"], "0024d6799d8e")
         self.assertEqual(packetList[1]["ssid"], "public")
         self.assertEqual(packetList[1]["signal_strength"], -62)
         self.assertEqual(packetList[1]["mac_address_dst"], "ffffffffffff")
 
+        self.assertEqual(packetList[2]["capture_uuid"], self.capture.uuid)
         self.assertEqual(packetList[2]["mac_address_src"], "e8150e460364")
         self.assertEqual(packetList[2]["ssid"], "eduroam")
         self.assertEqual(packetList[2]["signal_strength"], -49)
