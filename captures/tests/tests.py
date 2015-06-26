@@ -10,6 +10,7 @@ class CaptureTaskTestCase(TestCase):
         self.pcapfile = File(open('captures/tests/resources/proberequests_smallsample.pcap', 'rb'))
 
         self.capture = Capture.objects.create(pcap=self.pcapfile)
+        self.capture.tags.add("Test");
 
     def test_unpack_pcap(self):
         pcapReader = dpkt.pcap.Reader(self.capture.pcap)
@@ -17,7 +18,7 @@ class CaptureTaskTestCase(TestCase):
         packetList = []
 
         for timestamp, packet in pcapReader:
-            jsonObj = generate_json(packet, timestamp)
+            jsonObj = generate_json(self.capture, packet, timestamp)
             packetList.append(jsonObj)
 
         self.assertEqual(packetList[0]["mac_address_src"], "cc08e06156a1")
@@ -53,7 +54,7 @@ class CaptureTaskTestCase(TestCase):
 
 
         for timestamp, packet in pcapReader:
-            jsonObj = generate_json(packet, timestamp)
+            jsonObj = generate_json(self.capture, packet, timestamp)
             packetList.append(jsonObj)
 
         for packet in packets.find():
@@ -64,6 +65,8 @@ class CaptureTaskTestCase(TestCase):
         self.assertEqual(packetList[0]["mac_address_src"], dbList[0]["mac_address_src"])
         self.assertEqual(packetList[1]["mac_address_src"], dbList[1]["mac_address_src"])
         self.assertEqual(packetList[2]["mac_address_src"], dbList[2]["mac_address_src"])
+
+        self.assertEqual(packetList[0]["tags"], dbList[0]["tags"])
 
     def tearDown(self):
 
