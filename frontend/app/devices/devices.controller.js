@@ -46,7 +46,7 @@ angular.module('probrApp')
 
         var timeout;
         $scope.onlineIndicator = function (statuses) {
-            var timeoutInterval = 15000;
+            var timeoutInterval = 60000;
             if (statuses !== undefined && statuses.length > 0 && new Date(statuses[statuses.length - 1].creation_timestamp) > new Date(new Date().getTime() - timeoutInterval)) {
 
                 var tmpDate = statuses[statuses.length - 1].creation_timestamp;
@@ -86,6 +86,11 @@ angular.module('probrApp')
         Device.get({deviceId: deviceId}, function (resultObj) {
             $scope.device = resultObj;
         });
+
+        $scope.killCmd = function (uuid) {
+            $scope.recentCommand = new Command({execute: "kill $(<commands/"+uuid+".pid)", device: $scope.device.uuid});
+            $scope.recentCommand.$save();
+        }
 
         $scope.submitCmd = function () {
             $scope.recentCommand = new Command({execute: $scope.cmd, device: $scope.device.uuid});
