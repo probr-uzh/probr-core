@@ -6,6 +6,8 @@ angular.module('probrApp', [
     'ngResource',
     'angular-websocket',
     'chart.js',
+    'ui.ace',
+    'angularMoment',
     'luegg.directives'
 ])
     .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider, $resourceProvider) {

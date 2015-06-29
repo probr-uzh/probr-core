@@ -51,7 +51,7 @@ class CommandListView(generics.ListCreateAPIView):
 class CommandDetailsView(generics.RetrieveUpdateDestroyAPIView):
     renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer,PlainTextCommandRenderer]
     serializer_class = CommandSerializer
-    parser_classes = (MultiPartParser, FormParser,JSONParser,)
+    parser_classes = (MultiPartParser, FormParser, JSONParser,)
 
     def get_object(self):
         uuid = self.kwargs['uuid']
