@@ -90,15 +90,36 @@ angular.module('probrApp')
         $scope.killCmd = function (uuid) {
             $scope.recentCommand = new Command({execute: "kill $(<commands/"+uuid+".pid)", device: $scope.device.uuid});
             $scope.recentCommand.$save();
-        }
+        };
 
         $scope.submitCmd = function () {
             $scope.recentCommand = new Command({execute: $scope.cmd, device: $scope.device.uuid});
             $scope.recentCommand.$save(function (result) {
                 $scope.cmd = '';
             });
-        }
+        };
 
+        var timeout;
+        $scope.onlineIndicator = function (statuses) {
+            var timeoutInterval = 60000;
+            if (statuses !== undefined && statuses.length > 0 && new Date(statuses[statuses.length - 1].creation_timestamp) > new Date(new Date().getTime() - timeoutInterval)) {
+
+                var tmpDate = statuses[statuses.length - 1].creation_timestamp;
+                clearTimeout(timeout);
+                timeout = setTimeout(function () {
+                    // haven't gotten new updates in 15 seconds
+                    if (tmpDate === statuses[statuses.length - 1].creation_timestamp) {
+                        $scope.$apply(function () {
+                            statuses[statuses.length - 1].creation_timestamp = new Date(new Date().getTime() - timeoutInterval).toISOString(); // change to force offline status
+                        });
+                    }
+                }, timeoutInterval);
+
+                return "online";
+            }
+
+            return "offline";
+        };
     })
 
     .controller('DeviceDeleteModalCtrl', function ($scope, $modalInstance) {
