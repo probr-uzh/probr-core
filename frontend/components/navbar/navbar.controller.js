@@ -11,10 +11,6 @@ angular.module('probrApp')
             {
                 'title': 'Captures',
                 'link': '/web/captures'
-            },
-            {
-                'title': 'Packets',
-                'link': '/web/packets'
             }
         ];
 

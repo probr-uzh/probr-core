@@ -12,18 +12,23 @@ angular.module('probrApp')
             templateUrl: '/static/app/devices/deviceCpuChart/deviceCpuChart.html',
             link: function (scope, elements, attr) {
 
+                scope.dataCollections = [[],[]];
+                scope.dataLabels = [];
+
                 var pushToUI = function (statusObj) {
-                    scope.cpuDataCollection[0].push(statusObj.cpu_load);
-                    scope.cpuDataLabels.push($filter('date')(statusObj.creation_timestamp, 'HH:mm:ss'));
 
-                    if (scope.cpuDataCollection[0].length > 10) {
-                        scope.cpuDataCollection[0].shift();
-                        scope.cpuDataLabels.shift();
+                    scope.dataCollections[0].push(statusObj.cpu_load);
+                    scope.dataCollections[1].push((statusObj.used_memory / statusObj.total_memory) * 100);
+
+                    scope.dataLabels.push($filter('date')(statusObj.creation_timestamp, 'HH:mm:ss'));
+
+                    if (scope.dataCollections[0].length > 10) {
+                        scope.dataCollections[0].shift();
+                        scope.dataCollections[1].shift();
+                        scope.dataLabels.shift();
                     }
-                }
 
-                scope.cpuDataCollection = [[]];
-                scope.cpuDataLabels = [];
+                }
 
                 scope.$watchCollection(
                     "statuses",
@@ -55,8 +60,7 @@ angular.module('probrApp')
                     scope.chartOptions.pointDot = false;
                 }
 
-                scope.series = ['CPU-Load'];
-
+                scope.series = ['CPU-Load', 'Memory Usage'];
 
             }
         }
