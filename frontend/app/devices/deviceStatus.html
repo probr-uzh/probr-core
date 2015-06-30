@@ -2,9 +2,15 @@
 
 <div class="container">
 
-    <h1><span class="fa fa-circle" ng-class="onlineIndicator(statuses)"></span> {{ device.name }} <small>last seen <span am-time-ago="statuses[0].creation_timestamp"></span></small></h1>
+    <h1>
+        <status-indicator device="device" statuses="device.statuses"></status-indicator>
+        {{ device.name }}
+        <small>
+            last seen <span am-time-ago="statuses[0].creation_timestamp"></span>
+        </small>
+    </h1>
 
-    <div class="row" style="margin-bottom: 30px;">
+    <div class="row">
         <div class="col-xs-12">
             <div class="console" scroll-glue>
                 <div ng-repeat="command in commands | orderBy: 'creation_timestamp' : false track by command.uuid">
@@ -31,6 +37,7 @@
             </button>
         </div>
     </div>
+
     <div class="row" style="margin-bottom: 30px;">
         <div class="col-md-6">
             <device-cpu-chart statuses="statuses"></device-cpu-chart>
