@@ -19,6 +19,7 @@
 <div ui-view=""></div>
 
 {% compress js %}
+    <script src="{% static "bower_components/ace-builds/src-min-noconflict/ace.js" %}"></script>
     <script src="{% static "bower_components/lodash/lodash.js" %}"></script>
     <script src="{% static "bower_components/Chart.js/Chart.js" %}"></script>
     <script src="{% static "bower_components/angular/angular.js" %}"></script>
@@ -29,6 +30,9 @@
     <script src="{% static "bower_components/angular-chart.js/angular-chart.js" %}"></script>
     <script src="{% static "bower_components/angular-websocket/angular-websocket.js" %}"></script>
     <script src="{% static "bower_components/angular-scroll-glue/src/scrollglue.js" %}"></script>
+    <script src="{% static "bower_components/angular-ui-ace/ui-ace.js" %}"></script>
+    <script src="{% static "bower_components/moment/moment.js" %}"></script>
+    <script src="{% static "bower_components/angular-moment/angular-moment.min.js" %}"></script>
     <script src="{% static "app/app.js" %}"></script>
     <script src="{% static "app/captures/captures.js" %}"></script>
     <script src="{% static "app/captures/captures.controller.js" %}"></script>
@@ -37,7 +41,7 @@
     <script src="{% static "app/devices/devices.js" %}"></script>
     <script src="{% static "app/devices/devices.controller.js" %}"></script>
     <script src="{% static "app/devices/deviceCpuChart/deviceCpuChart.directive.js" %}"></script>
-    <script src="{% static "app/devices/deviceCard/deviceCard.directive.js" %}"></script>
+    <script src="{% static "app/devices/statusIndicator/statusIndicator.directive.js" %}"></script>
     <script src="{% static "app/resources/command.service.js" %}"></script>
     <script src="{% static "app/resources/device.service.js" %}"></script>
     <script src="{% static "app/resources/status.service.js" %}"></script>

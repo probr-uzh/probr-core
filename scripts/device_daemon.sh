@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-VERSION='0.2.2'
+VERSION='0.2.3'
 BASE_HOST='probr.sook.ch'
 BASE_URL="https://$BASE_HOST"
 UUID_FILE='uuid.txt'
@@ -19,7 +19,8 @@ clean_up() {
     echo "Exiting ..."
     exit
 }
-trap 'clean_up' EXIT
+# Placing another trap on exit breaks the other trap on the remote script
+# trap 'clean_up' EXIT
 
 # Performs regular expression matching using extended regex (i.e., no escaping required)
 # Arguments:

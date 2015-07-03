@@ -22,6 +22,71 @@
   font-weight: lighter;
 }
 
+.ace_editor {
+  height: 200px;
+}
+
+.terminal_execute {
+  height: 200px;
+  width: 100%;
+}
+
+.progress {
+  color: white;
+  background-color: lighten(@darkgrey, 40%);
+}
+
+.scalefactor {
+  color: #0078b3;
+}
+
+.card-section-header {
+  font-size: 16px;
+  color: @accentcolor;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-weight: normal;
+}
+
+.card {
+
+  color: lighten(@darkgrey, 20%);
+  background-color: white;
+  border: 1px solid lighten(@darkgrey, 60%);;
+
+  .card-content {
+
+    .status-indicator {
+      position: absolute;
+      right: 23px;
+      top: 7px;
+    }
+
+    padding: 15px;
+    text-align: left;
+    height: 220px;
+
+  }
+
+  margin-bottom: 30px;
+
+  .chart-container {
+    margin-left: -20px;
+    margin-right: -20px;
+  }
+
+  .fa-trash-o:hover {
+    color: @brand-danger;
+  }
+
+}
+
+
+.terminal > .col-xs-1 {
+  margin-left: -15px;
+  padding: 0px;
+}
+
 .console-input {
   font: 11pt/1.25 Monaco, monospace;
 
