@@ -30,14 +30,19 @@ COMMAND_STATUS_CHOICES = (
 class TaggedDevice(TaggedItemBase):
     content_object = models.ForeignKey('Device')
 
-class Device(BaseModel):
+class Device(models.Model):
     name = models.CharField(max_length=255)
+
+    creation_timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    modification_timestamp = models.DateTimeField(auto_now=True, db_index=True)
 
     type = models.CharField(max_length=3, choices=DEVICE_TYPE_CHOICES, default="UKW")
 
     wifi_chip = models.CharField(max_length=255, blank=True, default="")
 
     os = models.CharField(max_length=255, blank=True, default="")
+
     description = models.TextField(blank=True, default="")
 
     tags = TaggableManager(through=TaggedDevice)
