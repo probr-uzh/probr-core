@@ -1,6 +1,5 @@
-from django.conf.urls import patterns, url
-from views import DeviceListView, DeviceDetailsView,\
-    StatusListView, CommandListView, CommandDetailsView
+from django.conf.urls import url
+from views import DeviceListView, DeviceDetailsView,CommandListView, CommandDetailsView, StatusList
 
 urlpatterns = [
     #Devices
@@ -15,7 +14,7 @@ urlpatterns = [
     #Statuses
 
     #list of all statuses
-    url(r'^api/statuses/$', StatusListView.as_view(), name='status-list'),
+    url(r'^api/statuses/$', StatusList.as_view(), name='status-list'),
 
     ###########################################
 

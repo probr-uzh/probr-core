@@ -1,7 +1,4 @@
-from django.views.generic import TemplateView
 from rest_framework import generics, renderers
-from rest_framework.mixins import DestroyModelMixin
-from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from devices.renderers import PlainTextCommandRenderer, PlainTextCommandsRenderer
@@ -38,6 +35,49 @@ class StatusListView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(ip=self.get_client_ip(self.request))
+
+class StatusList(generics.ListCreateAPIView):
+    queryset = Status.objects.all()
+    serializer_class = StatusSerializer
+
+    def list(self, request, *args, **kwargs):
+        api_key = request.META['HTTP_API_KEY']
+        queryset = Status.objects.filter(device_id=api_key)
+        if not queryset:
+            return Response(status=403, data='The Api-Key is wrong.')
+        else:
+            serializer = StatusSerializer(queryset, many=True)
+            return Response(status=200, data=serializer.data)
+
+    def get_client_ip(self, request):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+
+
+    def post(self, request, *args, **kwargs):
+        api_key = request.META['HTTP_API_KEY']
+
+        try:
+            device = Device.objects.get(apikey=api_key)
+        except Device.DoesNotExist:
+            return Response(status=403,data='The Api-Key does not exist.')
+
+        data_dict = request.data
+        data_dict[u'ip'] = self.get_client_ip(self.request)
+        data_dict[u'device'] = api_key
+        serializer = StatusSerializer(data=data_dict)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(status=200, data=serializer.data)
+        else:
+            return Response(status=0,data='Bad Request.')
+
+
+
 
 #Commands
 ##################################################

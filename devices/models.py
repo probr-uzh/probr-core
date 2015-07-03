@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import signals
 
-from utils.models import BaseModel, publishPostSaveMessage
+from utils.models import BaseModel, publishPostSaveMessage,publishPostSaveMessageDevice, UUIDField
 from taggit.managers import TaggableManager
 from taggit.models import TaggedItemBase
 
@@ -31,6 +31,8 @@ class TaggedDevice(TaggedItemBase):
     content_object = models.ForeignKey('Device')
 
 class Device(models.Model):
+    apikey = UUIDField("ID", primary_key=True, editable=False)
+
     name = models.CharField(max_length=255)
 
     creation_timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
@@ -50,7 +52,7 @@ class Device(models.Model):
     def __unicode__(self):
         return self.name
 
-signals.post_save.connect(publishPostSaveMessage, sender=Device)
+signals.post_save.connect(publishPostSaveMessageDevice, sender=Device)
 
 class Status(BaseModel):
     device = models.ForeignKey(Device, related_name="statuses")
