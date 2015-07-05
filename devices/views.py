@@ -62,7 +62,7 @@ class StatusList(generics.ListCreateAPIView):
         api_key = request.META['HTTP_API_KEY']
 
         try:
-            device = Device.objects.get(apikey=api_key)
+            Device.objects.get(apikey=api_key)
         except Device.DoesNotExist:
             return Response(status=403,data='The Api-Key does not exist.')
 
@@ -87,15 +87,22 @@ class CommandListView(generics.ListCreateAPIView):
 
     def list(self, request, *args, **kwargs):
         status = request.GET.get('status')
+
+        #check if apikey was set in the header
         api_key = request.META.get('HTTP_API_KEY',None)
         if api_key is None:
             return Response(status=403, data='You have to provide an Api-Key in the header.')
+
+        #check if device with given apikey exists
+        try:
+            Device.objects.get(apikey=api_key)
+        except Device.DoesNotExist:
+            return Response(status=403,data='The given Api-Key is wrong.')
+
+
         queryset = Command.objects.filter(status=status,device=api_key)
-        if not queryset:
-            return Response(status=403, data='The Api-Key is wrong.')
-        else:
-            serializer = CommandSerializer(queryset, many=True)
-            return Response(status=200, data=serializer.data)
+        serializer = CommandSerializer(queryset, many=True)
+        return Response(status=200, data=serializer.data)
 
 
 class CommandDetailsView(generics.RetrieveUpdateDestroyAPIView):
