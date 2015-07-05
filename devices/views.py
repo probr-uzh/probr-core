@@ -104,6 +104,7 @@ class CommandListView(generics.ListCreateAPIView):
             queryset = Command.objects.filter(device=api_key)
         else:
             queryset = Command.objects.filter(status=status,device=api_key)
+
         serializer = CommandSerializer(queryset, many=True)
         return Response(status=200, data=serializer.data)
 
@@ -113,12 +114,58 @@ class CommandDetailsView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CommandSerializer
     parser_classes = (MultiPartParser, FormParser, JSONParser,)
 
-    def get_object(self):
-        uuid = self.kwargs['uuid']
-        return Command.objects.get(uuid=uuid)
+    def get(self, request, *args, **kwargs):
+
+        #check if apikey was set in the header
+        api_key = request.META.get('HTTP_API_KEY',None)
+        if api_key is None:
+            return Response(status=403, data='You have to provide an Api-Key in the header.')
+
+        #check if device with given apikey exists
+        try:
+            Device.objects.get(apikey=api_key)
+        except Device.DoesNotExist:
+            return Response(status=403,data='The given Api-Key is wrong.')
+
+        uuid = self.kwargs.get('uuid',None)
+        if uuid is None:
+            return Response(status=400, data='You have to specify a command id in the URL.')
+
+        #find the respective command
+        try:
+            command = Command.objects.get(uuid=uuid,device=api_key)
+        except Command.DoesNotExist:
+            return Response(status=404, data='There is no command for the given id.')
+
+        serializer = CommandSerializer(command,many=False)
+        return Response(status=200, data=serializer.data)
+
+
 
     def post(self, request, *args, **kwargs):
-        command = self.get_object()
+
+        #check if apikey was set in the header
+        api_key = request.META.get('HTTP_API_KEY',None)
+        if api_key is None:
+            return Response(status=403, data='You have to provide an Api-Key in the header.')
+
+        #check if device with given apikey exists
+        try:
+            Device.objects.get(apikey=api_key)
+        except Device.DoesNotExist:
+            return Response(status=403,data='The given Api-Key is wrong.')
+
+        uuid = self.kwargs.get('uuid',None)
+        if uuid is None:
+            return Response(status=400, data='You have to specify a command id in the URL.')
+
+        #find the respective command
+        try:
+            command = Command.objects.get(uuid=uuid,device=api_key)
+        except Command.DoesNotExist:
+            return Response(status=404, data='There is no command for the given id.')
+
+
 
         if request.META['CONTENT_TYPE'] == "application/json":
             command.status = request.data['status']
