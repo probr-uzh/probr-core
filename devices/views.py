@@ -74,7 +74,7 @@ class StatusList(generics.ListCreateAPIView):
             serializer.save()
             return Response(status=200, data=serializer.data)
         else:
-            return Response(status=0,data='Bad Request.')
+            return Response(status=400,data='Bad Request.')
 
 
 
@@ -84,8 +84,18 @@ class StatusList(generics.ListCreateAPIView):
 class CommandListView(generics.ListCreateAPIView):
     renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer,PlainTextCommandsRenderer]
     serializer_class = CommandSerializer
-    queryset = Command.objects.all()
-    filter_fields = ('status','device',)
+
+    def list(self, request, *args, **kwargs):
+        status = request.GET.get('status')
+        api_key = request.META.get('HTTP_API_KEY',None)
+        if api_key is None:
+            return Response(status=403, data='You have to provide an Api-Key in the header.')
+        queryset = Command.objects.filter(status=status,device=api_key)
+        if not queryset:
+            return Response(status=403, data='The Api-Key is wrong.')
+        else:
+            serializer = CommandSerializer(queryset, many=True)
+            return Response(status=200, data=serializer.data)
 
 
 class CommandDetailsView(generics.RetrieveUpdateDestroyAPIView):
@@ -107,3 +117,4 @@ class CommandDetailsView(generics.RetrieveUpdateDestroyAPIView):
             command.status = 2
         command.save()
         return Response('Command result saved')
+
