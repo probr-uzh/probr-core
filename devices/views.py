@@ -86,7 +86,7 @@ class CommandListView(generics.ListCreateAPIView):
     serializer_class = CommandSerializer
 
     def list(self, request, *args, **kwargs):
-        status = request.GET.get('status')
+        status = request.GET.get('status',None)
 
         #check if apikey was set in the header
         api_key = request.META.get('HTTP_API_KEY',None)
@@ -99,8 +99,11 @@ class CommandListView(generics.ListCreateAPIView):
         except Device.DoesNotExist:
             return Response(status=403,data='The given Api-Key is wrong.')
 
-
-        queryset = Command.objects.filter(status=status,device=api_key)
+        #check if status query param was given or not, and act accordingly
+        if status is None:
+            queryset = Command.objects.filter(device=api_key)
+        else:
+            queryset = Command.objects.filter(status=status,device=api_key)
         serializer = CommandSerializer(queryset, many=True)
         return Response(status=200, data=serializer.data)
 
