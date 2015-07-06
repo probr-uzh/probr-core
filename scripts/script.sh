@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 
 # This subhell/sourced detection MUST be executed as the very first statement
+# See below for detailed documentation
 is_sourced() {
   [ "$_" != "$0" ]
   echo $?
@@ -10,6 +11,7 @@ SOURCE_DETECTED=$(is_sourced)
 #### BEGIN Global variables ####
 VERSION='0.3.0'
 UUID_FILE='uuid.txt'
+API_KEY_FILE='api.key'
 # BASE_URL='http://localhost:8080'
 BASE_URL='https://probr.sook.ch'
 # Time to sleep before starting in seconds
@@ -49,7 +51,7 @@ setup_debug_mode() {
       set -x
     fi
 
-    if [ "$POSIX_COMPATIBLE" == 'true' ]; then
+    if [ "$POSIX_COMPATIBLE" != 'true' ]; then
     # Exit on errors in other functions or via the time command [POSIX incompatible]
     set -o errtrace
 
@@ -89,38 +91,17 @@ cd_into_script_dir() {
 # trap 'clean_up' EXIT
 
 
-# Performs regular expression matching using extended regex (i.e., no escaping required)
+# Performs an http post request with json payload to the probr server
 # Arguments:
-#   string
-#   regexp with at least one capture group
-# Returns:
-#   first capture group
-# Example:
-#   extract '"id":"example_id"' '"id":"([a-zA-Z-_]+)"'
-#   => example_id
-extract() {
-  echo $1 | sed -E 's/^.*'$2'.*$/\1/'
-}
-
-# Extract uuid key from json
-# Arguments:
-#   json string containing a "uuid"
-extract_uuid() {
-    # UUID regex based on: http://jonalmeida.com/posts/2014/05/20/testing-for-a-correct-uuid/
-    local uuid_regex='"uuid":"([0-9a-fA-F]{8}-?[0-9a-fA-F]{4}-?4[0-9a-fA-F]{3}-?[89abAB][0-9a-fA-F]{3}-?[0-9a-fA-F]{12})"'
-    extract "$1" "$uuid_regex"
-}
-
-# Issues an http post request with json payload to the probr server
-# Arguments:
-#   url
+#   probr url suffix
 #   json body data
 # Returns:
 #   http response
 # Example:
-#   post '/api/devices/' '{"name":"odroid-01"}'
+#   post '/api/statuses/' '{"cpu_load": "0.4"}'
 post() {
     echo $(wget --header 'Content-Type: application/json' \
+                --header "Api-Key: $(api_key)" \
                 --output-document=- \
                 --quiet \
                 --post-data="$2" \
@@ -128,59 +109,31 @@ post() {
           )
 }
 
-register_device() {
-    local name=$(uname -n)
-    local os=$(uname -a)
-    # TODO: Provide this on manual device registration (via the web interface)
-    #  or find a way to automatically determine it
-    #  choices: odroid: armv71, openwrt(vbox): i686, pc/laptop 64 bit: x86_64
-    # Enum from `probr-core/devices/models.py`
-    # RPA := Raspberry Pi Model A
-    # RPB := Raspberry Pi Model B
-    # ODR := ODROID
-    # DWR := DD-WRT Router
-    # OWR := OpenWRT Router
-    # UKW := Unknown
-    local type='ODR'
-    # TODO: Find a way to determine the wifi_chip
-    #  starting point: dmesg
-    local wifi='unknown'
-    # [Windows + Mac OS X incompatible]
-    local machine
-    # machine=$(cat /proc/cpuinfo | awk -F ':' '/machine/ { print $2 }')
-    machine='mymac'
-    local description="$machine: added with device script $VERSION"
-
-    body_data='{"name":"'$name'","os":"'$os'","tags":[],"type":"'$type'","wifi_chip":"'$wifi'","description":"'$description'"}'
-    response=$(post '/api/devices/' "$body_data")
-    local uuid
-    uuid=$(extract_uuid "$response")
-
-    if [ -n "$uuid" ]; then
-        echo "$uuid" > "$UUID_FILE"
-        echo "\"$name\" successfully registered with device uuid $uuid"
-    else
-        echo "Error during device registration. Got response: $response"
-    fi
+api_key() {
+  cat "$API_KEY_FILE"
 }
 
-# Read the device uuid from file
-device_uuid() {
-    cat "$UUID_FILE"
+# Arguments:
+#   $1 api key
+set_api_key() {
+  echo "$1" > $API_KEY_FILE
 }
 
-bootstrap_device() {
-    if [ -s "$UUID_FILE" ]; then
-        echo "Reusing device uuid $(device_uuid)"
-    else
-        echo "First time execution, registering device ..."
-        register_device
-    fi
-}
-
+# Arguments:
+#   $1 api key (mandatory only on first execution)
 main() {
-    sleep $SLEEP_TIME
-    bootstrap_device
+  sleep $SLEEP_TIME
+  API_KEY="$1"
+  if [ -n "$API_KEY" ]; then
+    set_api_key "$API_KEY"
+  fi
+
+  if [ -s "$API_KEY_FILE" ]; then
+    echo "Using api key \"$(api_key)\""
+  else
+    echo "No api key available. Please provide an api key as script argument."
+    exit 1
+  fi
 }
 
 
@@ -194,4 +147,6 @@ else
   # Pass original parameters to main function
   main "$@"
 fi
+
+# TODO: Remove this debug output after initial script development
 echo "FINISH"
