@@ -31,7 +31,7 @@ class TaggedDevice(TaggedItemBase):
     content_object = models.ForeignKey('Device')
 
 class Device(models.Model):
-    apikey = UUIDField("ID", primary_key=True, editable=False)
+    apikey = UUIDField(primary_key=True, editable=False)
 
     name = models.CharField(max_length=255)
 
