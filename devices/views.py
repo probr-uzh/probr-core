@@ -1,8 +1,11 @@
 from rest_framework import generics, renderers
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from devices.renderers import PlainTextCommandRenderer, PlainTextCommandsRenderer
 from models import Device, Status, Command
+from authentication import ApikeyAuthentication
+from rest_framework.authentication import SessionAuthentication
 from serializers import DeviceSerializer, StatusSerializer, CommandSerializer
 
 #Devices
@@ -25,50 +28,27 @@ class StatusListView(generics.ListCreateAPIView):
     filter_fields = ('device',)
     serializer_class = StatusSerializer
 
-    def get_client_ip(self, request):
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        if x_forwarded_for:
-            ip = x_forwarded_for.split(',')[0]
-        else:
-            ip = request.META.get('REMOTE_ADDR')
-        return ip
-
     def perform_create(self, serializer):
-        serializer.save(ip=self.get_client_ip(self.request))
+        serializer.save(ip=get_client_ip(self.request))
+
 
 class StatusList(generics.ListCreateAPIView):
     queryset = Status.objects.all()
     serializer_class = StatusSerializer
+    authentication_classes = (ApikeyAuthentication,)
 
     def list(self, request, *args, **kwargs):
-        api_key = request.META['HTTP_API_KEY']
-        queryset = Status.objects.filter(device_id=api_key)
-        if not queryset:
-            return Response(status=403, data='The Api-Key is wrong.')
-        else:
-            serializer = StatusSerializer(queryset, many=True)
-            return Response(status=200, data=serializer.data)
-
-    def get_client_ip(self, request):
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        if x_forwarded_for:
-            ip = x_forwarded_for.split(',')[0]
-        else:
-            ip = request.META.get('REMOTE_ADDR')
-        return ip
+        device = Device.objects.get(apikey=request.META.get('HTTP_API_KEY',None))
+        queryset = Status.objects.filter(device_id=device.uuid)
+        serializer = StatusSerializer(queryset, many=True)
+        return Response(status=200, data=serializer.data)
 
 
     def post(self, request, *args, **kwargs):
-        api_key = request.META['HTTP_API_KEY']
-
-        try:
-            Device.objects.get(apikey=api_key)
-        except Device.DoesNotExist:
-            return Response(status=403,data='The Api-Key does not exist.')
-
+        device = Device.objects.get(apikey=request.META['HTTP_API_KEY'])
         data_dict = request.data
-        data_dict[u'ip'] = self.get_client_ip(self.request)
-        data_dict[u'device'] = api_key
+        data_dict[u'ip'] = get_client_ip(self.request)
+        data_dict[u'device'] = device.uuid
         serializer = StatusSerializer(data=data_dict)
         if serializer.is_valid():
             serializer.save()
@@ -77,63 +57,57 @@ class StatusList(generics.ListCreateAPIView):
             return Response(status=400,data='Bad Request.')
 
 
-
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
 
 #Commands
 ##################################################
 class CommandListView(generics.ListCreateAPIView):
     renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer,PlainTextCommandsRenderer]
     serializer_class = CommandSerializer
+    authentication_classes = (ApikeyAuthentication,)
 
     def list(self, request, *args, **kwargs):
+
+        device = Device.objects.get(apikey=request.META.get('HTTP_API_KEY',None))
+
+        #try to get status from query parameters
         status = request.GET.get('status',None)
-
-        #check if apikey was set in the header
-        api_key = request.META.get('HTTP_API_KEY',None)
-        if api_key is None:
-            return Response(status=403, data='You have to provide an Api-Key in the header.')
-
-        #check if device with given apikey exists
-        try:
-            Device.objects.get(apikey=api_key)
-        except Device.DoesNotExist:
-            return Response(status=403,data='The given Api-Key is wrong.')
 
         #check if status query param was given or not, and act accordingly
         if status is None:
-            queryset = Command.objects.filter(device=api_key)
+            queryset = Command.objects.filter(device_id=device.uuid)
         else:
-            queryset = Command.objects.filter(status=status,device=api_key)
+            queryset = Command.objects.filter(status=status,device_id=device.uuid)
 
         serializer = CommandSerializer(queryset, many=True)
         return Response(status=200, data=serializer.data)
+
 
 
 class CommandDetailsView(generics.RetrieveUpdateDestroyAPIView):
     renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer,PlainTextCommandRenderer]
     serializer_class = CommandSerializer
     parser_classes = (MultiPartParser, FormParser, JSONParser,)
+    authentication_classes = (ApikeyAuthentication,)
+
 
     def get(self, request, *args, **kwargs):
 
-        #check if apikey was set in the header
-        api_key = request.META.get('HTTP_API_KEY',None)
-        if api_key is None:
-            return Response(status=403, data='You have to provide an Api-Key in the header.')
-
-        #check if device with given apikey exists
-        try:
-            Device.objects.get(apikey=api_key)
-        except Device.DoesNotExist:
-            return Response(status=403,data='The given Api-Key is wrong.')
-
+        #get uuid from endpoint url
         uuid = self.kwargs.get('uuid',None)
-        if uuid is None:
-            return Response(status=400, data='You have to specify a command id in the URL.')
+
+        #get the device that sent the request
+        device = Device.objects.get(apikey=request.META.get('HTTP_API_KEY',None))
 
         #find the respective command
         try:
-            command = Command.objects.get(uuid=uuid,device=api_key)
+            command = Command.objects.get(uuid=uuid,device_id=device.uuid)
         except Command.DoesNotExist:
             return Response(status=404, data='There is no command for the given id.')
 
@@ -144,34 +118,26 @@ class CommandDetailsView(generics.RetrieveUpdateDestroyAPIView):
 
     def post(self, request, *args, **kwargs):
 
-        #check if apikey was set in the header
-        api_key = request.META.get('HTTP_API_KEY',None)
-        if api_key is None:
-            return Response(status=403, data='You have to provide an Api-Key in the header.')
-
-        #check if device with given apikey exists
-        try:
-            Device.objects.get(apikey=api_key)
-        except Device.DoesNotExist:
-            return Response(status=403,data='The given Api-Key is wrong.')
-
+        #get uuid from endpoint url
         uuid = self.kwargs.get('uuid',None)
-        if uuid is None:
-            return Response(status=400, data='You have to specify a command id in the URL.')
+
+        #get the device that sent the request
+        device = Device.objects.get(apikey=request.META.get('HTTP_API_KEY',None))
 
         #find the respective command
         try:
-            command = Command.objects.get(uuid=uuid,device=api_key)
+            command = Command.objects.get(uuid=uuid,device_id=device.uuid)
         except Command.DoesNotExist:
             return Response(status=404, data='There is no command for the given id.')
-
 
 
         if request.META['CONTENT_TYPE'] == "application/json":
             command.status = request.data['status']
         else:
+            print str(request.GET)
             command.result = request.FILES['result'].read()
             command.status = 2
         command.save()
         return Response('Command result saved')
+
 
