@@ -20,9 +20,14 @@ SLEEP_ON_STARTUP=0
 # Time between two status requests in seconds
 SLEEP_PERIOD=5
 
+## Server constants
+STATUS_NOT_YET_EXECUTED=0
+STATUS_EXECUTING=1
+STATUS_EXECUTED=2
+
 ## Debug mode (true|false)
 DEBUG=false
-AUTO_DETECT_SOURCED=false
+AUTO_DETECT_SOURCED=true
 TRACE=false
 POSIX_COMPATIBLE=false
 PROXY=no
@@ -96,36 +101,79 @@ cd_into_script_dir() {
 # trap 'clean_up' EXIT
 
 
+# Performs a wget http request to the probr server
+# Arguments:
+#   probr url suffix
+#   wget options (optional)
+# Returns:
+#   http response
+# Example:
+#   base_wget '/api/statuses/' --header 'Accept: text/plain'
+base_wget() {
+  local url_suffix="$1"
+  shift
+  echo $(wget --output-document=- \
+              --header "Api-Key: $(api_key)" \
+              --quiet \
+              --execute use_proxy=$PROXY \
+              --execute http_proxy=$HTTP_PROXY \
+              --execute https_proxy=$HTTPS_PROXY \
+              "$@" \
+              -- "${BASE_URL}${url_suffix}"
+      )
+}
+
+# Performs an http get request to the probr server
+# Arguments:
+#   probr url suffix
+#   wget options (optional)
+# Returns:
+#   http response
+# Exampe:
+#   get 'api/commands/'
+get() {
+  local url_suffix="$1"
+  shift
+  base_wget "$url_suffix" \
+                --header 'Accept: text/plain' \
+                "$@"
+}
+
 # Performs an http post request with json payload to the probr server
 # Arguments:
 #   probr url suffix
 #   json body data
+#   wget options (optional)
 # Returns:
 #   http response
 # Example:
 #   post '/api/statuses/' '{"cpu_load": "0.4"}'
 post() {
-    echo $(wget --header 'Content-Type: application/json' \
-                --header "Api-Key: $(api_key)" \
-                --output-document=- \
-                --quiet \
-                --execute use_proxy=$PROXY \
-                --execute http_proxy=$HTTP_PROXY \
-                --execute https_proxy=$HTTPS_PROXY \
-                --post-data="$2" \
-                -- "${BASE_URL}$1"
-          )
+  local url_suffix="$1"
+  local post_data="$2"
+  shift 2
+  base_wget "$url_suffix" \
+                --header 'Content-Type: application/json' \
+                --post-data="$post_data" \
+                "$@"
+}
+
+device_status() {
+  total_memory=$(top -bn1 | awk '/KiB Mem/ { print $3 };')
+  used_memory=$(top -bn1 | awk '/KiB Mem/ { print $5 };')
+  total_disk=$(df -k . | awk 'NR==2 { print $4 };')
+  used_disk=$(df -k . | awk 'NR==2 { print $3 };')
+  cpu_load=$(top -bn2 | awk '/Cpu/ { print 100 - $8};' | tail -n1)
+
+  echo '{"cpu_load":"'$cpu_load'","used_disk":"'$used_disk'","total_disk":"'$total_disk'","used_memory":"'$used_memory'","total_memory":"'$total_memory'"}'
+}
+
+fake_device_status() {
+  echo '{"cpu_load":"0.3","used_disk":"10","total_disk":"20","used_memory":"256","total_memory":"2048"}' 
 }
 
 post_status() {
-    total_memory=$(top -bn1 | awk '/KiB Mem/ { print $3 };')
-    used_memory=$(top -bn1 | awk '/KiB Mem/ { print $5 };')
-    total_disk=$(df -k . | awk 'NR==2 { print $4 };')
-    used_disk=$(df -k . | awk 'NR==2 { print $3 };')
-    cpu_load=$(top -bn2 | awk '/Cpu/ { print 100 - $8};' | tail -n1)
-
-    body_data='{"cpu_load":"'$cpu_load'","used_disk":"'$used_disk'","total_disk":"'$total_disk'","used_memory":"'$used_memory'","total_memory":"'$total_memory'"}'
-    response=$(post '/api/statuses/' "$body_data")
+    response=$(post '/api/statuses/' "$(device_status)")
 
     if [ -n "$response" ]; then
         echo "Successfully posted status: $response"
@@ -138,10 +186,93 @@ api_key() {
   cat "$API_KEY_FILE"
 }
 
-# Arguments:
-#   $1 api key
 set_api_key() {
-  echo "$1" > $API_KEY_FILE
+  local api_key=$1
+  echo "${api_key}" > $API_KEY_FILE
+}
+
+command_file() {
+  local command_uuid=$1
+  echo "./commands/${command_uuid}.sh"
+}
+
+command_log_file() {
+  local command_uuid=$1
+  echo "./commands/${command_uuid}.log"
+}
+
+command_pid_file() {
+  local command_uuid=$1
+  echo "./commands/${command_uuid}.pid"
+}
+
+command_pid() {
+  local command_uuid=$1
+  cat $(command_pid_file "$command_uuid")
+}
+
+# Arguments:
+#   command uuid
+#   status: defined in `probr-core/devices/models.py COMMAND_STATUS_CHOICES`
+#             use constants `STATUS_NOT_YET_EXECUTED`, `STATUS_EXECUTING`, `STATUS_EXECUTED`
+set_command_status() {
+  post "/api/commands/$1/" '{"status":"'$2'"}'
+}
+
+non_executed_commands() {
+  get "/api/commands/?status=${STATUS_NOT_YET_EXECUTED}"
+}
+
+submit_result() {
+  local command_uuid=$1
+  local log_file=$2
+  # We need to make a copy of the log file, because curl can't handle the still opened log file
+  cp "${log_file}" "${log_file}.upload"
+  echo $(curl --header "Api-Key: $(api_key)" -v -F result=@${log_file}.upload $BASE_URL/api/commands/"$command_uuid"/)
+  rm "${log_file}.upload"
+}
+
+# Callback function when exiting a background command
+finished_command() {
+  local command_uuid=$1
+  # TODO: Why do we first submit the result and then pkill the child processes and not vice versa?
+  # Consider that there is a race condition: finished_command requires that that pid was already written to the .pid file !!!
+  submit_result "$command_uuid" "$(command_log_file "$command_uuid")"
+  # Kill own child processes. This will exit with non-zero value if the process already finished.
+  pkill -P $(command_pid "$command_uuid")
+  # Clean up all command-related files
+  rm ./commands/${command_uuid}*
+  exit
+}
+
+# Note:
+#   Depends on the `finished_command` callback function using a trap on script exit
+#   Instead of executing the command within its own subprocess with ./COMMAND.sh,
+#   we are using source to run it within the same process such that can kill the
+#   childprocess later.
+execute_in_background() {
+  local command_file=$1
+  local log_file=$2
+  local command_uuid=$3
+  (trap "finished_command ${command_uuid}" EXIT; source ${command_file}) >${log_file} 2>&1 </dev/null &
+  # Write pid from most recently executed background process to file and stdout
+  echo $! | tee "$(command_pid_file "$command")"
+}
+
+execute_commands() {
+  mkdir -p commands
+  for command in $(non_executed_commands); do
+    cmd_file=$(command_file "$command")
+    echo "Downloading command $command ..."
+    get "/api/commands/${command}" > "$cmd_file"
+    chmod +x "$cmd_file"
+    echo "Starting command $command ..."
+    set_command_status "$command" "$STATUS_EXECUTING"
+
+    # Execute script, while piping all output to a log file
+    pid=$(execute_in_background "$cmd_file" "$(command_log_file "$command")" "$command")
+    echo "Started command ${command} with pid ${pid}"
+  done
 }
 
 infinite_loop() {
@@ -149,18 +280,20 @@ infinite_loop() {
   do
       echo "Infinite loop [hit CTRL+C to stop]"
       post_status
-      # execute_commands
+      execute_commands
       sleep $SLEEP_PERIOD
   done
 }
 
 # Arguments:
-#   $1 api key (mandatory only on first execution)
+#   api key (mandatory only on first execution; can be overwritten later)
 main() {
+  local api_key="$1"
+
   sleep $SLEEP_ON_STARTUP
-  API_KEY="$1"
-  if [ -n "$API_KEY" ]; then
-    set_api_key "$API_KEY"
+
+  if [ -n "$api_key" ]; then
+    set_api_key "$api_key"
   fi
 
   if [ -s "$API_KEY_FILE" ]; then
@@ -183,6 +316,3 @@ else
   # Pass original parameters to main function
   main "$@"
 fi
-
-# TODO: Remove this debug output after initial script development
-echo "FINISH"
