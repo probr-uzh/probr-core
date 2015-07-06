@@ -16,13 +16,18 @@ API_KEY_FILE='api.key'
 BASE_URL='https://probr.sook.ch'
 # Time to sleep before starting in seconds
 # waiting for network/internet to become available
-SLEEP_TIME=0
+SLEEP_ON_STARTUP=0
+# Time between two status requests in seconds
+SLEEP_PERIOD=5
 
 ## Debug mode (true|false)
 DEBUG=false
 AUTO_DETECT_SOURCED=false
 TRACE=false
 POSIX_COMPATIBLE=false
+PROXY=no
+HTTP_PROXY=localhost:8888
+HTTPS_PROXY=$HTTP_PROXY
 #### END Global variables ####
 
 # Determines whether the script is run in a subshell or in the same process.
@@ -104,9 +109,29 @@ post() {
                 --header "Api-Key: $(api_key)" \
                 --output-document=- \
                 --quiet \
+                --execute use_proxy=$PROXY \
+                --execute http_proxy=$HTTP_PROXY \
+                --execute https_proxy=$HTTPS_PROXY \
                 --post-data="$2" \
                 -- "${BASE_URL}$1"
           )
+}
+
+post_status() {
+    total_memory=$(top -bn1 | awk '/KiB Mem/ { print $3 };')
+    used_memory=$(top -bn1 | awk '/KiB Mem/ { print $5 };')
+    total_disk=$(df -k . | awk 'NR==2 { print $4 };')
+    used_disk=$(df -k . | awk 'NR==2 { print $3 };')
+    cpu_load=$(top -bn2 | awk '/Cpu/ { print 100 - $8};' | tail -n1)
+
+    body_data='{"cpu_load":"'$cpu_load'","used_disk":"'$used_disk'","total_disk":"'$total_disk'","used_memory":"'$used_memory'","total_memory":"'$total_memory'"}'
+    response=$(post '/api/statuses/' "$body_data")
+
+    if [ -n "$response" ]; then
+        echo "Successfully posted status: $response"
+    else
+        echo "Error during posting status. Got response: $response"
+    fi
 }
 
 api_key() {
@@ -119,10 +144,20 @@ set_api_key() {
   echo "$1" > $API_KEY_FILE
 }
 
+infinite_loop() {
+  while :
+  do
+      echo "Infinite loop [hit CTRL+C to stop]"
+      post_status
+      # execute_commands
+      sleep $SLEEP_PERIOD
+  done
+}
+
 # Arguments:
 #   $1 api key (mandatory only on first execution)
 main() {
-  sleep $SLEEP_TIME
+  sleep $SLEEP_ON_STARTUP
   API_KEY="$1"
   if [ -n "$API_KEY" ]; then
     set_api_key "$API_KEY"
@@ -130,6 +165,7 @@ main() {
 
   if [ -s "$API_KEY_FILE" ]; then
     echo "Using api key \"$(api_key)\""
+    infinite_loop
   else
     echo "No api key available. Please provide an api key as script argument."
     exit 1
