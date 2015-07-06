@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import signals
-from audit_log.models.fields import CreatingUserField, CreatingSessionKeyField
+from audit_log.models.fields import CreatingUserField
 
 from utils.models import BaseModel, publishPostSaveMessage,publishPostSaveMessageDevice, UUIDField
 from taggit.managers import TaggableManager
@@ -37,7 +37,7 @@ class TaggedDevice(TaggedItemBase):
 class Device(models.Model):
     uuid = UUIDField("ID", primary_key=True, editable=False)
 
-    user = CreatingUserField(related_name = "+")
+    user = CreatingUserField(related_name="+", editable=False)
 
     apikey = models.CharField(max_length=64, unique=True, editable=False)
 
@@ -65,7 +65,7 @@ class Device(models.Model):
         seed = uuid.uuid4()
 
         #hash the random seed to obtain an api-key
-        self.apikey = hashlib.sha256(seed).hexdigest()
+        self.apikey = hashlib.sha256(str(seed)).hexdigest()
 
         super(Device, self).save(*args, **kwargs)
 
