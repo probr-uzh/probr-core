@@ -30,6 +30,7 @@ DEBUG=false
 AUTO_DETECT_SOURCED=true
 TRACE=false
 POSIX_COMPATIBLE=false
+## Proxy (yes|no)
 PROXY=no
 HTTP_PROXY=localhost:8888
 HTTPS_PROXY=$HTTP_PROXY
@@ -226,10 +227,11 @@ non_executed_commands() {
 submit_result() {
   local command_uuid=$1
   local log_file=$2
+  tmp_file="${log_file}.upload"
   # We need to make a copy of the log file, because curl can't handle the still opened log file
-  cp "${log_file}" "${log_file}.upload"
-  echo $(curl --header "Api-Key: $(api_key)" -v -F result=@${log_file}.upload $BASE_URL/api/commands/"$command_uuid"/)
-  rm "${log_file}.upload"
+  cp "$log_file" "$tmp_file"
+  base_wget "/api/commands/${command_uuid}/" --post-file="$tmp_file"
+  rm "$tmp_file"
 }
 
 # Callback function when exiting a background command
@@ -305,7 +307,9 @@ main() {
   fi
 }
 
-
+# TODO: Does && really don't work cross-platform?
+# => remember compatibility blog
+# => test on different platforms
 if [ \( "$AUTO_DETECT_SOURCED" == 'true' \) -a \( "$SOURCE_DETECTED" == "0" \) ]; then
   # When this script is sourced $0 contains no path (e.g., -bash)
   echo "pwd=$(pwd)"
