@@ -45,15 +45,22 @@ angular.module('probrApp')
         };
 
     })
-    .controller('DeviceStatusCtrl', function ($scope, $stateParams, Status, Device, Command, resourceSocket) {
+    .controller('DeviceStatusCtrl', function ($scope, $filter, $stateParams, Status, Device, Command, CommandTemplate, resourceSocket) {
 
         var statusLimit = 10;
         var deviceId = $stateParams.id;
+
         $scope.commands = [];
+        $scope.commandTemplates = [];
+        $scope.commandTemplate = {};
 
         Command.byDevice({deviceId: deviceId}, function (resultObj) {
             $scope.commands = resultObj.results;
             resourceSocket.updateResource($scope, $scope.commands, 'command', 0, true, 'device', deviceId);
+        });
+
+        CommandTemplate.get({}, function (resultObj) {
+            $scope.commandTemplates = resultObj.results;
         });
 
         Device.getStatus({deviceId: deviceId, limit: statusLimit}, function (resultObj) {
@@ -66,16 +73,44 @@ angular.module('probrApp')
         });
 
         $scope.killCmd = function (uuid) {
-            $scope.recentCommand = new Command({execute: "kill $(<commands/"+uuid+".pid)", device: $scope.device.uuid});
-            $scope.recentCommand.$save();
+            new Command({execute: "kill $(<commands/"+uuid+".pid)", device: $scope.device.uuid}).$save();
         };
 
-        $scope.submitCmd = function () {
-            $scope.recentCommand = new Command({execute: $scope.cmd, device: $scope.device.uuid});
-            $scope.recentCommand.$save(function (result) {
-                $scope.cmd = '';
+        $scope.executeCommand = function () {
+            new Command({execute: $scope.commandTemplate.execute, device: $scope.device.uuid}).$save(function (result) {
+                $scope.commandTemplate = {};
             });
         };
+
+        $scope.saveCommandTemplate = function () {
+            if(_.has($scope.commandTemplate, 'uuid')){
+                CommandTemplate.update({
+                    name: $scope.commandTemplate.name,
+                    execute: $scope.commandTemplate.execute,
+                    uuid: $scope.commandTemplate.uuid,
+                    tags: []
+                }, function (resultObj) {
+                    $scope.commandTemplate = resultObj;
+                });
+            }else{
+                new CommandTemplate({
+                    name: $scope.commandTemplate.name,
+                    execute: $scope.commandTemplate.execute,
+                    uuid: $scope.commandTemplate.uuid,
+                    tags: []
+                }).$save(function (resultObj) {
+                    $scope.commandTemplate = resultObj;
+                    $scope.commandTemplates.push(resultObj);
+                });
+            }
+        };
+
+        $scope.deleteCommandTemplate = function () {
+            CommandTemplate.delete({commandTemplateId:$scope.commandTemplate.uuid}, function (resultObj) {
+                $scope.commandTemplates = $filter('filter')($scope.commandTemplates, {uuid: '!'+$scope.commandTemplate.uuid});
+                $scope.commandTemplate ={};
+            });
+        }
 
         var timeout;
         $scope.onlineIndicator = function (statuses) {
