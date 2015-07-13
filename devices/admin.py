@@ -1,12 +1,12 @@
 from django.contrib import admin
 import time
-from models import Device, Status, Command
+from models import Device, Status, Command, CommandTemplate
 
 # Register Device Model to be modifiable by the admin UI
 
 @admin.register(Device)
 class DeviceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description', 'creation_timestamp')
+    list_display = ('name', 'description', 'creation_timestamp','apikey')
 
 @admin.register(Status)
 class StatusAdmin(admin.ModelAdmin):
@@ -30,4 +30,6 @@ class CommandAdmin(admin.ModelAdmin):
     list_display = ('modification_time_detailed', 'execute', 'device', 'status')
     ordering = ['-modification_timestamp']
 
-
+@admin.register(CommandTemplate)
+class CommandTemplateAdmin(admin.ModelAdmin):
+    list_display = ('name', 'execute',)

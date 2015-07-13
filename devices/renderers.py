@@ -24,6 +24,6 @@ class PlainTextCommandsRenderer(renderers.BaseRenderer):
 
     def render(self, data, media_type=None, renderer_context=None):
         responseListString = ""
-        for result in data['results']:
-            responseListString += result['uuid']+"\n"
+        for command in data:
+            responseListString += command['uuid']+"\n"
         return responseListString
