@@ -254,8 +254,8 @@ execute_in_background() {
   local command_file=$1
   local log_file=$2
   local command_uuid=$3
-  (trap "finished_command ${command_uuid}" EXIT; source ${command_file}) >${log_file} 2>&1 </dev/null &
-  # Write pid from most recently executed background process to file and stdout
+  (trap "finished_command ${command_uuid}" EXIT && source ${command_file}) >${log_file} 2>&1 </dev/null &
+  # Write pid of the most recently executed background process to file and stdout
   echo $! | tee "$(command_pid_file "$command")"
 }
 
