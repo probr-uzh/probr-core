@@ -10,7 +10,8 @@ SOURCE_DETECTED=$(is_sourced)
 
 #### BEGIN Global variables ####
 VERSION='0.3.0'
-UUID_FILE='uuid.txt'
+SCRIPT_NAME='device_daemon.sh'
+PID_FILE='device_daemon.pid'
 API_KEY_FILE='api.key'
 BASE_URL='https://probr.sook.ch'
 # BASE_URL='http://localhost:8080'
@@ -109,7 +110,7 @@ cd_into_script_dir() {
 # Returns:
 #   http response
 # Example:
-#   base_wget '/api/statuses/' --header 'Accept: text/plain'
+#   base_wget '/api-device/statuses/' --header 'Accept: text/plain'
 base_wget() {
   local url_suffix="$1"
   shift
@@ -147,7 +148,7 @@ get() {
 # Returns:
 #   http response
 # Example:
-#   post '/api/statuses/' '{"cpu_load": "0.4"}'
+#   post '/api-device/statuses/' '{"cpu_load": "0.4"}'
 post() {
   local url_suffix="$1"
   local post_data="$2"
@@ -156,6 +157,14 @@ post() {
                 --header 'Content-Type: application/json' \
                 --post-data="$post_data" \
                 "$@"
+}
+
+download_script() {
+  get "/static/${SCRIPT_NAME}" > "${SCRIPT_NAME}.new"
+}
+
+update_script() {
+  download_script && cp "${SCRIPT_NAME}.new" "${SCRIPT_NAME}" && exec "./${SCRIPT_NAME}"
 }
 
 device_status() {
@@ -173,7 +182,7 @@ fake_device_status() {
 }
 
 post_status() {
-    response=$(post '/api/statuses/' "$(device_status)")
+    response=$(post '/api-device/statuses/' "$(device_status)")
 
     if [ -n "$response" ]; then
         echo "Successfully posted status: $response"
@@ -216,11 +225,11 @@ command_pid() {
 #   status: defined in `probr-core/devices/models.py COMMAND_STATUS_CHOICES`
 #             use constants `STATUS_NOT_YET_EXECUTED`, `STATUS_EXECUTING`, `STATUS_EXECUTED`
 set_command_status() {
-  post "/api/commands/$1/" '{"status":"'$2'"}'
+  post "/api-device/commands/$1/" '{"status":"'$2'"}'
 }
 
 non_executed_commands() {
-  get "/api/commands/?status=${STATUS_NOT_YET_EXECUTED}"
+  get "/api-device/commands/?status=${STATUS_NOT_YET_EXECUTED}"
 }
 
 submit_result() {
@@ -229,7 +238,7 @@ submit_result() {
   tmp_file="${log_file}.upload"
   # We need to make a copy of the log file, because curl can't handle the still opened log file
   cp "$log_file" "$tmp_file"
-  base_wget "/api/commands/${command_uuid}/" --post-file="$tmp_file"
+  base_wget "/api-device/commands/${command_uuid}/" --post-file="$tmp_file"
   rm "$tmp_file"
 }
 
@@ -265,7 +274,7 @@ execute_commands() {
   for command in $(non_executed_commands); do
     cmd_file=$(command_file "$command")
     echo "Downloading command $command ..."
-    get "/api/commands/${command}" > "$cmd_file"
+    get "/api-device/commands/${command}" > "$cmd_file"
     chmod +x "$cmd_file"
     echo "Starting command $command ..."
     set_command_status "$command" "$STATUS_EXECUTING"
@@ -286,11 +295,16 @@ infinite_loop() {
   done
 }
 
+save_pid() {
+  echo $$ > "$PID_FILE"
+}
+
 # Arguments:
 #   api key (mandatory only on first execution; can be overwritten later)
 main() {
   local api_key="$1"
 
+  save_pid
   sleep $SLEEP_ON_STARTUP
 
   if [ -n "$api_key" ]; then
