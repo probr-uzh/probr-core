@@ -5,6 +5,17 @@
     <h1>Registered Devices</h1>
 
     <div class="row">
+
+        <div class="col-xs-12 col-md-6 col-lg-3">
+            <div class="card">
+                <div class="card-content card-size-3">
+                    <a ng-href="device/add">
+                        <div class="device-btn-add"><span class="fa fa-plus"></span></div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
         <div class="col-xs-12 col-md-6 col-lg-3" ng-repeat="device in devices">
 
             <div class="card">

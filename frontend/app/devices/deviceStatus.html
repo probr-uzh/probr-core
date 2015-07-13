@@ -10,6 +10,18 @@
         </small>
     </h1>
 
+    <div class="row" style="margin-bottom: 30px;">
+        <div class="col-xs-12">
+            <p>
+                <strong>IP: </strong> {{ statuses[0].ip }}<br/>
+                <strong>OS: </strong> {{ device.os }}<br/>
+                <i>{{ device.description }}</i><br/>
+            </p>
+        </div>
+    </div>
+
+    <h1>Terminal</h1>
+
     <div class="row">
         <div class="col-xs-12">
             <div class="console" scroll-glue>
@@ -28,28 +40,24 @@
     </div>
 
     <div class="terminal row" style="margin-bottom: 30px;">
-        <div class="col-xs-11">
+        <div class="col-xs-12">
             <div ui-ace="{theme:'terminal',mode: 'sh'}" ng-model="cmd" placeholder="Enter your command"></div>
         </div>
-        <div class="col-xs-1">
-            <button ng-click="submitCmd()" type="button" class="terminal_execute btn btn-default btn-lg">
-                <span class="fa fa-terminal"></span>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <button ng-click="submitCmd()" type="button" class="btn btn-success pull-right">
+                <span class="fa fa-terminal"></span> Execute
             </button>
         </div>
     </div>
 
+    <h1>CPU / Memory</h1>
+
     <div class="row" style="margin-bottom: 30px;">
-        <div class="col-md-6">
+        <div class="col-xs-12">
             <device-cpu-chart statuses="statuses"></device-cpu-chart>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-content card-size-12">
-                    <strong>OS: </strong> {{ device.os }}<br/>
-                    <strong>IP: </strong> {{ statuses[0].ip }}<br/>
-                    <i>{{ device.description }}</i><br/>
-                </div>
-            </div>
         </div>
     </div>
 </div>

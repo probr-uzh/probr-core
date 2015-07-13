@@ -1,0 +1,47 @@
+<div ng-include="'/static/components/navbar/navbar.html'"></div>
+
+<div class="container">
+
+    <h1>
+        Add Device
+    </h1>
+
+    <h2>Step {{ step }}/3</h2>
+
+    <div class="row" ng-hide="step !== 1">
+        <div class="col-xs-12">
+            <form class="form-horizontal" ng-submit="createDevice()">
+                <div class="form-group">
+                    <label for="name" class="sr-only">Name</label>
+
+                    <div class="col-xs-11">
+                        <input class="form-control" type="text" id="name" name="name" value="{{ device.name }}" placeholder="Name">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="type" class="sr-only">Type</label>
+
+                    <div class="col-xs-11">
+                        <input class="form-control" type="text" id="type" name="type" ng-model="device.type" placeholder="Type">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-xs-11">
+                        <button type="submit" class="btn btn-primary">Continue</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row" ng-hide="step !== 2">
+        <div class="col-xs-12">
+            <p>Your device has successfully been created. Set it up by copy-pasting the following command to your devices terminal/ssh:</p>
+
+            <blockquote>
+                CMD
+            </blockquote>
+        </div>
+    </div>
+
+</div>

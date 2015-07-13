@@ -47,11 +47,12 @@ angular.module('probrApp')
     })
     .controller('DeviceStatusCtrl', function ($scope, $stateParams, Status, Device, Command, resourceSocket) {
 
+        var cmdLimit = 5;
         var statusLimit = 10;
         var deviceId = $stateParams.id;
         $scope.commands = [];
 
-        Command.byDevice({deviceId: deviceId}, function (resultObj) {
+        Command.byDevice({deviceId: deviceId, limit: cmdLimit}, function (resultObj) {
             $scope.commands = resultObj.results;
             resourceSocket.updateResource($scope, $scope.commands, 'command', 0, true, 'device', deviceId);
         });
@@ -77,29 +78,19 @@ angular.module('probrApp')
             });
         };
 
-        var timeout;
-        $scope.onlineIndicator = function (statuses) {
-            var timeoutInterval = 60000;
-            if (statuses !== undefined && statuses.length > 0 && new Date(statuses[statuses.length - 1].creation_timestamp) > new Date(new Date().getTime() - timeoutInterval)) {
-
-                var tmpDate = statuses[statuses.length - 1].creation_timestamp;
-                clearTimeout(timeout);
-                timeout = setTimeout(function () {
-                    // haven't gotten new updates in 15 seconds
-                    if (tmpDate === statuses[statuses.length - 1].creation_timestamp) {
-                        $scope.$apply(function () {
-                            statuses[statuses.length - 1].creation_timestamp = new Date(new Date().getTime() - timeoutInterval).toISOString(); // change to force offline status
-                        });
-                    }
-                }, timeoutInterval);
-
-                return "online";
-            }
-
-            return "offline";
-        };
     })
+    .controller('DeviceAddCtrl', function($scope, Device) {
+        $scope.deviceForm = {};
+        $scope.step = 1;
 
+        $scope.submitDevice = function () {
+            $scope.device = new Device($scope.deviceForm, function (resultObj) {
+                $scope.device = resultObj;
+                $scope.step = 2;
+            });
+        };
+
+    })
     .controller('DeviceDeleteModalCtrl', function ($scope, $modalInstance) {
         $scope.ok = function () {
             $modalInstance.close();
