@@ -63,7 +63,10 @@ class CommandDetailsView(generics.RetrieveUpdateDestroyAPIView):
         if request.META['CONTENT_TYPE'] == "application/json":
             command.status = request.data['status']
         else:
-            command.result = request.FILES['result'].read()
+            if hasattr(request.FILES,"result"):
+                command.result = request.FILES['result'].read()
+            else:
+                command.result = request.body;
             command.status = 2
         command.save()
         return Response('Command result saved')
