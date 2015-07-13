@@ -1,224 +1,335 @@
-#!/usr/bin/env bash
-VERSION='0.2.3'
-BASE_HOST='probr.sook.ch'
-BASE_URL="https://$BASE_HOST"
-UUID_FILE='uuid.txt'
+#!/usr/bin/env sh
 
-# Make the script working location independent
-BASEDIR=$(dirname $0)
-cd $BASEDIR
-
-abort() {
-    echo "$(basename $0) exited with non-zero exit at line $1 status. Exiting ..." >&2
-    exit 1
+# This subhell/sourced detection MUST be executed as the very first statement
+# See below for detailed documentation
+is_sourced() {
+  [ "$_" != "$0" ]
+  echo $?
 }
-trap 'abort $LINENO' 1 2
+SOURCE_DETECTED=$(is_sourced)
 
-clean_up() {
-    # You might want to do cleanup tasks here
-    echo "Exiting ..."
-    exit
+#### BEGIN Global variables ####
+VERSION='0.3.0'
+SCRIPT_NAME='device_daemon.sh'
+PID_FILE='device_daemon.pid'
+API_KEY_FILE='api.key'
+BASE_URL='https://probr.sook.ch'
+# BASE_URL='http://localhost:8080'
+# Time to sleep before starting in seconds
+# waiting for network/internet to become available
+SLEEP_ON_STARTUP=0
+# Time between two status requests in seconds
+SLEEP_PERIOD=5
+
+## Server constants
+STATUS_NOT_YET_EXECUTED=0
+STATUS_EXECUTING=1
+STATUS_EXECUTED=2
+
+## Debug mode (true|false)
+DEBUG=false
+AUTO_DETECT_SOURCED=true
+TRACE=false
+POSIX_COMPATIBLE=false
+## Proxy (yes|no)
+PROXY=no
+HTTP_PROXY=localhost:8888
+HTTPS_PROXY=$HTTP_PROXY
+#### END Global variables ####
+
+# Determines whether the script is run in a subshell or in the same process.
+# Note:
+#   This check is not fully portable. Although being syntactically correct, it
+#   returns subshell instead of source when used in certain shell types (e.g., sh, ash)
+#   Use the global flag $SOURCED to force using sourced mode.
+# Returns:
+#   0 if the scripts runs in a subshell or within a non-compatible shell
+#   1 if the function runs in the same process (i.e., script has been sourced)
+# is_subshell() {
+#   See above for documentation
+# }
+
+setup_debug_mode() {
+  if [ "$DEBUG" == 'true' ]; then
+    # Exit if a command fails (the same as `set -e`)
+    set -o errexit
+    # Exit if a command within a pipe fails
+    set -o pipefail
+    # Exit if an uninitialised variable is used (the same as `set -u`)
+    set -o nounset
+
+    if [ "$TRACE" == 'true' ]; then
+      # Print trace of every command
+      set -x
+    fi
+
+    if [ "$POSIX_COMPATIBLE" != 'true' ]; then
+    # Exit on errors in other functions or via the time command [POSIX incompatible]
+    set -o errtrace
+
+    # Error handler for debugging purpose based on http://stackoverflow.com/a/185900
+    error() {
+      local parent_lineno="$1"
+      local message="${2:-}"
+      # default to '1' if exit code not explicitly given
+      local code="${3:-1}"
+      if [ -n "$message" ] ; then
+        echo "Error on or near line ${parent_lineno}: ${message}; exiting with status ${code}"
+      else
+        echo "Error on or near line ${parent_lineno}; exiting with status ${code}"
+      fi
+      exit "${code}"
+    }
+    # Trap exits triggered by errexit [POSIX incompatible]
+    trap 'error ${LINENO}' ERR
+    fi
+  fi
 }
-# Placing another trap on exit breaks the other trap on the remote script
+
+cd_into_script_dir() {
+  local basedir
+  basedir=$(dirname $0)
+  cd $basedir
+}
+
+# clean_up() {
+#     # You might want to do cleanup tasks here
+#     echo "Exiting ..."
+#     exit
+# }
+# ATTENTION: This trap breaks the trap on remote command execution (submit_result)
+# Run every time when the script exists (e.g., via CTRL + C)
+#  except on non-catchable signals (e.g., SIGKILL=9)
 # trap 'clean_up' EXIT
 
-# Performs regular expression matching using extended regex (i.e., no escaping required)
+
+# Performs a wget http request to the probr server
 # Arguments:
-#   string
-#   regexp with at least one capture group
+#   probr url suffix
+#   wget options (optional)
+# Returns:
+#   http response
 # Example:
-#   extract '"id":"example_id"' '"id":"([a-zA-Z-_]+)"'
-extract() {
-	echo $1 | sed -E 's/^.*'$2'.*$/\1/'
+#   base_wget '/api-device/statuses/' --header 'Accept: text/plain'
+base_wget() {
+  local url_suffix="$1"
+  shift
+  wget --output-document=- \
+       --header "Api-Key: $(api_key)" \
+       --quiet \
+       --execute use_proxy=$PROXY \
+       --execute http_proxy=$HTTP_PROXY \
+       --execute https_proxy=$HTTPS_PROXY \
+       "$@" \
+       -- "${BASE_URL}${url_suffix}"
 }
 
-# Issues an http post request with json payload to the probr server
+# Performs an http get request to the probr server
 # Arguments:
-#   url
-#   json data
+#   probr url suffix
+#   wget options (optional)
 # Returns:
 #   http response
-post() {
-    echo $(wget --quiet --output-document=- --header 'Content-Type: application/json' --post-data="$2" -- "$BASE_URL$1")
-}
-
-# Issues an http get request to the probr server
-# Arguments:
-#   url
-#   header (e.g. 'Accept: text/plain')
-# Returns:
-#   http response
+# Exampe:
+#   get 'api/commands/'
 get() {
-    echo $(wget --quiet --header "$2" --output-document=- -- "$BASE_URL$1")
+  local url_suffix="$1"
+  shift
+  base_wget "$url_suffix" \
+                --header 'Accept: text/plain' \
+                "$@"
 }
 
-# Read the device uuid from file
-device_uuid() {
-    cat "$UUID_FILE"
-}
-
-# Extract uuid key from json
+# Performs an http post request with json payload to the probr server
 # Arguments:
-#   json string containing a "uuid"
-extract_uuid() {
-    # UUID regex based on: http://jonalmeida.com/posts/2014/05/20/testing-for-a-correct-uuid/
-    local uuid_regex='"uuid":"([0-9a-fA-F]{8}-?[0-9a-fA-F]{4}-?4[0-9a-fA-F]{3}-?[89abAB][0-9a-fA-F]{3}-?[0-9a-fA-F]{12})"'
-    extract "$1" "$uuid_regex"
+#   probr url suffix
+#   json body data
+#   wget options (optional)
+# Returns:
+#   http response
+# Example:
+#   post '/api-device/statuses/' '{"cpu_load": "0.4"}'
+post() {
+  local url_suffix="$1"
+  local post_data="$2"
+  shift 2
+  base_wget "$url_suffix" \
+                --header 'Content-Type: application/json' \
+                --post-data="$post_data" \
+                "$@"
 }
 
-register_device() {
-    NAME=$(uname -n)    # TODO: hostname is very unlikely a unique device name
-    OS=$(uname -a)      # All informations from uname
-    TYPE='RPB'          # odroid: armv71, openwrt(vbox): i686, pc/laptop 64 bit: x86_64
-    WIFI=''             # TODO: find a way to determine wifi_chip
-    DESCRIPTION="Added automatically with device script $VERSION"
-
-    body_data='{"name":"'$NAME'","os":"'$OS'","tags":[],"type":"'$TYPE'","wifi_chip":"'$WIFI'","description":"'$DESCRIPTION'"}'
-    response=$(post '/api/devices/' "$body_data")
-    local uuid
-    uuid=$(extract_uuid "$response")
-
-    if [ $uuid ]; then
-        echo "$uuid" > "$UUID_FILE"
-        echo "\"$NAME\" successfully registered with device uuid $uuid"
-    else
-        echo "Error during device registration. Got response: $response"
-    fi
+download_script() {
+  get "/static/${SCRIPT_NAME}" > "${SCRIPT_NAME}.new"
 }
 
-bootstrap_device() {
-    if [ -s "$UUID_FILE" ]; then
-        echo "Reusing device uuid $(device_uuid)"
-    else
-        echo "First time execution, registering device ..."
-        register_device
-    fi
+update_script() {
+  download_script && cp "${SCRIPT_NAME}.new" "${SCRIPT_NAME}" && exec "./${SCRIPT_NAME}"
+}
+
+device_status() {
+  total_memory=$(top -bn1 | awk '/KiB Mem/ { print $3 };')
+  used_memory=$(top -bn1 | awk '/KiB Mem/ { print $5 };')
+  total_disk=$(df -k . | awk 'NR==2 { print $4 };')
+  used_disk=$(df -k . | awk 'NR==2 { print $3 };')
+  cpu_load=$(top -bn2 | awk '/Cpu/ { print 100 - $8};' | tail -n1)
+
+  echo '{"cpu_load":"'$cpu_load'","used_disk":"'$used_disk'","total_disk":"'$total_disk'","used_memory":"'$used_memory'","total_memory":"'$total_memory'"}'
+}
+
+fake_device_status() {
+  echo '{"cpu_load":"0.3","used_disk":"10","total_disk":"20","used_memory":"256","total_memory":"2048"}' 
 }
 
 post_status() {
-    total_memory=$(top -bn1 | awk '/KiB Mem/ { print $3 };')
-    used_memory=$(top -bn1 | awk '/KiB Mem/ { print $5 };')
-    total_disk=$(df -k . | awk 'NR==2 { print $4 };')
-    used_disk=$(df -k . | awk 'NR==2 { print $3 };')
-    cpu_load=$(top -bn2 | awk '/Cpu/ { print 100 - $8};' | tail -n1)
+    response=$(post '/api-device/statuses/' "$(device_status)")
 
-    body_data='{"device":"'$(device_uuid)'","cpu_load":"'$cpu_load'","used_disk":"'$used_disk'","total_disk":"'$total_disk'","used_memory":"'$used_memory'","total_memory":"'$total_memory'"}'
-    response=$(post '/api/statuses/' "$body_data")
-
-    local uuid
-    uuid=$(extract_uuid "$response")
-
-    if [ $uuid ]; then
-        echo "Successfully posted status with uuid $uuid"
+    if [ -n "$response" ]; then
+        echo "Successfully posted status: $response"
     else
-        echo "Error during posting status. Got response $response"
+        echo "Error during posting status. Got response: $response"
     fi
 }
 
-# Strips single ' and double " quoted strings according to http://stackoverflow.com/a/758116
-# Example:
-#   strip_quotes '"Fo\"od"' => Fo\"od
-strip_quotes() {
-    echo $1 | sed "s/^\([\"']\)\(.*\)\1\$/\2/g"
+api_key() {
+  cat "$API_KEY_FILE"
+}
+
+set_api_key() {
+  local api_key=$1
+  echo "${api_key}" > $API_KEY_FILE
+}
+
+command_file() {
+  local command_uuid=$1
+  echo "./commands/${command_uuid}.sh"
+}
+
+command_log_file() {
+  local command_uuid=$1
+  echo "./commands/${command_uuid}.log"
+}
+
+command_pid_file() {
+  local command_uuid=$1
+  echo "./commands/${command_uuid}.pid"
+}
+
+command_pid() {
+  local command_uuid=$1
+  cat $(command_pid_file "$command_uuid")
 }
 
 # Arguments:
-#   JSON.sh line string in the tabular separated format: [KEY]    VALUE
-# Example:
-#   json_data '[0,"execute"] "echo Hello World!"' => echo Hello World!
-json_data() {
-    echo $(strip_quotes "$(cut -f2 -d$'\t' "$1")")
-}
-
-# Arguments:
-#   raw json string
-#   regex to parse JSON.sh output
-# TODO: Debug escaping behavior
-# TODO(Joel): Might want to provide a nicer API accepting variable number of arguments
-#             such as `parse_json "$raw_json" 0 execute` => [0,\"execute\"]
-parse_json() {
-    echo $(echo $1 | ./JSON.sh -l | grep --fixed-strings --regexp "$2" | json_data -)
-}
-
-# Queries the probr server for non-executed commands
-get_commands() {
-    echo $(get "/api/devices/$(device_uuid)/commands/")
-}
-
-# Arguments:
-#   logFilePath
-#   commanduuid
-submit_result() {
-    # We need to make a copy of the log file, since curl can't handle the still opened log file
-    cp "$1" "$1.upload"
-    echo $(curl -v -F result=@$1.upload $BASE_URL/api/commands/"$2"/)
-    rm "$1.upload"
-}
-
-# Arguments:
-#   commanduuid
-#   status (1 = started, 2 = executed)
+#   command uuid
+#   status: defined in `probr-core/devices/models.py COMMAND_STATUS_CHOICES`
+#             use constants `STATUS_NOT_YET_EXECUTED`, `STATUS_EXECUTING`, `STATUS_EXECUTED`
 set_command_status() {
-    echo $(post "/api/commands/$1/" "{\"status\":$2}")
+  post "/api-device/commands/$1/" '{"status":"'$2'"}'
 }
 
-# Arguments
-#   commanduuid
+non_executed_commands() {
+  get "/api-device/commands/?status=${STATUS_NOT_YET_EXECUTED}"
+}
+
+submit_result() {
+  local command_uuid=$1
+  local log_file=$2
+  tmp_file="${log_file}.upload"
+  # We need to make a copy of the log file, because curl can't handle the still opened log file
+  cp "$log_file" "$tmp_file"
+  base_wget "/api-device/commands/${command_uuid}/" --post-file="$tmp_file"
+  rm "$tmp_file"
+}
+
+# Callback function when exiting a background command
 finished_command() {
-    submit_result "commands/$1.log" $1
-    # kill own children
-    pkill -P $(<"commands/$1.pid")
-    # clean up files
-    rm commands/$1*
-    exit
+  local command_uuid=$1
+  # TODO: Why do we first submit the result and then pkill the child processes and not vice versa?
+  # Consider that there is a race condition: finished_command requires that that pid was already written to the .pid file !!!
+  submit_result "$command_uuid" "$(command_log_file "$command_uuid")"
+  # Kill own child processes. This will exit with non-zero value if the process already finished.
+  pkill -P $(command_pid "$command_uuid")
+  # Clean up all command-related files
+  rm ./commands/${command_uuid}*
+  exit
 }
 
-# Arguments:
-#   scriptPath
-#   logFilePath
-#   commandUUID
+# Note:
+#   Depends on the `finished_command` callback function using a trap on script exit
+#   Instead of executing the command within its own subprocess with ./COMMAND.sh,
+#   we are using source to run it within the same process such that can kill the
+#   childprocess later.
 execute_in_background() {
-    (trap "finished_command $3" EXIT; source $1) >$2 2>&1 &
-    echo $!>"commands/$3.pid"
-    echo $!
+  local command_file=$1
+  local log_file=$2
+  local command_uuid=$3
+  (trap "finished_command ${command_uuid}" EXIT && source ${command_file}) >${log_file} 2>&1 </dev/null &
+  # Write pid of the most recently executed background process to file and stdout
+  echo $! | tee "$(command_pid_file "$command")"
 }
 
 execute_commands() {
-    mkdir -p commands
+  mkdir -p commands
+  for command in $(non_executed_commands); do
+    cmd_file=$(command_file "$command")
+    echo "Downloading command $command ..."
+    get "/api-device/commands/${command}" > "$cmd_file"
+    chmod +x "$cmd_file"
+    echo "Starting command $command ..."
+    set_command_status "$command" "$STATUS_EXECUTING"
 
-    # Get list of all not exucted commands
-    commands=$(get "/api/commands/?device=$(device_uuid)&status=0" 'Accept: text/plain')
-
-    # Download the command scripts to ./commands folder in the format UUID.sh
-    # and make them executable
-    for commanduuid in $commands; do
-        echo "Downloading command: $commanduuid"
-        wget --quiet --header 'Accept: text/plain' --output-document="./commands/$commanduuid.sh" -- "$BASE_URL/api/commands/$commanduuid"
-        chmod +x "./commands/$commanduuid.sh"
-
-        # Set status of command to 'Executing' (1)
-        result=$(set_command_status "$commanduuid" 1)
-
-        # Execute script, while piping all output 
-        pid=$(execute_in_background "./commands/$commanduuid.sh" "commands/$commanduuid.log" "$commanduuid")
-
-        echo "Started command $commanduuid with pid $pid"
-
-    done
+    # Execute script, while piping all output to a log file
+    pid=$(execute_in_background "$cmd_file" "$(command_log_file "$command")" "$command")
+    echo "Started command ${command} with pid ${pid}"
+  done
 }
 
+infinite_loop() {
+  while :
+  do
+      echo "Infinite loop [hit CTRL+C to stop]"
+      post_status
+      execute_commands
+      sleep $SLEEP_PERIOD
+  done
+}
+
+save_pid() {
+  echo $$ > "$PID_FILE"
+}
+
+# Arguments:
+#   api key (mandatory only on first execution; can be overwritten later)
 main() {
-    sleep 20
-    bootstrap_device
+  local api_key="$1"
 
-    while :
-    do
-        echo "Infinite loop [hit CTRL+C to stop]"
-        post_status
-        execute_commands
-        sleep 5
-    done
+  save_pid
+  sleep $SLEEP_ON_STARTUP
+
+  if [ -n "$api_key" ]; then
+    set_api_key "$api_key"
+  fi
+
+  if [ -s "$API_KEY_FILE" ]; then
+    echo "Using api key \"$(api_key)\""
+    infinite_loop
+  else
+    echo "No api key available. Please provide an api key as script argument."
+    exit 1
+  fi
 }
 
-# Pass original parameters to main function
-main "$@"
+# TODO: Does && really don't work cross-platform?
+# => remember compatibility blog
+# => test on different platforms
+if [ \( "$AUTO_DETECT_SOURCED" == 'true' \) -a \( "$SOURCE_DETECTED" == "0" \) ]; then
+  # When this script is sourced $0 contains no path (e.g., -bash)
+  echo "pwd=$(pwd)"
+else
+  # Make the script working from any current working directory
+  cd_into_script_dir
+  setup_debug_mode
+  # Pass original parameters to main function
+  main "$@"
+fi
