@@ -23,6 +23,7 @@
     <script src="{% static "bower_components/lodash/lodash.js" %}"></script>
     <script src="{% static "bower_components/Chart.js/Chart.js" %}"></script>
     <script src="{% static "bower_components/angular/angular.js" %}"></script>
+    <script src="{% static "bower_components/angular-cookies/angular-cookies.js" %}"></script>
     <script src="{% static "bower_components/angular-ui-router/release/angular-ui-router.js" %}"></script>
     <script src="{% static "bower_components/angular-bootstrap/ui-bootstrap-tpls.js" %}"></script>
     <script src="{% static "bower_components/angular-resource/angular-resource.js" %}"></script>
@@ -36,12 +37,12 @@
     <script src="{% static "app/app.js" %}"></script>
     <script src="{% static "app/captures/captures.js" %}"></script>
     <script src="{% static "app/captures/captures.controller.js" %}"></script>
-    <script src="{% static "app/packets/packets.js" %}"></script>
-    <script src="{% static "app/packets/packets.controller.js" %}"></script>
     <script src="{% static "app/devices/devices.js" %}"></script>
     <script src="{% static "app/devices/devices.controller.js" %}"></script>
     <script src="{% static "app/devices/deviceCpuChart/deviceCpuChart.directive.js" %}"></script>
     <script src="{% static "app/devices/statusIndicator/statusIndicator.directive.js" %}"></script>
+    <script src="{% static "app/account/account.js" %}"></script>
+    <script src="{% static "app/account/login/login.controller.js" %}"></script>
     <script src="{% static "app/resources/command.service.js" %}"></script>
     <script src="{% static "app/resources/commandtemplate.service.js" %}"></script>
     <script src="{% static "app/resources/device.service.js" %}"></script>
@@ -50,6 +51,8 @@
     <script src="{% static "app/resources/resource.socket.js" %}"></script>
     <script src="{% static "components/navbar/navbar.controller.js" %}"></script>
     <script src="{% static "components/keystroke.directives.js" %}"></script>
+    <script src="{% static "components/auth/user.service.js" %}"></script>
+    <script src="{% static "components/auth/auth.service.js" %}"></script>
 {% endcompress %}
 
 </body>

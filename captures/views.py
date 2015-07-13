@@ -7,11 +7,8 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from models import Capture
 from serializers import CaptureSerializer
 
-
 class CaptureUploadView(generics.ListCreateAPIView):
 
-    #comment this in to disable Django Rest Framework Browsable API
-    #renderer_classes = (JSONRenderer,)
     queryset = Capture.objects.all()
     serializer_class = CaptureSerializer
     parser_classes = (MultiPartParser, FormParser,)
@@ -26,6 +23,3 @@ class CaptureUploadView(generics.ListCreateAPIView):
         instance.save()
         processCapture.delay(instance.pk)
         return Response('Capture upload successful')
-
-
-

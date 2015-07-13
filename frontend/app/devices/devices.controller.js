@@ -47,6 +47,7 @@ angular.module('probrApp')
     })
     .controller('DeviceStatusCtrl', function ($scope, $filter, $stateParams, Status, Device, Command, CommandTemplate, resourceSocket) {
 
+        var cmdLimit = 5;
         var statusLimit = 10;
         var deviceId = $stateParams.id;
 
@@ -54,7 +55,7 @@ angular.module('probrApp')
         $scope.commandTemplates = [];
         $scope.commandTemplate = {};
 
-        Command.byDevice({deviceId: deviceId}, function (resultObj) {
+        Command.byDevice({deviceId: deviceId, limit: cmdLimit}, function (resultObj) {
             $scope.commands = resultObj.results;
             resourceSocket.updateResource($scope, $scope.commands, 'command', 0, true, 'device', deviceId);
         });
@@ -133,8 +134,20 @@ angular.module('probrApp')
 
             return "offline";
         };
-    })
 
+    })
+    .controller('DeviceAddCtrl', function($scope, Device) {
+        $scope.deviceForm = {};
+        $scope.step = 1;
+
+        $scope.submitDevice = function () {
+            $scope.device = new Device($scope.deviceForm, function (resultObj) {
+                $scope.device = resultObj;
+                $scope.step = 2;
+            });
+        };
+
+    })
     .controller('DeviceDeleteModalCtrl', function ($scope, $modalInstance) {
         $scope.ok = function () {
             $modalInstance.close();

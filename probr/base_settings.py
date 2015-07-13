@@ -43,7 +43,6 @@ INSTALLED_APPS = (
     'taggit',
     'taggit_serializer',
     'rest_framework',
-    'djangobower',
     'utils',
     'devices',
     'captures',
@@ -57,6 +56,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'audit_log.middleware.UserLoggingMiddleware',
+
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -101,32 +102,24 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 100,
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny'
-    ]
-
+        'rest_framework.permissions.IsAuthenticated'
+    ],
 }
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR+STATIC_URL
-
-BOWER_COMPONENTS_ROOT = os.path.join(BASE_DIR, 'frontend')
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
@@ -142,24 +135,6 @@ TEMPLATE_DIRS = (
 STATICFILES_DIRS = (
     'frontend',
     'scripts'
-)
-
-BOWER_INSTALLED_APPS = (
- 'angular-django-rest-resource#1.0.3',
- 'bootstrap#3.3.4',
- 'angular-ui-router#0.2.14',
- 'angular-bootstrap#0.13.0',
- 'angular#1.3.15',
- 'jquery#2.1.4',
- 'font-awesome#4.3.0',
- 'angular-websocket#1.0.9',
- 'angular-chart.js#0.7.1',
- 'lodash#3.8.0',
- 'font-awesome#4.3.0',
- 'angular-resource#1.4.0',
- 'angular-scroll-glue#2.0.5',
- 'angular-moment#0.10.1',
- 'angular-ui-ace#0.2.3'
 )
 
 # Compress

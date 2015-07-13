@@ -1,0 +1,34 @@
+{
+  "name": "probr-core",
+  "version": "0.1.0",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-bootstrap": "0.13.0",
+    "angular-chart.js": "~0.7.1",
+    "angular-cookies": "~1.4.2",
+    "angular-django-rest-resource": "1.0.3",
+    "angular-resource": "1.4.0",
+    "angular-moment": "0.10.1",
+    "angular-scroll-glue": "2.0.5",
+    "angular-ui-ace": "0.2.3",
+    "angular-ui-router": "0.2.15",
+    "angular-websocket": "~1.0.9",
+    "bootstrap": "3.3.4",
+    "angular": "1.4.2",
+    "font-awesome": "4.3.0",
+    "highcharts-ng": "~0.0.8",
+    "highcharts-release": "~4.1.5",
+    "jquery": "2.1.4",
+    "lodash": "~3.8.0"
+  },
+  "resolutions": {
+    "angular": "1.4.2"
+  }
+}

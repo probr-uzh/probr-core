@@ -6,7 +6,7 @@ from models import Device, Status, Command, CommandTemplate
 
 @admin.register(Device)
 class DeviceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description', 'creation_timestamp')
+    list_display = ('name', 'description', 'creation_timestamp','apikey')
 
 @admin.register(Status)
 class StatusAdmin(admin.ModelAdmin):

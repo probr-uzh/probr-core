@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('probrApp')
-    .controller('NavbarCtrl', function ($scope, $location) {
+    .controller('NavbarCtrl', function ($scope, $location, Auth) {
 
         $scope.menu = [
             {
@@ -16,6 +16,14 @@ angular.module('probrApp')
 
         $scope.isActive = function (route) {
             return route === $location.path();
+        };
+
+        $scope.isLoggedIn = Auth.isLoggedIn;
+        $scope.getCurrentUser = Auth.getCurrentUser;
+
+        $scope.logout = function () {
+            Auth.logout();
+            $location.path('/login');
         };
 
         $scope.isActiveRoot = function (route) {
