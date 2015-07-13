@@ -5,8 +5,8 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from devices.renderers import PlainTextCommandRenderer, PlainTextCommandsRenderer
-from models import Device, Status, Command
-from serializers import DeviceSerializer, StatusSerializer, CommandSerializer
+from models import Device, Status, Command, CommandTemplate
+from serializers import DeviceSerializer, StatusSerializer, CommandSerializer, CommandTemplateSerializer
 
 #Devices
 ##################################################
@@ -63,7 +63,22 @@ class CommandDetailsView(generics.RetrieveUpdateDestroyAPIView):
         if request.META['CONTENT_TYPE'] == "application/json":
             command.status = request.data['status']
         else:
-            command.result = request.FILES['result'].read()
+            if hasattr(request.FILES,"result"):
+                command.result = request.FILES['result'].read()
+            else:
+                command.result = request.body;
             command.status = 2
         command.save()
         return Response('Command result saved')
+
+class CommandTemplateListView(generics.ListCreateAPIView):
+    renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer]
+    serializer_class = CommandTemplateSerializer
+    queryset = CommandTemplate.objects.all()
+    filter_fields = ('name','execute',)
+
+class CommandTemplateDetailsView(generics.RetrieveUpdateDestroyAPIView):
+    renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer]
+    serializer_class = CommandTemplateSerializer
+    queryset = CommandTemplate.objects.all()
+    parser_classes = (JSONParser,)

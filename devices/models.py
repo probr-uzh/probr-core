@@ -94,3 +94,16 @@ class Command(BaseModel):
         return self.execute
 
 signals.post_save.connect(publishPostSaveMessage, sender=Command)
+
+class TaggedCommandTemplate(TaggedItemBase):
+    content_object = models.ForeignKey('CommandTemplate')
+
+class CommandTemplate(BaseModel):
+    name = models.CharField(max_length=255)
+
+    execute = models.TextField()
+
+    tags = TaggableManager(through=TaggedCommandTemplate)
+
+    def __unicode__(self):
+        return self.execute
