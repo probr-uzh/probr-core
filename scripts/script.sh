@@ -12,8 +12,8 @@ SOURCE_DETECTED=$(is_sourced)
 VERSION='0.3.0'
 UUID_FILE='uuid.txt'
 API_KEY_FILE='api.key'
-# BASE_URL='http://localhost:8080'
 BASE_URL='https://probr.sook.ch'
+# BASE_URL='http://localhost:8080'
 # Time to sleep before starting in seconds
 # waiting for network/internet to become available
 SLEEP_ON_STARTUP=0
@@ -30,6 +30,7 @@ DEBUG=false
 AUTO_DETECT_SOURCED=true
 TRACE=false
 POSIX_COMPATIBLE=false
+## Proxy (yes|no)
 PROXY=no
 HTTP_PROXY=localhost:8888
 HTTPS_PROXY=$HTTP_PROXY
@@ -112,15 +113,14 @@ cd_into_script_dir() {
 base_wget() {
   local url_suffix="$1"
   shift
-  echo $(wget --output-document=- \
-              --header "Api-Key: $(api_key)" \
-              --quiet \
-              --execute use_proxy=$PROXY \
-              --execute http_proxy=$HTTP_PROXY \
-              --execute https_proxy=$HTTPS_PROXY \
-              "$@" \
-              -- "${BASE_URL}${url_suffix}"
-      )
+  wget --output-document=- \
+       --header "Api-Key: $(api_key)" \
+       --quiet \
+       --execute use_proxy=$PROXY \
+       --execute http_proxy=$HTTP_PROXY \
+       --execute https_proxy=$HTTPS_PROXY \
+       "$@" \
+       -- "${BASE_URL}${url_suffix}"
 }
 
 # Performs an http get request to the probr server
@@ -226,10 +226,11 @@ non_executed_commands() {
 submit_result() {
   local command_uuid=$1
   local log_file=$2
+  tmp_file="${log_file}.upload"
   # We need to make a copy of the log file, because curl can't handle the still opened log file
-  cp "${log_file}" "${log_file}.upload"
-  echo $(curl --header "Api-Key: $(api_key)" -v -F result=@${log_file}.upload $BASE_URL/api/commands/"$command_uuid"/)
-  rm "${log_file}.upload"
+  cp "$log_file" "$tmp_file"
+  base_wget "/api/commands/${command_uuid}/" --post-file="$tmp_file"
+  rm "$tmp_file"
 }
 
 # Callback function when exiting a background command
@@ -254,8 +255,8 @@ execute_in_background() {
   local command_file=$1
   local log_file=$2
   local command_uuid=$3
-  (trap "finished_command ${command_uuid}" EXIT; source ${command_file}) >${log_file} 2>&1 </dev/null &
-  # Write pid from most recently executed background process to file and stdout
+  (trap "finished_command ${command_uuid}" EXIT && source ${command_file}) >${log_file} 2>&1 </dev/null &
+  # Write pid of the most recently executed background process to file and stdout
   echo $! | tee "$(command_pid_file "$command")"
 }
 
@@ -305,7 +306,9 @@ main() {
   fi
 }
 
-
+# TODO: Does && really don't work cross-platform?
+# => remember compatibility blog
+# => test on different platforms
 if [ \( "$AUTO_DETECT_SOURCED" == 'true' \) -a \( "$SOURCE_DETECTED" == "0" \) ]; then
   # When this script is sourced $0 contains no path (e.g., -bash)
   echo "pwd=$(pwd)"
