@@ -13,6 +13,9 @@ urlpatterns = [
     #angular frontend
     url(r'^$', RedirectView.as_view(url='/web/')),
     url(r'^web/*', TemplateView.as_view(template_name='index.html')),
+
+    #JSON Web Token authentication
+    url(r'^api-token-auth/', 'rest_framework_jwt.views.obtain_jwt_token'),
 ]
 
 format_suffix_patterns(urlpatterns)

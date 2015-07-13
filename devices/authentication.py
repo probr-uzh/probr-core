@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from rest_framework import authentication
 from rest_framework import exceptions
 from models import Device
+import django
 
 class ApikeyAuthentication(authentication.BaseAuthentication):
 
@@ -12,8 +13,8 @@ class ApikeyAuthentication(authentication.BaseAuthentication):
 
         api_key = request.META.get('HTTP_API_KEY',None)
         if api_key is None:
-            raise exceptions.AuthenticationFailed('Api-Key is missing.')
-
+            #raise exceptions.AuthenticationFailed('Api-Key is missing.')
+            return None
         #check if device with given apikey exists
         try:
             device = Device.objects.get(apikey=api_key)

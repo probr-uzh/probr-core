@@ -7,32 +7,65 @@ from serializers import CommandTemplateSerializer
 from models import Device, Status, Command
 from authentication import ApikeyAuthentication
 from serializers import DeviceSerializer, StatusSerializer, CommandSerializer
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
-#Devices
-##################################################
+### Endpoints for the frontend ###
 class DeviceListView(generics.ListCreateAPIView):
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
+    authentication_classes = (JSONWebTokenAuthentication,)
+
 
 class DeviceDetailsView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = DeviceSerializer
+    authentication_classes = (JSONWebTokenAuthentication,)
 
     def get_object(self):
         uuid = self.kwargs['uuid']
         return Device.objects.get(uuid=uuid)
 
-#Statuses
-##################################################
-class StatusListView(generics.ListCreateAPIView):
+
+class StatusList(generics.ListAPIView):
     queryset = Status.objects.all()
-    filter_fields = ('device',)
     serializer_class = StatusSerializer
+    authentication_classes = (JSONWebTokenAuthentication,)
+    filter_fields = ('device',)
 
-    def perform_create(self, serializer):
-        serializer.save(ip=get_client_ip(self.request))
+class CommandList(generics.ListCreateAPIView):
+    queryset = Command.objects.all()
+    renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer,PlainTextCommandsRenderer]
+    serializer_class = CommandSerializer
+    authentication_classes = (JSONWebTokenAuthentication,)
+    filter_fields = ('device',)
+    
+class CommandDetails(generics.RetrieveUpdateDestroyAPIView):
+    renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer,PlainTextCommandRenderer]
+    serializer_class = CommandSerializer
+    parser_classes = (MultiPartParser, FormParser, JSONParser,)
+    authentication_classes = (JSONWebTokenAuthentication,)
+
+    def get_object(self):
+        #get uuid from endpoint url
+        uuid = self.kwargs.get('uuid',None)
+        return Command.objects.get(uuid=uuid)
+
+class CommandTemplateListView(generics.ListCreateAPIView):
+    renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer]
+    serializer_class = CommandTemplateSerializer
+    queryset = CommandTemplate.objects.all()
+    filter_fields = ('name','execute',)
+
+class CommandTemplateDetailsView(generics.RetrieveUpdateDestroyAPIView):
+    renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer]
+    serializer_class = CommandTemplateSerializer
+    queryset = CommandTemplate.objects.all()
+    parser_classes = (JSONParser,)
 
 
-class StatusList(generics.ListCreateAPIView):
+
+### Endpoints for the devices ###
+
+class StatusList_Devices(generics.ListCreateAPIView):
     queryset = Status.objects.all()
     serializer_class = StatusSerializer
     authentication_classes = (ApikeyAuthentication,)
@@ -65,9 +98,8 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
-#Commands
-##################################################
-class CommandListView(generics.ListCreateAPIView):
+
+class CommandList_Devices(generics.ListCreateAPIView):
     renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer,PlainTextCommandsRenderer]
     serializer_class = CommandSerializer
     authentication_classes = (ApikeyAuthentication,)
@@ -90,7 +122,7 @@ class CommandListView(generics.ListCreateAPIView):
 
 
 
-class CommandDetailsView(generics.RetrieveUpdateDestroyAPIView):
+class CommandDetails_Devices(generics.RetrieveUpdateDestroyAPIView):
     renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer,PlainTextCommandRenderer]
     serializer_class = CommandSerializer
     parser_classes = (MultiPartParser, FormParser, JSONParser,)
@@ -143,15 +175,4 @@ class CommandDetailsView(generics.RetrieveUpdateDestroyAPIView):
         command.save()
         return Response('Command result saved')
 
-class CommandTemplateListView(generics.ListCreateAPIView):
-    renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer]
-    serializer_class = CommandTemplateSerializer
-    queryset = CommandTemplate.objects.all()
-    filter_fields = ('name','execute',)
-
-class CommandTemplateDetailsView(generics.RetrieveUpdateDestroyAPIView):
-    renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer]
-    serializer_class = CommandTemplateSerializer
-    queryset = CommandTemplate.objects.all()
-    parser_classes = (JSONParser,)
 
