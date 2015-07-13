@@ -11,7 +11,7 @@ angular.module('probrApp', [
     'angularMoment',
     'luegg.directives',
 ]).config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider, $resourceProvider) {
-    $urlRouterProvider.otherwise('devices');
+    $urlRouterProvider.otherwise('/login');
     $locationProvider.html5Mode({enabled: true, requireBase: true, rewriteLinks: true});
 
     $resourceProvider.defaults.stripTrailingSlashes = false;
@@ -33,9 +33,9 @@ angular.module('probrApp', [
             // Intercept 401s and redirect you to login
             responseError: function (response) {
                 if (response.status === 401) {
-                    $location.path('/web/login');
+                    $location.path('/login');
                     // remove any stale tokens
-                    $cookieStore.remove('token');
+                    $cookies.remove('token');
                     return $q.reject(response);
                 }
                 else {

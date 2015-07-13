@@ -15,7 +15,7 @@ angular.module('probrApp')
         })
         .then( function() {
           // Logged in, redirect to home
-          $location.path('/web');
+          $location.path('/devices');
         })
         .catch( function(err) {
           $scope.errors.other = err.message;

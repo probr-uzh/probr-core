@@ -6,15 +6,16 @@ from rest_framework.urlpatterns import format_suffix_patterns
 urlpatterns = [
     url(r'', include('devices.urls')),
     url(r'', include('captures.urls')),
+    url(r'', include('accounts.urls')),
 
-    #admin site
+    # admin site
     url(r'^admin/', include(admin.site.urls)),
 
-    #angular frontend
+    # angular frontend
     url(r'^$', RedirectView.as_view(url='/web/')),
     url(r'^web/*', TemplateView.as_view(template_name='index.html')),
 
-    #JSON Web Token authentication
+    # JSON Web Token authentication
     url(r'^api-token-auth/', 'rest_framework_jwt.views.obtain_jwt_token'),
 ]
 
