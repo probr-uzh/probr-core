@@ -29,11 +29,30 @@
 
     <div class="terminal row" style="margin-bottom: 30px;">
         <div class="col-xs-11">
-            <div ui-ace="{theme:'terminal',mode: 'sh'}" ng-model="cmd" placeholder="Enter your command"></div>
+            <div ui-ace="{theme:'terminal',mode: 'sh'}" enter-submit="executeCommand()" ng-model="commandTemplate.execute" placeholder="Enter your command"></div>
         </div>
         <div class="col-xs-1">
-            <button ng-click="submitCmd()" type="button" class="terminal_execute btn btn-default btn-lg">
+            <button ng-click="executeCommand()" type="button" class="terminal_execute btn btn-default btn-lg">
                 <span class="fa fa-terminal"></span>
+            </button>
+        </div>
+    </div>
+    <div class="toolbar row">
+        <div class="col-xs-4">
+            <select ng-model="commandTemplate" ng-options="cmdTemplate.name for cmdTemplate in commandTemplates">
+                <option value="">-- choose or create template --</option>
+            </select>
+        </div>
+        <div class="col-xs-3">
+            <input type="text" ng-model="commandTemplate.name">
+            </input>
+        </div>
+        <div class="col-xs-5">
+            <button ng-click="saveCommandTemplate()" type="button" class="btn btn-default btn-lg">
+                <span class="fa fa-save"></span>
+            </button>
+            <button ng-click="deleteCommandTemplate()" type="button" class="btn btn-default btn-lg">
+                <span class="fa fa-remove"></span>
             </button>
         </div>
     </div>

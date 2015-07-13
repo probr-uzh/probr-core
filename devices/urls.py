@@ -1,6 +1,6 @@
-from django.conf.urls import patterns, url
-from views import DeviceListView, DeviceDetailsView,\
-    StatusListView, CommandListView, CommandDetailsView
+from views import CommandTemplateListView, CommandTemplateDetailsView, DeviceListView, DeviceDetailsView,CommandListView, CommandDetailsView, StatusList
+from django.conf.urls import url
+
 
 urlpatterns = [
     #Devices
@@ -15,7 +15,7 @@ urlpatterns = [
     #Statuses
 
     #list of all statuses
-    url(r'^api/statuses/$', StatusListView.as_view(), name='status-list'),
+    url(r'^api/statuses/$', StatusList.as_view(), name='status-list'),
 
     ###########################################
 
@@ -26,4 +26,11 @@ urlpatterns = [
 
     #details of a command by uuid
     url(r'^api/commands/(?P<uuid>[^/]+)/+$', CommandDetailsView.as_view(), name='command-details'),
+
+    #list of all commandtemplates
+    url(r'^api/commandtemplates/$', CommandTemplateListView.as_view(), name='commandtemplate-list'),
+
+    #details of a commandtempate by uuid
+    url(r'^api/commandtemplates/(?P<pk>[^/]+)/+$', CommandTemplateDetailsView.as_view(), name='commandtemplate-details'),
+
 ]
