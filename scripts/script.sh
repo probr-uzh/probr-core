@@ -12,8 +12,8 @@ SOURCE_DETECTED=$(is_sourced)
 VERSION='0.3.0'
 UUID_FILE='uuid.txt'
 API_KEY_FILE='api.key'
-# BASE_URL='http://localhost:8080'
 BASE_URL='https://probr.sook.ch'
+# BASE_URL='http://localhost:8080'
 # Time to sleep before starting in seconds
 # waiting for network/internet to become available
 SLEEP_ON_STARTUP=0
@@ -113,15 +113,14 @@ cd_into_script_dir() {
 base_wget() {
   local url_suffix="$1"
   shift
-  echo $(wget --output-document=- \
-              --header "Api-Key: $(api_key)" \
-              --quiet \
-              --execute use_proxy=$PROXY \
-              --execute http_proxy=$HTTP_PROXY \
-              --execute https_proxy=$HTTPS_PROXY \
-              "$@" \
-              -- "${BASE_URL}${url_suffix}"
-      )
+  wget --output-document=- \
+       --header "Api-Key: $(api_key)" \
+       --quiet \
+       --execute use_proxy=$PROXY \
+       --execute http_proxy=$HTTP_PROXY \
+       --execute https_proxy=$HTTPS_PROXY \
+       "$@" \
+       -- "${BASE_URL}${url_suffix}"
 }
 
 # Performs an http get request to the probr server
