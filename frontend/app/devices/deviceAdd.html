@@ -10,23 +10,55 @@
 
     <div class="row" ng-hide="step !== 1">
         <div class="col-xs-12">
-            <form class="form-horizontal" ng-submit="createDevice()">
+            <form class="form-horizontal" name="form" ng-submit="createDevice(form)">
                 <div class="form-group">
                     <label for="name" class="sr-only">Name</label>
 
-                    <div class="col-xs-11">
-                        <input class="form-control" type="text" id="name" name="name" value="{{ device.name }}" placeholder="Name">
+                    <div class="col-xs-4">
+                        <input class="form-control" type="text" id="name" name="name" ng-model="deviceForm.name" placeholder="Name">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="type" class="sr-only">Type</label>
+                    <div class="col-xs-4">
+                        <select class="form-control" id="type" name="type" ng-model="deviceForm.type">
+                            <option value="RPA">Raspberry Pi Model A</option>
+                            <option value="RPB">Raspberry Pi Model B</option>
+                            <option value="ODR">ODROID</option>
+                            <option value="DWR">DD-WRT Router</option>
+                            <option value="OWR">OpenWRT Router</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="wifichip" class="sr-only">Wifi Chip</label>
 
-                    <div class="col-xs-11">
-                        <input class="form-control" type="text" id="type" name="type" ng-model="device.type" placeholder="Type">
+                    <div class="col-xs-4">
+                        <input class="form-control" type="text" id="wifichip" name="wifichip" ng-model="deviceForm.wifichip" placeholder="Wifi Chip">
                     </div>
                 </div>
                 <div class="form-group">
-                    <div class="col-xs-11">
+                    <label for="os" class="sr-only">Operating System</label>
+
+                    <div class="col-xs-4">
+                        <input class="form-control" type="text" id="os" name="os" ng-model="deviceForm.os" placeholder="Operating System">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="description" class="sr-only">Description</label>
+
+                    <div class="col-xs-4">
+                        <input class="form-control" type="text" id="description" name="description" ng-model="deviceForm.description" placeholder="Description">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="tags" class="sr-only">Tags</label>
+
+                    <div class="col-xs-4">
+                        <input class="form-control" type="text" id="tags" name="tags" ng-model="deviceForm.tags" placeholder="Tags comma-separated">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-xs-4">
                         <button type="submit" class="btn btn-primary">Continue</button>
                     </div>
                 </div>
@@ -39,9 +71,17 @@
             <p>Your device has successfully been created. Set it up by copy-pasting the following command to your devices terminal/ssh:</p>
 
             <blockquote>
-                CMD
+                [***CMD***]
             </blockquote>
+            <button class="btn btn-primary" type="submit" ng-click="bootstrap()">
+                I copied and executed the command on the device
+            </button>
         </div>
     </div>
 
+    <div class="row" ng-hide="step !== 3">
+        <div class="col-xs-12">
+            <p>{{ status }}</p>
+        </div>
+    </div>
 </div>

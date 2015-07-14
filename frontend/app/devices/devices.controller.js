@@ -139,14 +139,23 @@ angular.module('probrApp')
     .controller('DeviceAddCtrl', function($scope, Device) {
         $scope.deviceForm = {};
         $scope.step = 1;
+        $scope.status = "Device not yet bootsrapped."
 
-        $scope.submitDevice = function () {
-            $scope.device = new Device($scope.deviceForm, function (resultObj) {
+        $scope.createDevice = function () {
+            var tags = [];
+            tags = $scope.deviceForm.tags.split(',');
+            console.log($scope.deviceForm);
+            new Device({name:$scope.deviceForm.name, type: $scope.deviceForm.type, wifi_chip: $scope.deviceForm.wifichip, os: $scope.deviceForm.os, description: $scope.deviceForm.description, tags: tags}).$save(function (resultObj) {
                 $scope.device = resultObj;
                 $scope.step = 2;
             });
         };
 
+        $scope.bootstrap = function () {
+            $scope.step = 3;
+            console.log('Bootstrapped the device succesfully.');
+            $scope.status = 'Bootstrapped the device succesfully.';
+        };
     })
     .controller('DeviceDeleteModalCtrl', function ($scope, $modalInstance) {
         $scope.ok = function () {
