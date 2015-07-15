@@ -142,6 +142,7 @@ angular.module('probrApp')
         $scope.status = "Device not yet bootsrapped."
         var currentURL = window.location.href;
         $scope.hostURL = currentURL.split("/web")[0];
+        $scope.deviceURL = '';
 
 
         $scope.createDevice = function () {
@@ -158,6 +159,7 @@ angular.module('probrApp')
             $scope.step = 3;
             console.log('Bootstrapped the device succesfully.');
             $scope.status = 'Bootstrapped the device succesfully.';
+            $scope.deviceURL = $scope.hostURL + '/web/device/' + $scope.device.uuid +'/status'
         };
     })
     .controller('DeviceDeleteModalCtrl', function ($scope, $modalInstance) {
