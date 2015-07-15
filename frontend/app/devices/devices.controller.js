@@ -140,6 +140,9 @@ angular.module('probrApp')
         $scope.deviceForm = {};
         $scope.step = 1;
         $scope.status = "Device not yet bootsrapped."
+        var currentURL = window.location.href;
+        $scope.hostURL = currentURL.split("/web")[0];
+
 
         $scope.createDevice = function () {
             var tags = [];
