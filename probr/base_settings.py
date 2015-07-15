@@ -134,6 +134,7 @@ TEMPLATE_DIRS = (
 
 STATICFILES_DIRS = (
     'frontend',
+    'scripts',
 )
 
 # Compress
