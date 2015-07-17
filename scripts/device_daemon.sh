@@ -26,9 +26,10 @@ STATUS_NOT_YET_EXECUTED=0
 STATUS_EXECUTING=1
 STATUS_EXECUTED=2
 
-## Debug mode (true|false)
+## Debug options (true|false)
+SETUP_CRONJOB=true
 DEBUG=false
-AUTO_DETECT_SOURCED=true
+AUTO_DETECT_SOURCED=false
 TRACE=false
 POSIX_COMPATIBLE=false
 ## Proxy (yes|no)
@@ -50,7 +51,7 @@ HTTPS_PROXY=$HTTP_PROXY
 # }
 
 setup_debug_mode() {
-  if [ "$DEBUG" == 'true' ]; then
+  if [ "$DEBUG" = 'true' ]; then
     # Exit if a command fails (the same as `set -e`)
     set -o errexit
     # Exit if a command within a pipe fails
@@ -58,7 +59,7 @@ setup_debug_mode() {
     # Exit if an uninitialised variable is used (the same as `set -u`)
     set -o nounset
 
-    if [ "$TRACE" == 'true' ]; then
+    if [ "$TRACE" = 'true' ]; then
       # Print trace of every command
       set -x
     fi
@@ -320,10 +321,7 @@ main() {
   fi
 }
 
-# TODO: Does && really don't work cross-platform?
-# => remember compatibility blog
-# => test on different platforms
-if [ \( "$AUTO_DETECT_SOURCED" == 'true' \) -a \( "$SOURCE_DETECTED" == "0" \) ]; then
+if [ "$AUTO_DETECT_SOURCED" = 'true' ] && [ "$SOURCE_DETECTED" = "0" ]; then
   # When this script is sourced $0 contains no path (e.g., -bash)
   echo "pwd=$(pwd)"
 else
