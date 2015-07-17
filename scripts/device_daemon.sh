@@ -286,20 +286,32 @@ infinite_loop() {
   done
 }
 
-# Example: /root/device_daemon.sh
-# NOTE: This doesn't work in sourced debug mode
-#   additional `./` is required to make script compatible with `sh device_daemon.sh`
-script_path() {
-  readlink -f "$0"
+# Example:
+#   abs_path "ubuntu/device_daemon.sh" => "/home/ubuntu/device_daemon.sh"
+# Does't support symlinks. Would require a more verbose implementation: http://stackoverflow.com/a/1116890
+# Custom implementation of basic `readlink`
+abs_path() {
+  local rel_path="$1"
+  local cwd
+  cwd=$(pwd)
+  cd $(dirname "$rel_path")
+  echo $(pwd)/$(basename "$rel_path")
+  cd "$cwd"
 }
 
-# Example: /root
+# Example: script_path => /root/device_daemon.sh
+# NOTE: This doesn't work in sourced debug mode
+script_path() {
+  abs_path "$0"
+}
+
+# Example: script_path => /root
 # NOTE: This doesn't work in sourced debug mode
 basedir() {
   dirname $(script_path)
 }
 
-# Example: device_daemon.sh
+# Example: script_path => device_daemon.sh
 # NOTE: This doesn't work in sourced debug mode
 script_name() {
   basename "$0"
@@ -333,7 +345,7 @@ save_pid() {
 }
 
 # Arguments:
-#   api key (mandatory only on first execution; can be overwritten later)
+#   api key (mandatory only on first execution; optional to overwrite later)
 main() {
   local api_key="$1"
 
