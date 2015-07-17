@@ -87,12 +87,6 @@ setup_debug_mode() {
   fi
 }
 
-cd_into_script_dir() {
-  local basedir
-  basedir=$(dirname $0)
-  cd $basedir
-}
-
 # clean_up() {
 #     # You might want to do cleanup tasks here
 #     echo "Exiting ..."
@@ -296,6 +290,48 @@ infinite_loop() {
   done
 }
 
+# Example: /root/device_daemon.sh
+# NOTE: This doesn't work in sourced debug mode
+#   additional `./` is required to make script compatible with `sh device_daemon.sh`
+script_path() {
+  which "./$0"
+}
+
+# Example: /root
+# NOTE: This doesn't work in sourced debug mode
+basedir() {
+  dirname $(script_path)
+}
+
+# Example: device_daemon.sh
+# NOTE: This doesn't work in sourced debug mode
+script_name() {
+  basename "$0"
+}
+
+# Example:
+#   add_cronjob "@reboot /root/device_daemon.sh"
+# Based on http://stackoverflow.com/a/24892547
+add_cronjob() {
+  local job="$1"
+  (crontab -l ; echo "$job") 2>&1 | grep -v 'no crontab' | sort | uniq | crontab -
+}
+
+# Example:
+#   remove_cronjob "/root/device_daemon.sh"
+remove_cronjob() {
+  # Search expression for the cronjob to remove
+  local job_search="$1"
+  crontab -l 2>&1 | grep -v "no crontab" | grep -v "$job_search" |  sort | uniq | crontab -
+}
+
+# NOTE: This doesn't work in sourced debug mode
+setup_crontab() {
+  cmd="$(script_path)"
+  job="@reboot sleep $SLEEP_ON_STARTUP && $cmd"
+  add_cronjob "$job"
+}
+
 save_pid() {
   echo $$ > "$PID_FILE"
 }
@@ -306,7 +342,10 @@ main() {
   local api_key="$1"
 
   save_pid
-  sleep $SLEEP_ON_STARTUP
+
+  if [ "$SETUP_CRONJOB" = 'true' ]; then
+    setup_crontab
+  fi
 
   if [ -n "$api_key" ]; then
     set_api_key "$api_key"
@@ -326,7 +365,7 @@ if [ "$AUTO_DETECT_SOURCED" = 'true' ] && [ "$SOURCE_DETECTED" = "0" ]; then
   echo "pwd=$(pwd)"
 else
   # Make the script working from any current working directory
-  cd_into_script_dir
+  cd $(basedir)
   setup_debug_mode
   # Pass original parameters to main function
   main "$@"
