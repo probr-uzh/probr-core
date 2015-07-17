@@ -1,7 +1,14 @@
 #!/usr/bin/env sh
 
-# This subhell/sourced detection MUST be executed as the very first statement
-# See below for detailed documentation
+# Determines whether the script is run in a subshell or in the same process.
+# Important: This sourced/subshell detection MUST be executed as the very first statement
+# Note:
+#   This check is not fully portable. Although being syntactically correct,
+#   it always returns false/1 (i.e., running in a subshell) when used in certain
+#   shell types (e.g., sh, ash)
+# Returns:
+#   0 if the function runs in the same process (i.e., script has been sourced)
+#   1 if the scripts runs in a subshell or within a non-compatible shell
 is_sourced() {
   [ "$_" != "$0" ]
   echo $?
@@ -17,7 +24,7 @@ BASE_URL='https://probr.sook.ch'
 # BASE_URL='http://localhost:8080'
 # Time to sleep before starting in seconds
 # waiting for network/internet to become available
-SLEEP_ON_STARTUP=0
+SLEEP_ON_STARTUP=20
 # Time between two status requests in seconds
 SLEEP_PERIOD=5
 
@@ -37,18 +44,6 @@ PROXY=no
 HTTP_PROXY=localhost:8888
 HTTPS_PROXY=$HTTP_PROXY
 #### END Global variables ####
-
-# Determines whether the script is run in a subshell or in the same process.
-# Note:
-#   This check is not fully portable. Although being syntactically correct, it
-#   returns subshell instead of source when used in certain shell types (e.g., sh, ash)
-#   Use the global flag $SOURCED to force using sourced mode.
-# Returns:
-#   0 if the scripts runs in a subshell or within a non-compatible shell
-#   1 if the function runs in the same process (i.e., script has been sourced)
-# is_subshell() {
-#   See above for documentation
-# }
 
 setup_debug_mode() {
   if [ "$DEBUG" = 'true' ]; then
@@ -259,7 +254,8 @@ execute_in_background() {
   local command_file=$1
   local log_file=$2
   local command_uuid=$3
-  (trap "finished_command ${command_uuid}" EXIT && source ${command_file}) >${log_file} 2>&1 </dev/null &
+  # source <filename> is not sh compatible => using . <filename> instead
+  (trap "finished_command ${command_uuid}" EXIT && . "${command_file}") >${log_file} 2>&1 </dev/null &
   # Write pid of the most recently executed background process to file and stdout
   echo $! | tee "$(command_pid_file "$command")"
 }
@@ -294,7 +290,7 @@ infinite_loop() {
 # NOTE: This doesn't work in sourced debug mode
 #   additional `./` is required to make script compatible with `sh device_daemon.sh`
 script_path() {
-  which "./$0"
+  readlink -f "$0"
 }
 
 # Example: /root
