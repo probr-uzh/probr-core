@@ -10,6 +10,7 @@ angular.module('probrApp', [
     'ui.ace',
     'angularMoment',
     'luegg.directives',
+    'boilerDjangoForm'
 ]).config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider, $resourceProvider) {
     $urlRouterProvider.otherwise('/login');
     $locationProvider.html5Mode({enabled: true, requireBase: true, rewriteLinks: true});

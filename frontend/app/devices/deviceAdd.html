@@ -11,13 +11,7 @@
     <div class="row" ng-hide="step !== 1">
         <div class="col-xs-12">
             <form class="form-horizontal" name="form" ng-submit="createDevice(form)">
-                <div class="form-group">
-                    <label for="name" class="sr-only">Name</label>
-
-                    <div class="col-xs-4">
-                        <input class="form-control" type="text" id="name" name="name" ng-model="deviceForm.name" placeholder="Name">
-                    </div>
-                </div>
+                <django-form name="'name'" model="deviceForm.name" label="Name" form="form" errors="errors"></django-form>
                 <div class="form-group">
                     <div class="col-xs-4">
                         <select class="form-control" id="type" name="type" ng-model="deviceForm.type">
@@ -29,34 +23,10 @@
                         </select>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="wifichip" class="sr-only">Wifi Chip</label>
-
-                    <div class="col-xs-4">
-                        <input class="form-control" type="text" id="wifichip" name="wifichip" ng-model="deviceForm.wifichip" placeholder="Wifi Chip">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="os" class="sr-only">Operating System</label>
-
-                    <div class="col-xs-4">
-                        <input class="form-control" type="text" id="os" name="os" ng-model="deviceForm.os" placeholder="Operating System">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="description" class="sr-only">Description</label>
-
-                    <div class="col-xs-4">
-                        <input class="form-control" type="text" id="description" name="description" ng-model="deviceForm.description" placeholder="Description">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="tags" class="sr-only">Tags</label>
-
-                    <div class="col-xs-4">
-                        <input class="form-control" type="text" id="tags" name="tags" ng-model="deviceForm.tags" placeholder="Tags comma-separated">
-                    </div>
-                </div>
+                <django-form name="'wifichip'" model="deviceForm.wifichip" label="Wifi Chip" form="form" errors="errors"></django-form>
+                <django-form name="'os'" model="deviceForm.os" label="Operating System" form="form" errors="errors"></django-form>
+                <django-form name="'description'" model="deviceForm.description" label="Description" form="form" errors="errors"></django-form>
+                <django-form name="'tags'" model="deviceForm.formTags" label="Tags comma-separate" form="form" errors="errors"></django-form>
                 <div class="form-group">
                     <div class="col-xs-4">
                         <button type="submit" class="btn btn-primary">Continue</button>

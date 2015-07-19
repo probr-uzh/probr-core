@@ -12,7 +12,7 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
 
     # angular frontend
-    url(r'^$', RedirectView.as_view(url='/web/')),
+    url(r'^$', RedirectView.as_view(url='/web/', permanent=True)),
     url(r'^web/*', TemplateView.as_view(template_name='index.html')),
 
     # JSON Web Token authentication
