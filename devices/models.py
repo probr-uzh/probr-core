@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import signals
+from django.contrib.auth.models import User
 from audit_log.models.fields import CreatingUserField
 
 from utils.models import BaseModel, publishPostSaveMessage,publishPostSaveMessageDevice, UUIDField
@@ -37,7 +38,7 @@ class TaggedDevice(TaggedItemBase):
 class Device(models.Model):
     uuid = UUIDField("ID", primary_key=True, editable=False)
 
-    user = CreatingUserField(related_name="+", editable=False)
+    user = models.ForeignKey(User)
 
     apikey = models.CharField(max_length=64, unique=True, editable=False)
 

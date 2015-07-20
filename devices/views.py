@@ -5,7 +5,7 @@ from devices.renderers import PlainTextCommandRenderer, PlainTextCommandsRendere
 from models import CommandTemplate
 from serializers import CommandTemplateSerializer
 from models import Device, Status, Command
-from authentication import ApikeyAuthentication
+from authentication import ApikeyAuthentication, WebTokenAuthentication
 from serializers import DeviceSerializer, StatusSerializer, CommandSerializer
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
@@ -13,12 +13,28 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 class DeviceListView(generics.ListCreateAPIView):
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
-    authentication_classes = (JSONWebTokenAuthentication,)
+    authentication_classes = (WebTokenAuthentication,)
+
+    def post(self, request, *args, **kwargs):
+        user = None
+
+        if request.user.is_authenticated():
+            user = request.user
+
+        data_dict = request.data
+        data_dict[u'user'] = user.id
+
+        serializer = DeviceSerializer(data = data_dict)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(status=200, data=serializer.data)
+        else:
+            return Response(status=400,data='Bad Request.')
 
 
 class DeviceDetailsView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = DeviceSerializer
-    authentication_classes = (JSONWebTokenAuthentication,)
+    authentication_classes = (WebTokenAuthentication,)
 
     def get_object(self):
         uuid = self.kwargs['uuid']
@@ -28,21 +44,21 @@ class DeviceDetailsView(generics.RetrieveUpdateDestroyAPIView):
 class StatusList(generics.ListAPIView):
     queryset = Status.objects.all()
     serializer_class = StatusSerializer
-    authentication_classes = (JSONWebTokenAuthentication,)
+    authentication_classes = (WebTokenAuthentication,)
     filter_fields = ('device',)
 
 class CommandList(generics.ListCreateAPIView):
     queryset = Command.objects.all()
     renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer,PlainTextCommandsRenderer]
     serializer_class = CommandSerializer
-    authentication_classes = (JSONWebTokenAuthentication,)
+    authentication_classes = (WebTokenAuthentication,)
     filter_fields = ('device',)
     
 class CommandDetails(generics.RetrieveUpdateDestroyAPIView):
     renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer,PlainTextCommandRenderer]
     serializer_class = CommandSerializer
     parser_classes = (MultiPartParser, FormParser, JSONParser,)
-    authentication_classes = (JSONWebTokenAuthentication,)
+    authentication_classes = (WebTokenAuthentication,)
 
     def get_object(self):
         #get uuid from endpoint url
