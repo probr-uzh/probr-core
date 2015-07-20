@@ -12,6 +12,11 @@ angular.module('probrApp')
                 url: '/device/:id/status',
                 templateUrl: '/static/app/devices/deviceStatus.html',
                 controller: 'DeviceStatusCtrl'
+            })
+            .state('deviceAdd', {
+                url: '/device/add',
+                templateUrl: '/static/app/devices/deviceAdd.html',
+                controller: 'DeviceAddCtrl'
             });
         ;
     });

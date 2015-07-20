@@ -1,75 +1,63 @@
-from django.views.generic import TemplateView
 from rest_framework import generics, renderers
-from rest_framework.mixins import DestroyModelMixin
-from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from devices.renderers import PlainTextCommandRenderer, PlainTextCommandsRenderer
-from models import Device, Status, Command, CommandTemplate
-from serializers import DeviceSerializer, StatusSerializer, CommandSerializer, CommandTemplateSerializer
+from models import CommandTemplate
+from serializers import CommandTemplateSerializer
+from models import Device, Status, Command
+from authentication import ApikeyAuthentication, WebTokenAuthentication
+from serializers import DeviceSerializer, StatusSerializer, CommandSerializer
 
-#Devices
-##################################################
+
+### Endpoints for the frontend ###
 class DeviceListView(generics.ListCreateAPIView):
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
+    authentication_classes = (WebTokenAuthentication,)
+
+    def post(self, request, *args, **kwargs):
+        user = None
+        if request.user.is_authenticated():
+            user = request.user
+
+        request.data[u'user'] = user.id
+        return super(DeviceListView, self).post(request,*args,**kwargs)
+
+
+
 
 class DeviceDetailsView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = DeviceSerializer
+    authentication_classes = (WebTokenAuthentication,)
 
     def get_object(self):
         uuid = self.kwargs['uuid']
         return Device.objects.get(uuid=uuid)
 
-#Statuses
-##################################################
-class StatusListView(generics.ListCreateAPIView):
+
+class StatusList(generics.ListAPIView):
     queryset = Status.objects.all()
-    filter_fields = ('device',)
     serializer_class = StatusSerializer
+    authentication_classes = (WebTokenAuthentication,)
+    filter_fields = ('device',)
 
-    def get_client_ip(self, request):
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        if x_forwarded_for:
-            ip = x_forwarded_for.split(',')[0]
-        else:
-            ip = request.META.get('REMOTE_ADDR')
-        return ip
-
-    def perform_create(self, serializer):
-        serializer.save(ip=self.get_client_ip(self.request))
-
-#Commands
-##################################################
-class CommandListView(generics.ListCreateAPIView):
+class CommandList(generics.ListCreateAPIView):
+    queryset = Command.objects.all()
     renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer,PlainTextCommandsRenderer]
     serializer_class = CommandSerializer
-    queryset = Command.objects.all()
-    filter_fields = ('status','device',)
-
-
-class CommandDetailsView(generics.RetrieveUpdateDestroyAPIView):
+    authentication_classes = (WebTokenAuthentication,)
+    filter_fields = ('device',)
+    
+class CommandDetails(generics.RetrieveUpdateDestroyAPIView):
     renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer,PlainTextCommandRenderer]
     serializer_class = CommandSerializer
     parser_classes = (MultiPartParser, FormParser, JSONParser,)
+    authentication_classes = (WebTokenAuthentication,)
 
     def get_object(self):
-        uuid = self.kwargs['uuid']
+        #get uuid from endpoint url
+        uuid = self.kwargs.get('uuid',None)
         return Command.objects.get(uuid=uuid)
-
-    def post(self, request, *args, **kwargs):
-        command = self.get_object()
-
-        if request.META['CONTENT_TYPE'] == "application/json":
-            command.status = request.data['status']
-        else:
-            if hasattr(request.FILES,"result"):
-                command.result = request.FILES['result'].read()
-            else:
-                command.result = request.body;
-            command.status = 2
-        command.save()
-        return Response('Command result saved')
 
 class CommandTemplateListView(generics.ListCreateAPIView):
     renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer]
@@ -82,3 +70,119 @@ class CommandTemplateDetailsView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CommandTemplateSerializer
     queryset = CommandTemplate.objects.all()
     parser_classes = (JSONParser,)
+
+
+
+### Endpoints for the devices ###
+
+class StatusList_Devices(generics.ListCreateAPIView):
+    queryset = Status.objects.all()
+    serializer_class = StatusSerializer
+    authentication_classes = (ApikeyAuthentication,)
+
+    def list(self, request, *args, **kwargs):
+        device = Device.objects.get(apikey=request.META.get('HTTP_API_KEY',None))
+        queryset = Status.objects.filter(device_id=device.uuid)
+        serializer = StatusSerializer(queryset, many=True)
+        return Response(status=200, data=serializer.data)
+
+
+    def post(self, request, *args, **kwargs):
+        device = Device.objects.get(apikey=request.META['HTTP_API_KEY'])
+        data_dict = request.data
+        data_dict[u'ip'] = get_client_ip(self.request)
+        data_dict[u'device'] = device.uuid
+        serializer = StatusSerializer(data=data_dict)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(status=200, data=serializer.data)
+        else:
+            return Response(status=400,data='Bad Request.')
+
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
+class CommandList_Devices(generics.ListCreateAPIView):
+    renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer,PlainTextCommandsRenderer]
+    serializer_class = CommandSerializer
+    authentication_classes = (ApikeyAuthentication,)
+
+    def list(self, request, *args, **kwargs):
+
+        device = Device.objects.get(apikey=request.META.get('HTTP_API_KEY',None))
+
+        #try to get status from query parameters
+        status = request.GET.get('status',None)
+
+        #check if status query param was given or not, and act accordingly
+        if status is None:
+            queryset = Command.objects.filter(device_id=device.uuid)
+        else:
+            queryset = Command.objects.filter(status=status,device_id=device.uuid)
+
+        serializer = CommandSerializer(queryset, many=True)
+        return Response(status=200, data=serializer.data)
+
+
+
+class CommandDetails_Devices(generics.RetrieveUpdateDestroyAPIView):
+    renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer,PlainTextCommandRenderer]
+    serializer_class = CommandSerializer
+    parser_classes = (MultiPartParser, FormParser, JSONParser,)
+    authentication_classes = (ApikeyAuthentication,)
+
+
+    def get(self, request, *args, **kwargs):
+
+        #get uuid from endpoint url
+        uuid = self.kwargs.get('uuid',None)
+
+        #get the device that sent the request
+        device = Device.objects.get(apikey=request.META.get('HTTP_API_KEY',None))
+
+        #find the respective command
+        try:
+            command = Command.objects.get(uuid=uuid,device_id=device.uuid)
+        except Command.DoesNotExist:
+            return Response(status=404, data='There is no command for the given id.')
+
+        serializer = CommandSerializer(command,many=False)
+        return Response(status=200, data=serializer.data)
+
+
+
+    def post(self, request, *args, **kwargs):
+
+        #get uuid from endpoint url
+        uuid = self.kwargs.get('uuid',None)
+
+        #get the device that sent the request
+        device = Device.objects.get(apikey=request.META.get('HTTP_API_KEY',None))
+
+        #find the respective command
+        try:
+            command = Command.objects.get(uuid=uuid,device_id=device.uuid)
+        except Command.DoesNotExist:
+            return Response(status=404, data='There is no command for the given id.')
+
+
+        if request.META['CONTENT_TYPE'] == "application/json":
+            command.status = request.data['status']
+        else:
+            if hasattr(request.FILES,"result"):
+                command.result = request.FILES['result'].read()
+            else:
+                command.result = request.body;
+
+            command.status = 2
+        command.save()
+        return Response('Command result saved')
+
+

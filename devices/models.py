@@ -1,9 +1,14 @@
 from django.db import models
 from django.db.models import signals
+from django.contrib.auth.models import User
+from audit_log.models.fields import CreatingUserField
 
-from utils.models import BaseModel, publishPostSaveMessage
+from utils.models import BaseModel, publishPostSaveMessage,publishPostSaveMessageDevice, UUIDField
 from taggit.managers import TaggableManager
 from taggit.models import TaggedItemBase
+
+import uuid
+import hashlib
 
 from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage
@@ -30,14 +35,25 @@ COMMAND_STATUS_CHOICES = (
 class TaggedDevice(TaggedItemBase):
     content_object = models.ForeignKey('Device')
 
-class Device(BaseModel):
+class Device(models.Model):
+    uuid = UUIDField("ID", primary_key=True, editable=False)
+
+    user = models.ForeignKey(User)
+
+    apikey = models.CharField(max_length=64, unique=True, editable=False)
+
     name = models.CharField(max_length=255)
+
+    creation_timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    modification_timestamp = models.DateTimeField(auto_now=True, db_index=True)
 
     type = models.CharField(max_length=3, choices=DEVICE_TYPE_CHOICES, default="UKW")
 
     wifi_chip = models.CharField(max_length=255, blank=True, default="")
 
     os = models.CharField(max_length=255, blank=True, default="")
+
     description = models.TextField(blank=True, default="")
 
     tags = TaggableManager(through=TaggedDevice)
@@ -45,7 +61,17 @@ class Device(BaseModel):
     def __unicode__(self):
         return self.name
 
-signals.post_save.connect(publishPostSaveMessage, sender=Device)
+    def save(self, *args, **kwargs):
+        #generate random seed for the api-key
+        seed = uuid.uuid4()
+
+        #hash the random seed to obtain an api-key
+        self.apikey = hashlib.sha256(str(seed)).hexdigest()
+
+        super(Device, self).save(*args, **kwargs)
+
+
+signals.post_save.connect(publishPostSaveMessageDevice, sender=Device)
 
 class Status(BaseModel):
     device = models.ForeignKey(Device, related_name="statuses")

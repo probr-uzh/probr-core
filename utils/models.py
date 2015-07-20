@@ -37,6 +37,21 @@ def publishMessage(topic, message="update", groups=[]):
     message = RedisMessage(message)
     redis_publisher.publish_message(message)
 
+def publishPostSaveMessageDevice(sender, instance, created, **kwargs):
+    payload = serializers.serialize('json', [instance, ])
+    struct = json.loads(payload)
+    struct[0]['fields']['object_type'] = instance._meta.verbose_name + ':update'
+    struct[0]['fields']['apikey'] = instance.apikey # also send apikey
+    payload = json.dumps(struct[0]['fields'])
+
+    # also publish to foreign key fields, to enable grouping/filtering on client-side
+    # for field in instance._meta.fields:
+    #    if field.get_internal_type() == "ForeignKey":
+    #        group = field.name + '-' + getattr(instance, field.name).uuid
+    #        publishMessage(instance._meta.verbose_name_plural, message=payload, groups=[group])
+
+    publishMessage("socket", message=payload)
+
 def publishPostSaveMessage(sender, instance, created, **kwargs):
     payload = serializers.serialize('json', [instance, ])
     struct = json.loads(payload)

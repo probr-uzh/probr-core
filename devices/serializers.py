@@ -11,6 +11,7 @@ class DeviceSerializer(TaggitSerializer, serializers.ModelSerializer):
         model = Device
 
 class StatusSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Status
 
