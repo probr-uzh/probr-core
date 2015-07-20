@@ -7,7 +7,7 @@ from serializers import CommandTemplateSerializer
 from models import Device, Status, Command
 from authentication import ApikeyAuthentication, WebTokenAuthentication
 from serializers import DeviceSerializer, StatusSerializer, CommandSerializer
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+
 
 ### Endpoints for the frontend ###
 class DeviceListView(generics.ListCreateAPIView):
@@ -17,19 +17,13 @@ class DeviceListView(generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         user = None
-
         if request.user.is_authenticated():
             user = request.user
 
-        data_dict = request.data
-        data_dict[u'user'] = user.id
+        request.data[u'user'] = user.id
+        return super(DeviceListView, self).post(request,*args,**kwargs)
 
-        serializer = DeviceSerializer(data = data_dict)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(status=200, data=serializer.data)
-        else:
-            return Response(status=400,data='Bad Request.')
+
 
 
 class DeviceDetailsView(generics.RetrieveUpdateDestroyAPIView):
