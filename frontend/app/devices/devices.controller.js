@@ -147,7 +147,7 @@ angular.module('probrApp')
         $scope.deviceURL = '';
 
         $scope.createDevice = function (form) {
-            $scope.deviceForm.tags = $scope.deviceForm.formTags.length > 0 ? $scope.deviceForm.formTags.split(',') : [];
+            $scope.deviceForm.tags = $scope.deviceForm.formTags !== undefined ? $scope.deviceForm.formTags.split(',') : [];
             $scope.deviceForm.$save(function (device) {
                 $scope.device = device;
                 $scope.step = 2;
