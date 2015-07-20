@@ -350,17 +350,15 @@ main() {
   local api_key="$1"
 
   save_pid
-
-  if [ "$SETUP_CRONJOB" = 'true' ]; then
-    setup_crontab
-  fi
-
   if [ -n "$api_key" ]; then
     set_api_key "$api_key"
   fi
 
   if [ -s "$API_KEY_FILE" ]; then
     echo "Using api key \"$(api_key)\""
+	  if [ "$SETUP_CRONJOB" = 'true' ]; then
+	    setup_crontab
+	  fi
     infinite_loop
   else
     echo "No api key available. Please provide an api key as script argument."
