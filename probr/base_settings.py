@@ -156,10 +156,8 @@ BOWER_INSTALLED_APPS = (
 
 # Compress
 COMPRESS_PRECOMPILERS = (
-    ('text/less', '/usr/local/bin/lessc {infile} {outfile}'),
+    ('text/less', 'lessc {infile} {outfile}'),
 )
-
-
 
 # Media
 MEDIA_URL='/media/'

@@ -1,0 +1,50 @@
+# database container
+db:
+   image: postgres:9.4
+   environment:
+      POSTGRES_PASSWORD: supersuperdevpassword
+
+# mongodb
+mongodb:
+  image: mongo:latest
+
+# redis container
+redis:
+   image: redis:2.8.19
+
+# django web app
+web:
+   build: .
+   command: sh run_web.sh
+   volumes:
+    - .:/app
+   ports:
+    - "8000:8000"
+   links:
+    - db
+    - redis
+    - mongodb
+    - worker
+
+# container with worker
+worker:
+   build: .
+   command: sh run_celery.sh
+   volumes:
+    - .:/app
+   links:
+    - db
+    - redis
+    - mongodb
+
+nginx:
+   restart: always
+   build: ./nginx/
+   ports:
+    - "80:80"
+   volumes:
+    - /www/static
+   volumes_from:
+    - web
+   links:
+    - web:web

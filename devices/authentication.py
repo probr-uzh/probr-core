@@ -5,12 +5,6 @@ from django.contrib.auth.models import User
 from rest_framework import authentication
 from rest_framework import exceptions
 from models import Device
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
-from rest_framework_jwt.settings import api_settings
-
-
-jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
-jwt_get_user_id_from_payload = api_settings.JWT_PAYLOAD_GET_USER_ID_HANDLER
 
 class ApikeyAuthentication(authentication.BaseAuthentication):
 
@@ -34,18 +28,5 @@ class ApikeyAuthentication(authentication.BaseAuthentication):
 
         print("Authentication:  Apikey=" + api_key)
         print("Authentication:  User=" + str(user))
-        return (user,None)
 
-
-class WebTokenAuthentication(JSONWebTokenAuthentication):
-
-    def authenticate(self, request):
-        jwt_value = self.get_jwt_value(request)
-
-        payload = jwt_decode_handler(jwt_value)
-
-        user = self.authenticate_credentials(payload)
-
-        print("User for given WebToken: " + str(user))
-
-        return super(WebTokenAuthentication,self).authenticate(request)
+        return (user, None)
