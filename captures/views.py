@@ -1,8 +1,6 @@
 from rest_framework.response import Response
 from rest_framework import generics
-from rest_framework.renderers import JSONRenderer
 from captures.tasks import processCapture
-from serializers import CaptureSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from models import Capture
 from serializers import CaptureSerializer

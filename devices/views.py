@@ -5,7 +5,8 @@ from devices.renderers import PlainTextCommandRenderer, PlainTextCommandsRendere
 from models import CommandTemplate
 from serializers import CommandTemplateSerializer
 from models import Device, Status, Command
-from authentication import ApikeyAuthentication, JSONWebTokenAuthentication
+from authentication import ApikeyAuthentication
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from serializers import DeviceSerializer, StatusSerializer, CommandSerializer
 
 
