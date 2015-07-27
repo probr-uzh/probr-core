@@ -13,9 +13,8 @@ class DeviceCaptureUploadView(APIView):
         #get the device that sent the request
         device = Device.objects.get(apikey=request.META.get('HTTP_API_KEY',None))
 
-        #get uuid from endpoint url
-        longitude = self.kwargs.get('longitude',device.longitude)
-        latitude = self.kwargs.get('latitude',device.latitude)
+        longitude = request.query_params.get('longitude',device.longitude)
+        latitude = request.query_params.get('latitude',device.latitude)
 
         if hasattr(request.FILES,"file"):
             file = ContentFile(request.FILES['file'].read())
