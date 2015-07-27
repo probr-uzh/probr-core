@@ -21,7 +21,7 @@ SCRIPT_NAME='device_daemon.sh'
 PID_FILE='device_daemon.pid'
 API_KEY_FILE='api.key'
 BASE_URL='https://probr.sook.ch'
-# BASE_URL='http://localhost:8080'
+# BASE_URL='http://localhost:8000'
 # Time to sleep before starting in seconds
 # waiting for network/internet to become available
 SLEEP_ON_STARTUP=20

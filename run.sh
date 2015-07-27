@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-open_browser=true
+open_browser=false
 flush_data=false
-host=localhost:8080
+host=0.0.0.0:8000
 #host=`ipconfig getifaddr en2`:8080
 
 
