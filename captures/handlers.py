@@ -53,7 +53,7 @@ class WebsocketHandler(object):
         pcapReader = dpkt.pcap.Reader(capture.pcap)
 
         for timestamp, packet in pcapReader:
-            jsonPacket = generate_json(packet, timestamp)
+            jsonPacket = generate_json(capture, packet, timestamp)
 
             # broadcast to socket
             jsonPacket["object_type"] = "packet:update"
