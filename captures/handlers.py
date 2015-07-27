@@ -44,7 +44,6 @@ class MongoDBHandler(object):
             jsonPacket['inserted_at'] = datetime.datetime.utcnow()
             jsonPacket['longitude'] = capture.longitude
             jsonPacket['latitude'] = capture.latitude
-            jsonPacket['tags'] = capture.tags.all()
             packets.insert_one(jsonPacket)
 
 
