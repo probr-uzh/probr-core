@@ -86,3 +86,6 @@ db.sqlite3
 
 # Local virtualenv auto configuration
 .env
+
+# Vagrant
+.vagrant
