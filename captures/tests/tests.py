@@ -1,19 +1,21 @@
 from django.test import TestCase
 from django.core.files import File
-from captures.handlers import generate_json, MongoDBHandler
-from captures.tasks import *
 import dpkt
+
+from handlers.handlers import generate_json, MongoDBHandler
+from captures.tasks import *
 from probr import mongodb
+
 
 class CaptureTaskTestCase(TestCase):
     def setUp(self):
         self.pcapfile = File(open('captures/tests/resources/proberequests_smallsample.pcap', 'rb'))
 
-        self.capture = Capture.objects.create(pcap=self.pcapfile)
-        self.capture.tags.add("test", "test2");
+        self.capture = Capture.objects.create(file=self.pcapfile)
+        self.capture.tags.add("test", "test2")
 
     def test_unpack_pcap(self):
-        pcapReader = dpkt.pcap.Reader(self.capture.pcap)
+        pcapReader = dpkt.pcap.Reader(self.capture.file)
 
         packetList = []
 
@@ -45,9 +47,9 @@ class CaptureTaskTestCase(TestCase):
         mongoHandler.handle(self.capture)
 
 
-        self.capture.pcap.open()
+        self.capture.file.open()
 
-        pcapReader = dpkt.pcap.Reader(self.capture.pcap)
+        pcapReader = dpkt.pcap.Reader(self.capture.file)
 
         packetList = []
         dbList = []
@@ -73,7 +75,7 @@ class CaptureTaskTestCase(TestCase):
 
     def tearDown(self):
 
-        #self.capture.pcap.delete()
+        #self.capture.file.delete()
 
         db = mongodb.db
         packets = db.packets

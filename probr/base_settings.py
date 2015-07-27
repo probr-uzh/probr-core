@@ -46,6 +46,8 @@ INSTALLED_APPS = (
     'utils',
     'devices',
     'captures',
+    'device_captures',
+    'handlers'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -78,7 +80,7 @@ ROOT_URLCONF = 'probr.urls'
 
 DATABASES = {
     'default': {
-	'ENGINE': 'django.db.backends.sqlite3',
+        'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3')
     }
 }
@@ -110,7 +112,7 @@ REST_FRAMEWORK = {
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Zurich'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
@@ -119,7 +121,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR+STATIC_URL
+STATIC_ROOT = BASE_DIR + STATIC_URL
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
@@ -136,38 +138,18 @@ STATICFILES_DIRS = (
     'scripts'
 )
 
-BOWER_INSTALLED_APPS = (
- 'angular-django-rest-resource#1.0.3',
- 'bootstrap#3.3.4',
- 'angular-ui-router#0.2.14',
- 'angular-bootstrap#0.13.0',
- 'angular#1.3.15',
- 'jquery#2.1.4',
- 'font-awesome#4.3.0',
- 'angular-websocket#1.0.9',
- 'angular-chart.js#0.7.1',
- 'lodash#3.8.0',
- 'font-awesome#4.3.0',
- 'angular-resource#1.4.0',
- 'angular-scroll-glue#2.0.5',
- 'angular-moment#0.10.1',
- 'angular-ui-ace#0.2.3'
-)
-
 # Compress
 COMPRESS_PRECOMPILERS = (
     ('text/less', '/usr/local/bin/lessc {infile} {outfile}'),
 )
 
-
-
 # Media
-MEDIA_URL='/media/'
-MEDIA_ROOT = BASE_DIR+MEDIA_URL
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR + MEDIA_URL
 
 
 # Handlers
 PROBR_HANDLERS = [
-    'captures.handlers.WebsocketHandler',
-    'captures.handlers.MongoDBHandler',
+    'handlers.handlers.WebsocketHandler',
+    'handlers.handlers.MongoDBHandler',
 ]

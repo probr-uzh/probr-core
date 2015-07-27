@@ -58,6 +58,10 @@ class Device(models.Model):
 
     tags = TaggableManager(through=TaggedDevice)
 
+    longitude = models.FloatField(default=0)
+
+    latitude = models.FloatField(default=0)
+
     def __unicode__(self):
         return self.name
 
