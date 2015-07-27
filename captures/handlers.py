@@ -42,6 +42,9 @@ class MongoDBHandler(object):
             packets = db.packets
             jsonPacket = generate_json(capture, packet, timestamp)
             jsonPacket['inserted_at'] = datetime.datetime.utcnow()
+            jsonPacket['longitude'] = capture.longitude
+            jsonPacket['latitude'] = capture.latitude
+            jsonPacket['tags'] = capture.tags.all()
             packets.insert_one(jsonPacket)
 
 
