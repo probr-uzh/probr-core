@@ -1,3 +1,4 @@
+import uuid
 from django.core.files.base import ContentFile
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -21,11 +22,9 @@ class DeviceCaptureUploadView(APIView):
         else:
             file = ContentFile(request.body)
 
-        deviceCapture = DeviceCapture.objects.create(device=device, longitude=longitude, latitude=latitude, file=file)
+        deviceCapture = DeviceCapture.objects.create(device=device, longitude=longitude, latitude=latitude)
+        deviceCapture.file.save(str(uuid.uuid4()) + ".pcap", file)
         deviceCapture.tags.add(*device.tags.all())
         deviceCapture.save()
 
         return Response('DeviceCapture result saved')
-
-
-
