@@ -44,7 +44,6 @@ class MongoDBHandler(object):
             jsonPacket['inserted_at'] = datetime.datetime.utcnow()
             jsonPacket['longitude'] = capture.longitude
             jsonPacket['latitude'] = capture.latitude
-            jsonPacket['tags'] = capture.tags.all()
             packets.insert_one(jsonPacket)
 
 
@@ -54,7 +53,7 @@ class WebsocketHandler(object):
         pcapReader = dpkt.pcap.Reader(capture.pcap)
 
         for timestamp, packet in pcapReader:
-            jsonPacket = generate_json(packet, timestamp)
+            jsonPacket = generate_json(capture, packet, timestamp)
 
             # broadcast to socket
             jsonPacket["object_type"] = "packet:update"
