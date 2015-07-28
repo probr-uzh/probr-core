@@ -20,8 +20,8 @@ VERSION='0.3.0'
 SCRIPT_NAME='device_daemon.sh'
 PID_FILE='device_daemon.pid'
 API_KEY_FILE='api.key'
-BASE_URL='https://probr.sook.ch'
-# BASE_URL='http://localhost:8000'
+BASE_URL_FILE='probr.url'
+
 # Time to sleep before starting in seconds
 # waiting for network/internet to become available
 SLEEP_ON_STARTUP=20
@@ -111,7 +111,7 @@ base_wget() {
        --execute http_proxy=$HTTP_PROXY \
        --execute https_proxy=$HTTPS_PROXY \
        "$@" \
-       -- "${BASE_URL}${url_suffix}"
+       -- "$(base_url)${url_suffix}"
 }
 
 # Performs an http get request to the probr server
@@ -185,9 +185,17 @@ api_key() {
   cat "$API_KEY_FILE"
 }
 
-set_api_key() {
-  local api_key=$1
-  echo "${api_key}" > $API_KEY_FILE
+base_url() {
+  cat "$BASE_URL_FILE"
+}
+
+set_or_keep() {
+  local cache_file="$1"
+  local value="$2"
+
+  if [ -n "$value" ]; then
+    echo "$value" > "$cache_file"
+  fi
 }
 
 command_file() {
@@ -235,6 +243,12 @@ submit_result() {
 # Callback function when exiting a background command
 finished_command() {
   local command_uuid=$1
+  # IDEA:
+  # waiting loop with timeout to eliminate race condition
+  # pkill
+  # ev. sleep or wait
+  # submit
+
   # TODO: Why do we first submit the result and then pkill the child processes and not vice versa?
   # Consider that there is a race condition: finished_command requires that that pid was already written to the .pid file !!!
   submit_result "$command_uuid" "$(command_log_file "$command_uuid")"
@@ -335,9 +349,22 @@ remove_cronjob() {
 
 # NOTE: This doesn't work in sourced debug mode
 setup_crontab() {
-  cmd="$(script_path)"
-  job="@reboot sleep $SLEEP_ON_STARTUP && $cmd"
-  add_cronjob "$job"
+  if [ "$SETUP_CRONJOB" = 'true' ]; then
+    cmd="$(script_path)"
+    job="@reboot sleep $SLEEP_ON_STARTUP && $cmd"
+    add_cronjob "$job"
+  fi
+}
+
+check_endpoint_info() {
+  if [ -n "$(api_key)" ] && [ -n "$(base_url)" ]; then
+    echo "Using api key \"$(api_key)\" against endpoint \"$(base_url)\""
+  else
+    echo "Endpoint info not complete. \
+          Please provide the api key and base url as script arguments \
+          and ensure that that script has write permissions within its directory."
+    exit 1
+  fi
 }
 
 save_pid() {
@@ -346,24 +373,17 @@ save_pid() {
 
 # Arguments:
 #   api key (mandatory only on first execution; optional to overwrite later)
+#   probr base url (mandatory only on first execution; optional to overwrite later)
 main() {
   local api_key="$1"
+  local base_url="$2"
 
   save_pid
-  if [ -n "$api_key" ]; then
-    set_api_key "$api_key"
-  fi
-
-  if [ -s "$API_KEY_FILE" ]; then
-    echo "Using api key \"$(api_key)\""
-	  if [ "$SETUP_CRONJOB" = 'true' ]; then
-	    setup_crontab
-	  fi
-    infinite_loop
-  else
-    echo "No api key available. Please provide an api key as script argument."
-    exit 1
-  fi
+  set_or_keep $API_KEY_FILE "$api_key"
+  set_or_keep $BASE_URL_FILE "$base_url"
+  check_endpoint_info
+  setup_crontab
+  infinite_loop
 }
 
 if [ "$AUTO_DETECT_SOURCED" = 'true' ] && [ "$SOURCE_DETECTED" = "0" ]; then
