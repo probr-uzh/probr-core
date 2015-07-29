@@ -144,27 +144,51 @@ update_script() {
   download_script && cp "${SCRIPT_NAME}.new" "${SCRIPT_NAME}" && exec "./${SCRIPT_NAME}"
 }
 
-device_status() {
-  total_memory=$(free -m | awk 'NR==2 {print $2};')
-  used_memory=$(free -m | awk 'NR==2 {print $3};')
-  total_disk=$(df -k . | awk 'NR==2 { print $4 };')
-  used_disk=$(df -k . | awk 'NR==2 { print $3 };')
-  # An alternative would be to consider cpu core normalized load averages over 1 minute (see http://www.rackspace.com/knowledge_center/article/checking-system-load-on-linux)
-  # NOTE: This command blocks and needs to wait for 1 second until the value is available
-  # Explanation:
-  # Must ignore the first invalid value => therefore -n2 (according to http://stackoverflow.com/a/4940972 and http://linux.die.net/man/1/top)
-  # Double grep prevents including the grep process itself
-  # Tail only takes the second value and ignores the first
-  # Awk extracts the relevant idle column (100 - idle) taking steal time into consideration
-  # Sed removes the percentage sign '%' which is included in certain distributions (e.g. OpenWrt)
-  # TODO: This fails on systems where there is no whitespace on 100% idleness (e.g., ",100.0 id,")
-  cpu_load=$(top -b -n2 -d1 | grep -i "cpu" | grep "id" | tail -n+2 | awk '{ print 100 - $8 };' | sed 's/%//')
-
-  echo '{"cpu_load":"'$cpu_load'","used_disk":"'$used_disk'","total_disk":"'$total_disk'","used_memory":"'$used_memory'","total_memory":"'$total_memory'"}'
+total_memory() {
+  free -m | awk 'NR==2 {print $2};'
 }
 
+used_memory() {
+  free -m | awk 'NR==2 {print $3};'
+}
+
+total_disk() {
+  df -k . | awk 'NR==2 { print $4 };'
+}
+
+used_disk() {
+  df -k . | awk 'NR==2 { print $3 };'
+}
+
+# Examples:
+# echo "CPU:   0% usr   0% sys   0% nic 100% idle   0% io   0% irq   0% sirq" | extract_idle_time => 100
+# echo "%Cpu(s):  0.0 us,  0.0 sy,  0.0 ni,100.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st" | extract_idle_time => 100.0
+# echo "%Cpu(s): 60.9 us,  0.0 sy,  0.0 ni, 39.1 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st" | extract_idle_time => 39.1
+# echo "%Cpu(s):100.0 us,  0.0 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st" | extract_idle_time => 0.0
+extract_idle_time() {
+  sed -n 's/.*[^0-9]\([0-9]\+.\?[0-9]\+\)\%\? id.*/\1/p'
+}
+
+# An alternative would be to consider cpu core normalized load averages over 1 minute (see http://www.rackspace.com/knowledge_center/article/checking-system-load-on-linux)
+# NOTE: This command blocks and needs to wait for 1 second until the value is available
+# NOTE: Not Mac OS X compatible
+# Explanation:
+# Must ignore the first invalid value => therefore -n2 (according to http://stackoverflow.com/a/4940972 and http://linux.die.net/man/1/top)
+# Double grep prevents including the grep process itself
+# Tail only takes the second value and ignores the first
+# Awk inverts the idle time (taking steal time into consideration)
+# Sed removes the percentage sign '%' which is included in certain distributions (e.g. OpenWrt)
+cpu_load() {
+  top -b -n2 -d1 | grep -i "cpu" | grep "id" | tail -n+2 | extract_idle_time | awk '{ print 100 - $1 }' | sed 's/%//'
+}
+
+device_status() {
+  echo '{"cpu_load":"'$(cpu_load)'","used_disk":"'$(used_disk)'","total_disk":"'$(total_disk)'","used_memory":"'$(used_memory)'","total_memory":"'$(total_memory)'"}'
+}
+
+# Use for testing or on Mac OS X where top -bn2 is not available
 fake_device_status() {
-  echo '{"cpu_load":"0.3","used_disk":"10","total_disk":"20","used_memory":"256","total_memory":"2048"}' 
+  echo '{"cpu_load":"31.7","used_disk":"3222111","total_disk":"33222111","used_memory":"512","total_memory":"2048"}' 
 }
 
 post_status() {
