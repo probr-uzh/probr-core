@@ -149,10 +149,16 @@ device_status() {
   used_memory=$(free -m | awk 'NR==2 {print $3};')
   total_disk=$(df -k . | awk 'NR==2 { print $4 };')
   used_disk=$(df -k . | awk 'NR==2 { print $3 };')
-  # TODO: Does this metric report cpu load in a meaningful way? It seems to report wrong values according to my observations (e.g., on OpenWrt, it happened that it constantly reported 100 instead of 0)!
   # An alternative would be to consider cpu core normalized load averages over 1 minute (see http://www.rackspace.com/knowledge_center/article/checking-system-load-on-linux)
-  # NOTE: This command blocks and needs to wait for about 2 seconds until the value is available
-  cpu_load=$(top -bn2 | awk '/Cpu/ { print 100 - $8};' | tail -n1)
+  # NOTE: This command blocks and needs to wait for 1 second until the value is available
+  # Explanation:
+  # Must ignore the first invalid value => therefore -n2 (according to http://stackoverflow.com/a/4940972 and http://linux.die.net/man/1/top)
+  # Double grep prevents including the grep process itself
+  # Tail only takes the second value and ignores the first
+  # Awk extracts the relevant idle column (100 - idle) taking steal time into consideration
+  # Sed removes the percentage sign '%' which is included in certain distributions (e.g. OpenWrt)
+  # TODO: This fails on systems where there is no whitespace on 100% idleness (e.g., ",100.0 id,")
+  cpu_load=$(top -b -n2 -d1 | grep -i "cpu" | grep "id" | tail -n+2 | awk '{ print 100 - $8 };' | sed 's/%//')
 
   echo '{"cpu_load":"'$cpu_load'","used_disk":"'$used_disk'","total_disk":"'$total_disk'","used_memory":"'$used_memory'","total_memory":"'$total_memory'"}'
 }
