@@ -12,7 +12,7 @@ angular.module('probrApp', [
     'luegg.directives',
     'boilerDjangoForm'
 ]).config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider, $resourceProvider) {
-    $urlRouterProvider.otherwise('/login');
+    $urlRouterProvider.otherwise('/devices');
     $locationProvider.html5Mode({enabled: true, requireBase: true, rewriteLinks: true});
 
     $resourceProvider.defaults.stripTrailingSlashes = false;
