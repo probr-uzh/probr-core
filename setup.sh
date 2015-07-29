@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
-flush_data=false
+# Usage:
+# ./setup
+# ./setup flush
 
-if [ "$flush_data" = true ]; then
+action="$1"
+
+if [ "$action" = 'flush' ]; then
 	python manage.py flush --noinput
 	echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'admin')" | python manage.py shell
 fi
