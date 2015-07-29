@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 #### BEGIN Global variables ####
-VERSION='0.4.0'
+VERSION='0.4.1'
 SCRIPT_NAME='device_daemon.sh'
 PID_FILE='device_daemon.pid'
 API_KEY_FILE='api.key'
@@ -137,11 +137,46 @@ post() {
 }
 
 download_script() {
-  get "/static/${SCRIPT_NAME}" > "${SCRIPT_NAME}.new"
+  local script="$1"
+  get "/static/${script}" > "${script}.new"
 }
 
-update_script() {
-  download_script && cp "${SCRIPT_NAME}.new" "${SCRIPT_NAME}" && exec "./${SCRIPT_NAME}"
+replace_script() {
+  local script="$1"
+  cp "${script}.new" "${script}"
+  rm "${script}.new"
+}
+
+save_pid() {
+  echo $$ > "$PID_FILE"
+}
+
+get_pid() {
+  cat "$PID_FILE"
+}
+
+# TODO: Remove because this doesn't work from within a remote command
+#       The device script would be killed when this command exits
+restart_device_daemon() {
+  old_pid=$(get_pid)
+  kill $old_pid
+  nohup ./device_daemon.sh >/dev/null 2>&1 </dev/null &
+  echo $!
+  sleep 20
+}
+
+upgrade_device_daemon() {
+  download_script "utils.sh" &&
+  download_script "device_daemon.sh"
+}
+
+# Apply update if a new version of the device deamon is available
+check_for_updates() {
+  if [ -s "device_daemon.sh.new" ]; then
+    replace_script "utils.sh" &&
+    replace_script "device_daemon.sh" &&
+    exec "./device_daemon.sh"
+  fi
 }
 
 total_memory() {
@@ -188,7 +223,7 @@ device_status() {
 
 # Use for testing or on Mac OS X where top -bn2 is not available
 fake_device_status() {
-  echo '{"cpu_load":"31.7","used_disk":"3222111","total_disk":"33222111","used_memory":"512","total_memory":"2048"}' 
+  echo '{"cpu_load":"31.7","used_disk":"3222111","total_disk":"33222111","used_memory":"1024","total_memory":"2048"}'
 }
 
 post_status() {
@@ -197,7 +232,7 @@ post_status() {
     if [ -n "$response" ]; then
         echo "Successfully posted status: $response"
     else
-        echo "Error during posting status. Got response: $response"
+        echo "Error during posting status. Got response: \"$response\""
     fi
 }
 
@@ -316,6 +351,7 @@ infinite_loop() {
       echo "Infinite loop [hit CTRL+C to stop]"
       post_status
       execute_commands
+      check_for_updates
       sleep $SLEEP_PERIOD
   done
 }
@@ -360,10 +396,6 @@ check_endpoint_info() {
           and ensure that that script has write permissions within its directory."
     exit 1
   fi
-}
-
-save_pid() {
-  echo $$ > "$PID_FILE"
 }
 
 # Arguments:
