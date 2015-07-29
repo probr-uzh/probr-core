@@ -7,7 +7,7 @@ PROBR_DIR=probr
 update_script() {
   local base_url="$1"
   local script="$2"
-  wget --output-document="${PROBR_DIR}/${script}" -- "${base_url}/static/${script}"
+  wget --quiet --output-document="${PROBR_DIR}/${script}" -- "${base_url}/static/${script}"
 }
 
 mkdir -p "$PROBR_DIR"

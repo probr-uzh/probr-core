@@ -41,7 +41,7 @@
             <p>Your device has successfully been created. Set it up by copy-pasting the following command to your devices terminal/ssh:</p>
 
             <blockquote>
-                wget -O- {{ hostURL }}/static/bootstrap.sh | sh -s {{ device.apikey }} {{ hostURL }}
+                wget -O- -q {{ hostURL }}/static/bootstrap.sh | sh -s {{ device.apikey }} {{ hostURL }}
             </blockquote>
             <button class="btn btn-primary" type="submit" ng-click="bootstrap()">
                 I copied and executed the command on the device
