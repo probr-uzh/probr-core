@@ -165,14 +165,15 @@ restart_device_daemon() {
   sleep 20
 }
 
-upgrade_device_daemon() {
+update_scripts() {
   download_script "utils.sh" &&
   download_script "device_daemon.sh"
 }
 
 # Apply update if a new version of the device deamon is available
 check_for_updates() {
-  if [ -s "device_daemon.sh.new" ]; then
+  if [ -s "utils.sh.new" ] && [ -s "device_daemon.sh.new" ]; then
+    echo "Updating scripts ..."
     replace_script "utils.sh" &&
     replace_script "device_daemon.sh" &&
     exec "./device_daemon.sh"
