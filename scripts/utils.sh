@@ -144,6 +144,7 @@ download_script() {
 replace_script() {
   local script="$1"
   cp "${script}.new" "${script}"
+  chmod +x "${script}"
   rm "${script}.new"
 }
 
