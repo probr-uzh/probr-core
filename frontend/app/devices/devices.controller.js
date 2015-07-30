@@ -47,7 +47,6 @@ angular.module('probrApp')
     })
     .controller('DeviceStatusCtrl', function ($scope, $filter, $stateParams, Status, Device, Command, CommandTemplate, resourceSocket) {
 
-        var cmdLimit = 5;
         var statusLimit = 10;
         var deviceId = $stateParams.id;
 
@@ -55,7 +54,7 @@ angular.module('probrApp')
         $scope.commandTemplates = [];
         $scope.commandTemplate = {};
 
-        Command.byDevice({deviceId: deviceId, limit: cmdLimit}, function (resultObj) {
+        Command.byDevice({deviceId: deviceId}, function (resultObj) {
             $scope.commands = resultObj.results;
             resourceSocket.updateResource($scope, $scope.commands, 'command', 0, true, 'device', deviceId);
         });
@@ -134,6 +133,33 @@ angular.module('probrApp')
 
             return "offline";
         };
+
+        // TODO: This doesn't work as intended, as the ACE-Editor is multi-line and therefore also uses keyUp/keyDown
+        /*
+        var newestCmd = {};
+        var displayedCmd = 0;
+
+        $scope.previousCommand = function () {
+            newestCmd = $scope.commandTemplate.execute;
+            $scope.commandTemplate.execute = $scope.commands[$scope.commands.length - displayedCmd].execute;
+
+            if ($scope.commands.length - displayedCmd > 0) {
+                displayedCmd++;
+            }
+        }
+
+        $scope.nextCommand = function () {
+            if (displayedCmd === 0) {
+                $scope.commandTemplate.execute = newestCmd;
+            }
+
+            $scope.commandTemplate.execute = $scope.commands[$scope.commands.length - displayedCmd].execute;
+
+            if ($scope.commands.length - displayedCmd !== $scope.commands.length) {
+                displayedCmd++;
+            }
+        }
+        */
 
     })
     .controller('DeviceAddCtrl', function ($scope, Device) {
