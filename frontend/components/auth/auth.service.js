@@ -30,7 +30,9 @@ angular.module('probrApp')
                     password: user.password
                 }).
                     success(function (data) {
-                        $cookies.putObject('token', data.token);
+                        var expirationDate = new Date();
+                        expirationDate.setDate(expirationDate.getDate() + 30);
+                        $cookies.putObject('token', data.token, { expires: expirationDate});
                         currentUser = User.get();
                         deferred.resolve(data);
                         return cb();
