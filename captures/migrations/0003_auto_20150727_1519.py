@@ -7,9 +7,9 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('devices', '0012_auto_20150713_0733'),
-        ('devices', '0018_auto_20150706_1325'),
+        ('captures', '0002_auto_20150720_2108'),
     ]
 
     operations = [
+        migrations.RenameField('Capture','pcap', 'file')
     ]

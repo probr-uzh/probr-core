@@ -12,7 +12,7 @@ angular.module('probrApp', [
     'luegg.directives',
     'boilerDjangoForm'
 ]).config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider, $resourceProvider) {
-    $urlRouterProvider.otherwise('/login');
+    $urlRouterProvider.otherwise('/devices');
     $locationProvider.html5Mode({enabled: true, requireBase: true, rewriteLinks: true});
 
     $resourceProvider.defaults.stripTrailingSlashes = false;
@@ -25,8 +25,8 @@ angular.module('probrApp', [
             // Add authorization token to headers
             request: function (config) {
                 config.headers = config.headers || {};
-                if ($cookies.getObject('token')) {
-                    config.headers.Authorization = 'JWT ' + $cookies.getObject('token');
+                if ($cookies.get('token')) {
+                    config.headers.Authorization = 'JWT ' + $cookies.get('token');
                 }
                 return config;
             },
@@ -35,7 +35,6 @@ angular.module('probrApp', [
             responseError: function (response) {
                 if (response.status === 401) {
                     $location.path('/login');
-                    // remove any stale tokens
                     $cookies.remove('token');
                     return $q.reject(response);
                 }

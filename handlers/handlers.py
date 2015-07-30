@@ -34,24 +34,26 @@ def generate_json(capture, packet, timestamp):
 
 class MongoDBHandler(object):
     def handle(self, capture):
-        capture.pcap.open()
-        pcapReader = dpkt.pcap.Reader(capture.pcap)
+        capture.file.open()
+        pcapReader = dpkt.pcap.Reader(capture.file)
 
         for timestamp, packet in pcapReader:
             db = mongodb.db
             packets = db.packets
             jsonPacket = generate_json(capture, packet, timestamp)
             jsonPacket['inserted_at'] = datetime.datetime.utcnow()
+            jsonPacket['longitude'] = capture.longitude
+            jsonPacket['latitude'] = capture.latitude
             packets.insert_one(jsonPacket)
 
 
 class WebsocketHandler(object):
     def handle(self, capture):
-        capture.pcap.open()
-        pcapReader = dpkt.pcap.Reader(capture.pcap)
+        capture.file.open()
+        pcapReader = dpkt.pcap.Reader(capture.file)
 
         for timestamp, packet in pcapReader:
-            jsonPacket = generate_json(packet, timestamp)
+            jsonPacket = generate_json(capture, packet, timestamp)
 
             # broadcast to socket
             jsonPacket["object_type"] = "packet:update"

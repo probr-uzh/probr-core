@@ -58,15 +58,22 @@ class Device(models.Model):
 
     tags = TaggableManager(through=TaggedDevice)
 
+    longitude = models.FloatField(default=0)
+
+    latitude = models.FloatField(default=0)
+
     def __unicode__(self):
         return self.name
 
-    def save(self, *args, **kwargs):
-        #generate random seed for the api-key
-        seed = uuid.uuid4()
 
-        #hash the random seed to obtain an api-key
-        self.apikey = hashlib.sha256(str(seed)).hexdigest()
+    def save(self, *args, **kwargs):
+
+        if not self.apikey:
+            #generate random seed for the api-key
+            seed = uuid.uuid4()
+
+            #hash the random seed to obtain an api-key
+            self.apikey = hashlib.sha256(str(seed)).hexdigest()
 
         super(Device, self).save(*args, **kwargs)
 

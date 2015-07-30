@@ -7,18 +7,18 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('devices', '0011_auto_20150615_0811'),
+        ('devices', '0002_auto_20150720_2108'),
     ]
 
     operations = [
-        migrations.RemoveField(
+        migrations.AddField(
             model_name='device',
-            name='uuid',
+            name='latitude',
+            field=models.FloatField(default=0),
         ),
         migrations.AddField(
             model_name='device',
-            name='id',
-            field=models.AutoField(auto_created=True, primary_key=True, default=1, serialize=False, verbose_name='ID'),
-            preserve_default=False,
+            name='longitude',
+            field=models.FloatField(default=0),
         ),
     ]
