@@ -141,32 +141,36 @@ class DeviceTestCase(TestCase):
         self.assertEqual(test_device.description, "Device on upper floor. Used to track people across the office.")
 
 
-# class ApiTest(TestCase):
-#
-#     def test_device(self):
-#         client = APIClient()
-#         response = client.post('/api/devices/', {'name': 'new device','os':'test os','description':'test description','tags':['first','second','third'],'wifi_chip':'test wifi chip'}, format='json')
-#
-#         response = client.get('/api/devices/')
-#         # test if count is there
-#         self.assertContains(response,'count')
-#         # test if tags are there
-#         self.assertContains(response,'first')
-#
-#         response = client.get('/api/devices/'+Device.objects.all()[0].uuid+'/')
-#         # test if tags are there
-#         self.assertContains(response,'first')
-#
-#     def test_status(self):
-#         client = APIClient()
-#         response = client.post('/api/devices/', {'name': 'new device','os':'test os','description':'test description','tags':['first','second','third'],'wifi_chip':'test wifi chip'}, format='json')
-#
-#         response = client.get('/api/devices/')
-#         # test if count is there
-#         self.assertContains(response,'count')
-#         # test if tags are there
-#         self.assertContains(response,'first')
-#
-#         response = client.get('/api/devices/'+Device.objects.all()[0].uuid+'/')
-#         # test if tags are there
-#         self.assertContains(response,'first')
+class ApiTest(TestCase):
+
+    def test_device(self):
+        admin = setup_admin()
+        client = APIClient()
+        client.force_authenticate(user=admin)
+        response = client.post('/api/devices/', {'name': 'new device','os':'test os','description':'test description','tags':['first','second','third'],'wifi_chip':'test wifi chip'}, format='json')
+
+        response = client.get('/api/devices/')
+        # test if count is there
+        self.assertContains(response,'count')
+        # test if tags are there
+        self.assertContains(response,'first')
+
+        response = client.get('/api/devices/'+Device.objects.all()[0].uuid+'/')
+        # test if tags are there
+        self.assertContains(response,'first')
+
+    def test_status(self):
+        admin = setup_admin()
+        client = APIClient()
+        client.force_authenticate(user=admin)
+        response = client.post('/api/devices/', {'name': 'new device','os':'test os','description':'test description','tags':['first','second','third'],'wifi_chip':'test wifi chip'}, format='json')
+
+        response = client.get('/api/devices/')
+        # test if count is there
+        self.assertContains(response,'count')
+        # test if tags are there
+        self.assertContains(response,'first')
+
+        response = client.get('/api/devices/'+Device.objects.all()[0].uuid+'/')
+        # test if tags are there
+        self.assertContains(response,'first')
