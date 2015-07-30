@@ -63,12 +63,14 @@ class CommandDetails(generics.RetrieveUpdateDestroyAPIView):
 class CommandTemplateListView(generics.ListCreateAPIView):
     renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer]
     serializer_class = CommandTemplateSerializer
+    authentication_classes = (JSONWebTokenAuthentication,)
     queryset = CommandTemplate.objects.all()
     filter_fields = ('name','execute',)
 
 class CommandTemplateDetailsView(generics.RetrieveUpdateDestroyAPIView):
     renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer]
     serializer_class = CommandTemplateSerializer
+    authentication_classes = (JSONWebTokenAuthentication,)
     queryset = CommandTemplate.objects.all()
     parser_classes = (JSONParser,)
 
