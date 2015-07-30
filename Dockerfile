@@ -43,3 +43,5 @@ RUN pip install -r requirements.txt
 
 ADD . /app/
 RUN adduser --disabled-password --gecos '' probruser
+RUN python manage.py migrate
+RUN echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'admin')" | python manage.py shell
