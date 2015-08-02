@@ -62,7 +62,7 @@ setup_debug_mode() {
       exit "${code}"
     }
     # Trap exits triggered by errexit [POSIX incompatible]
-    trap 'error ${LINENO}' ERR
+    # trap 'error ${LINENO}' ERR
     fi
   fi
 }
