@@ -73,7 +73,7 @@ angular.module('probrApp')
         });
 
         $scope.killCmd = function (uuid) {
-            new Command({execute: "kill $(<commands/" + uuid + ".pid)", device: $scope.device.uuid}).$save();
+            new Command({execute: "kill_command '" + uuid + "'", device: $scope.device.uuid}).$save();
         };
 
         $scope.executeCommand = function () {

@@ -316,6 +316,14 @@ finished_command() {
   exit
 }
 
+# Example:
+#   kill_command "2f2d484d-1359-4bfb-af8b-e9c5eccf3259"
+kill_command() {
+  local command_uuid="$1"
+  # TODO: Investigate why pkill -P is required here although in the past pkill PID worked well?!
+  pkill -P $(command_pid "$command_uuid")
+}
+
 # Note:
 #   Depends on the `finished_command` callback function using a trap on script exit
 #   Instead of executing the command within its own subprocess with ./COMMAND.sh,
