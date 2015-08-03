@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 #### BEGIN Global variables ####
-VERSION='0.4.1'
+VERSION='0.4.3'
 SCRIPT_NAME='device_daemon.sh'
 PID_FILE='device_daemon.pid'
 API_KEY_FILE='api.key'
@@ -11,7 +11,16 @@ BASE_URL_FILE='probr.url'
 # waiting for network/internet to become available
 SLEEP_ON_STARTUP=20
 # Time between two status requests in seconds
-SLEEP_PERIOD=5
+# when idle (no commands downloaded recently)
+SLEEP_PERIOD_IDLE=5
+# when 'active' (recently a command was downloaded)
+SLEEP_PERIOD_ACTIVE=1
+# How many iterations should the loop run accelerated
+SLEEP_ACTIVE_ITERATIONS=10
+# Actual counting of accelerated phase. Will be set to
+# SLEEP_ACTIVE_ITERATIONS and then counts down until 0 in
+# after which idle SLEEP is used again
+SLEEP_ACTIVE_COUNTDOWN=0
 
 ## Server constants
 STATUS_NOT_YET_EXECUTED=0
@@ -351,6 +360,11 @@ execute_commands() {
 
     # Execute script, while piping all output to a log file
     pid=$(execute_in_background "$cmd_file" "$(command_log_file "$command")" "$command")
+
+    # Set back accelerate countdown to increase loop speed
+    SLEEP_ACTIVE_COUNTDOWN=$SLEEP_ACTIVE_ITERATIONS
+    
+    
     echo "Started command ${command} with pid ${pid}"
   done
 }
@@ -362,7 +376,13 @@ infinite_loop() {
       post_status
       execute_commands
       check_for_updates
-      sleep $SLEEP_PERIOD
+
+      if [ $SLEEP_ACTIVE_COUNTDOWN -ge 1 ] ; then
+          sleep $SLEEP_PERIOD_ACTIVE
+          SLEEP_ACTIVE_COUNTDOWN=$((SLEEP_ACTIVE_COUNTDOWN-1))
+      else
+          sleep $SLEEP_PERIOD_IDLE
+      fi
   done
 }
 
