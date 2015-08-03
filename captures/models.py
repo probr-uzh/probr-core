@@ -9,7 +9,7 @@ class TaggedCapture(TaggedItemBase):
     content_object = models.ForeignKey('Capture')
 
 class Capture(BaseModel):
-    pcap = models.FileField(upload_to="pcap")
+    file = models.FileField(upload_to="captures")
 
     longitude = models.FloatField(default=0)
 

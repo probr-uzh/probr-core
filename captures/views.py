@@ -4,6 +4,7 @@ from captures.tasks import processCapture
 from rest_framework.parsers import MultiPartParser, FormParser
 from models import Capture
 from serializers import CaptureSerializer
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 class CaptureUploadView(generics.ListCreateAPIView):
 
@@ -21,3 +22,10 @@ class CaptureUploadView(generics.ListCreateAPIView):
         instance.save()
         processCapture.delay(instance.pk)
         return Response('Capture upload successful')
+
+class CaptureListView(generics.ListCreateAPIView):
+
+    authentication_classes = (JSONWebTokenAuthentication,)
+    queryset = Capture.objects.all()
+    serializer_class = CaptureSerializer
+    parser_classes = (MultiPartParser, FormParser,)
