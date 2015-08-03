@@ -194,6 +194,23 @@ angular.module('probrApp')
             $scope.status = 'Bootstrapped the device succesfully.';
             $scope.deviceURL = $scope.hostURL + '/web/device/' + $scope.device.uuid + '/status'
         };
+
+        $scope.copyText = function() {
+            var range = document.createRange();
+            var selection = window.getSelection();
+
+            range.selectNodeContents(document.getElementById('copytext'));
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            try{
+                var successful = document.execCommand('copy');
+                var msg = successful ? 'successful' : 'unsuccessful';
+                console.log('Copying text command was ' + msg);
+            }catch(err){
+                console.log("Failed to copy the text.Copy it by hand.");
+            }
+        }
     })
     .controller('DeviceDeleteModalCtrl', function ($scope, $modalInstance) {
         $scope.ok = function () {

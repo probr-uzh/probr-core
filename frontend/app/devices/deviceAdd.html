@@ -40,12 +40,21 @@
         <div class="col-xs-12">
             <p>Your device has successfully been created. Set it up by copy-pasting the following command to your devices terminal/ssh:</p>
 
-            <blockquote>
+            <blockquote id="copytext">
                 wget -qO- {{ hostURL }}/static/bootstrap.sh | sh -s {{ device.apikey }} {{ hostURL }}
             </blockquote>
-            <button class="btn btn-primary" type="submit" ng-click="bootstrap()">
-                I copied and executed the command on the device
-            </button>
+            <div class="row">
+                <div class="col-xs-6">
+                    <button class="btn btn-primary" type="submit" ng-click="bootstrap()">
+                        I copied and executed the command on the device
+                    </button>
+                </div>
+                <div class="col-xs-6">
+                    <button class="btn btn-primary" type="submit" ng-click="copyText()">
+                        Copy to Clipboard
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
