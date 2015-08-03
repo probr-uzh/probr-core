@@ -1,18 +1,4 @@
-# database container
-db:
-   image: postgres:9.4
-   environment:
-      POSTGRES_PASSWORD: supersuperdevpassword
-
-# mongodb
-mongodb:
-  image: mongo:latest
-
-# redis container
-redis:
-   image: redis:2.8.19
-
-# django web app
+# probr-core, django app
 web:
    build: .
    command: sh run_web.sh
@@ -21,22 +7,42 @@ web:
    ports:
     - "8000:8000"
    links:
-    - db
+    - postgres
     - redis
     - mongodb
     - worker
 
-# container with worker
+# probr-core, celery worker
 worker:
    build: .
-   command: sh run_celery.sh
+   command: "su -m probruser -c 'celery -A probr worker -l debug'"
    volumes:
     - .:/app
    links:
-    - db
+    - postgres
     - redis
     - mongodb
 
+# database container
+postgres:
+   image: postgres:9.5
+   volumes_from:
+    - datapostgres
+   environment:
+      POSTGRES_USER: probr
+      POSTGRES_PASSWORD: probr
+
+# mongodb
+mongodb:
+  image: mongo:3.1.6
+  volumes_from:
+    - datamongodb
+
+# redis container
+redis:
+   image: redis:2.8.19
+
+# nginx web server
 nginx:
    restart: always
    build: ./nginx/
@@ -48,3 +54,16 @@ nginx:
     - web
    links:
     - web:web
+
+# data container for postgres
+datapostgres:
+  image: cogniteev/echo
+  volumes:
+    - /var/lib/postgresql
+
+# data container for mongodb
+datamongodb:
+  image: cogniteev/echo
+  volumes:
+    - /data/db
+

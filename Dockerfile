@@ -37,11 +37,10 @@ RUN pip install redis==2.10.3
 RUN pip install scapy==2.3.1
 RUN pip install six==1.9.0
 RUN pip install uwsgi
+RUN pip install psycopg2==2.6.1
 
 ADD requirements.txt /app/
 RUN pip install -r requirements.txt
 
 ADD . /app/
 RUN adduser --disabled-password --gecos '' probruser
-RUN python manage.py migrate
-RUN echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'admin')" | python manage.py shell
