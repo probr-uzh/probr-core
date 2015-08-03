@@ -62,7 +62,7 @@ setup_debug_mode() {
       exit "${code}"
     }
     # Trap exits triggered by errexit [POSIX incompatible]
-    trap 'error ${LINENO}' ERR
+    # trap 'error ${LINENO}' ERR
     fi
   fi
 }
@@ -314,6 +314,14 @@ finished_command() {
   # Clean up all command-related files
   rm ./commands/${command_uuid}*
   exit
+}
+
+# Example:
+#   kill_command "2f2d484d-1359-4bfb-af8b-e9c5eccf3259"
+kill_command() {
+  local command_uuid="$1"
+  # TODO: Investigate why pkill -P is required here although in the past pkill PID worked well?!
+  pkill -P $(command_pid "$command_uuid")
 }
 
 # Note:
