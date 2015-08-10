@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 #### BEGIN Global variables ####
-VERSION='0.4.3'
+VERSION='0.4.4'
 SCRIPT_NAME='device_daemon.sh'
 PID_FILE='device_daemon.pid'
 API_KEY_FILE='api.key'
@@ -145,6 +145,25 @@ post() {
                 "$@"
 }
 
+# Example:
+#   post_file '/api-device/statuses/' 'captures/test.pcap'
+post_file() {
+  local url_suffix="$1"
+  local file="$2"
+  shift 2
+  base_wget "$url_suffix" \
+                --post-file="$file" \
+                "$@"
+}
+
+# Example:
+#   post_capture 'test.pcap'
+post_capture() {
+  local file="$1"
+  shift
+  post_file '/api-device/device-captures/' "captures/${file}"
+}
+
 download_script() {
   local script="$1"
   get "/static/${script}" > "${script}.new"
@@ -224,6 +243,7 @@ extract_idle_time() {
 # Tail only takes the second value and ignores the first
 # Awk inverts the idle time (taking steal time into consideration)
 # Sed removes the percentage sign '%' which is included in certain distributions (e.g. OpenWrt)
+# TODO: Find a way to support Mac OS X (arguments for top not available) and other Ubuntu with other languages (script fails because of cpu than cannot be get)
 cpu_load() {
   top -b -n2 -d1 | grep -i "cpu" | grep "id" | tail -n+2 | extract_idle_time | awk '{ print 100 - $1 }' | sed 's/%//'
 }
@@ -302,7 +322,7 @@ submit_result() {
   tmp_file="${log_file}.upload"
   # We need to make a copy of the log file, because curl can't handle the still opened log file
   cp "$log_file" "$tmp_file"
-  base_wget "/api-device/commands/${command_uuid}/" --post-file="$tmp_file"
+  post_file "/api-device/commands/${command_uuid}/" "$tmp_file"
   rm "$tmp_file"
 }
 
