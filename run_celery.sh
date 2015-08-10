@@ -1,3 +1,3 @@
 #!/bin/sh
 
-su -m probruser -c "celery -A probr worker -l debug"
+su -m probruser -c "celery worker -A probr"
