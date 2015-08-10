@@ -91,6 +91,12 @@ MONGO_URI = 'mongodb://localhost/probr_core'
 # Celery settings
 BROKER_URL = 'redis://localhost:6379/'
 
+# Redis Connection for Sockets
+WS4REDIS_CONNECTION = {
+    'host': os.environ.get('REDIS_PORT_6379_TCP_ADDR', 'localhost'),
+    'port': os.environ.get('REDIS_PORT_6379_TCP_PORT', '6379'),
+}
+
 #: Only add pickle to this list if your broker is secured
 #: from unwanted access (see userguide/security.html)
 CELERY_ACCEPT_CONTENT = ['json']
@@ -148,7 +154,7 @@ STATICFILES_DIRS = (
 
 # Compress
 COMPRESS_PRECOMPILERS = (
-    ('text/less', '/usr/local/bin/lessc {infile} {outfile}'),
+    ('text/less', 'lessc {infile} {outfile}'),
 )
 
 # Media

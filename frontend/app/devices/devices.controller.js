@@ -189,10 +189,9 @@ angular.module('probrApp')
         };
 
         $scope.bootstrap = function () {
-            $scope.step = 3;
             console.log('Bootstrapped the device succesfully.');
-            $scope.status = 'Bootstrapped the device succesfully.';
             $scope.deviceURL = $scope.hostURL + '/web/device/' + $scope.device.uuid + '/status'
+            window.location.replace($scope.deviceURL);
         };
 
         $scope.copyText = function() {

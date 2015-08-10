@@ -1,0 +1,81 @@
+# probr-core, django app
+web:
+   build: .
+   command: sh run_web.sh
+   volumes:
+    - .:/app
+   ports:
+    - "8000:8000"
+   links:
+    - postgres
+    - redis
+    - mongodb
+
+websocket:
+   build: .
+   command: sh run_websocket.sh
+   volumes:
+    - .:/app
+   ports:
+    - "8001:8001"
+   links:
+    - postgres
+    - redis
+    - mongodb
+
+# probr-core, celery worker
+worker:
+   build: .
+   command: sh run_celery.sh
+   volumes:
+    - .:/app
+   links:
+    - postgres
+    - redis
+    - mongodb
+
+# database container
+postgres:
+   image: postgres:9.5
+   volumes_from:
+    - datapostgres
+   environment:
+      POSTGRES_USER: probr
+      POSTGRES_PASSWORD: probr
+
+# mongodb
+mongodb:
+  image: mongo:3.1.6
+  volumes_from:
+    - datamongodb
+
+# redis container
+redis:
+   image: redis:2.8.19
+
+# nginx web server
+nginx:
+   restart: always
+   build: ./nginx/
+   ports:
+    - "80:80"
+   volumes:
+    - /www/static
+   volumes_from:
+    - web
+   links:
+    - web
+    - websocket
+    - worker
+
+# data container for postgres
+datapostgres:
+  image: cogniteev/echo
+  volumes:
+    - /var/lib/postgresql
+
+# data container for mongodb
+datamongodb:
+  image: cogniteev/echo
+  volumes:
+    - /data/db
