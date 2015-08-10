@@ -68,6 +68,7 @@ angular.module('probrApp')
             resourceSocket.updateResource($scope, $scope.statuses, 'status', statusLimit, true, 'device', deviceId);
         });
 
+
         Device.get({deviceId: deviceId}, function (resultObj) {
             $scope.device = resultObj;
         });
@@ -162,7 +163,7 @@ angular.module('probrApp')
         */
 
     })
-    .controller('DeviceAddCtrl', function ($scope, Device) {
+    .controller('DeviceAddCtrl', function ($scope, Device,resourceSocket) {
 
         $scope.deviceForm = new Device();
         $scope.step = 1;
@@ -171,6 +172,10 @@ angular.module('probrApp')
         var currentURL = window.location.href;
         $scope.hostURL = currentURL.split("/web")[0];
         $scope.deviceURL = '';
+
+        $scope.statuses = [];
+
+
 
         $scope.createDevice = function (form) {
             $scope.deviceForm.tags = $scope.deviceForm.formTags !== undefined ? $scope.deviceForm.formTags.split(',') : [];
@@ -189,9 +194,23 @@ angular.module('probrApp')
         };
 
         $scope.bootstrap = function () {
+            $scope.step = 3;
             console.log('Bootstrapped the device succesfully.');
-            $scope.deviceURL = $scope.hostURL + '/web/device/' + $scope.device.uuid + '/status'
-            window.location.replace($scope.deviceURL);
+            $scope.deviceURL = $scope.hostURL + '/web/device/' + $scope.device.uuid + '/status';
+
+            Device.getStatus({deviceId: $scope.device.uuid, limit: 50}, function (resultObj) {
+                $scope.statuses = resultObj.results;
+                resourceSocket.updateResource($scope, $scope.statuses, 'status', 50, true, 'device', $scope.device.uuid);
+            });
+
+            $scope.$watch('statuses', function(newVal, oldVal){
+                if(oldVal.length < newVal.length){
+                    window.location.replace($scope.deviceURL);
+                }
+            },true);
+
+
+
         };
 
         $scope.copyText = function() {

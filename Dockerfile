@@ -27,7 +27,7 @@ RUN pip install django-websocket-redis==0.4.4
 RUN pip install djangorestframework==3.1.1
 RUN pip install djangorestframework-jwt==1.6.0
 RUN pip install dpkt==1.8.6
-RUN pip install gevent==1.0.1
+RUN pip install gevent==1.0.2
 RUN pip install greenlet==0.4.6
 RUN pip install kombu==3.0.24
 RUN pip install PyJWT==1.3.0
