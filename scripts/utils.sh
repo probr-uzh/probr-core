@@ -393,7 +393,7 @@ infinite_loop() {
 
       if [ $SLEEP_ACTIVE_COUNTDOWN -ge 1 ]; then
           sleep $SLEEP_PERIOD_ACTIVE
-          SLEEP_ACTIVE_COUNTDOWN=$( (SLEEP_ACTIVE_COUNTDOWN-1) )
+          SLEEP_ACTIVE_COUNTDOWN=$((SLEEP_ACTIVE_COUNTDOWN - 1))
       else
           sleep $SLEEP_PERIOD_IDLE
       fi
