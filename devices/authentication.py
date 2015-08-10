@@ -27,4 +27,5 @@ class ApikeyAuthentication(authentication.BaseAuthentication):
 
         print("Authentication:  Apikey=" + api_key)
         print("Authentication:  User=" + str(user))
+
         return (user, None)
