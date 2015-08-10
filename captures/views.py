@@ -13,8 +13,7 @@ class CaptureUploadView(generics.ListCreateAPIView):
     parser_classes = (MultiPartParser, FormParser,)
 
     def post(self, request, *args, **kwargs):
-        instance = Capture(pcap=request.FILES['pcap'],longitude=request.DATA['longitude'],latitude=request.DATA['latitude'])
-        instance.save()
+        instance = Capture.objects.create(pcap=request.FILES['pcap'],longitude=request.DATA['longitude'],latitude=request.DATA['latitude'])
         tags = request.DATA['tags']
         tag_list = tags.split(",")
         for tag in tag_list:
