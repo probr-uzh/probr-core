@@ -24,7 +24,7 @@ def generate_json(capture, packet, timestamp):
     if len(capture.tags.all()) > 0:
        jsonPacket['tags'] = list(capture.tags.names())
 
-    jsonPacket['time'] = timestamp
+    jsonPacket['time'] = datetime.fromtimestamp(timestamp)
     jsonPacket['signal_strength'] = -(256-tap.ant_sig.db)
     jsonPacket['ssid'] = wlan.ies[0].info
     jsonPacket['mac_address_src'] = binascii.hexlify(wlan.mgmt.src)
@@ -42,8 +42,8 @@ class MongoDBHandler(object):
             packets = db.packets
             jsonPacket = generate_json(capture, packet, timestamp)
             jsonPacket['inserted_at'] = datetime.datetime.utcnow()
-            jsonPacket['longitude'] = capture.longitude
-            jsonPacket['latitude'] = capture.latitude
+            jsonPacket['location'] = { 'type': 'Point', 'coordinates': [capture.longitude, capture.latitude ] }
+
             packets.insert_one(jsonPacket)
 
 
