@@ -24,3 +24,4 @@ pytz==2015.2
 redis==2.10.3
 scapy==2.3.1
 six==1.9.0
+psycopg2==2.6.1
