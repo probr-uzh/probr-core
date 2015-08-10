@@ -10,12 +10,23 @@ web:
     - postgres
     - redis
     - mongodb
-    - worker
+
+websocket:
+   build: .
+   command: sh run_websocket.sh
+   volumes:
+    - .:/app
+   ports:
+    - "8001:8001"
+   links:
+    - postgres
+    - redis
+    - mongodb
 
 # probr-core, celery worker
 worker:
    build: .
-   command: "su -m probruser -c 'celery -A probr worker -l debug'"
+   command: sh run_celery.sh
    volumes:
     - .:/app
    links:
@@ -53,7 +64,9 @@ nginx:
    volumes_from:
     - web
    links:
-    - web:web
+    - web
+    - websocket
+    - worker
 
 # data container for postgres
 datapostgres:
@@ -66,4 +79,3 @@ datamongodb:
   image: cogniteev/echo
   volumes:
     - /data/db
-
