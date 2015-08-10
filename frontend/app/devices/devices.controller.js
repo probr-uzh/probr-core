@@ -204,8 +204,6 @@ angular.module('probrApp')
             });
 
             $scope.$watch('statuses', function(newVal, oldVal){
-                console.log("oldVal length: " + oldVal.length);
-                console.log("newVal length: " + newVal.length);
                 if(oldVal.length < newVal.length){
                     window.location.replace($scope.deviceURL);
                 }
