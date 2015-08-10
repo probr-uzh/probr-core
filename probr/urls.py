@@ -6,13 +6,14 @@ from rest_framework.urlpatterns import format_suffix_patterns
 urlpatterns = [
     url(r'', include('devices.urls')),
     url(r'', include('captures.urls')),
+    url(r'', include('device_captures.urls')),
     url(r'', include('accounts.urls')),
 
     # admin site
     url(r'^admin/', include(admin.site.urls)),
 
     # angular frontend
-    url(r'^$', RedirectView.as_view(url='/web/')),
+    url(r'^$', RedirectView.as_view(url='/web/', permanent=True)),
     url(r'^web/*', TemplateView.as_view(template_name='index.html')),
 
     # JSON Web Token authentication

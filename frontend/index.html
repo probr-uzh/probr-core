@@ -10,6 +10,8 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
 
+    <link rel="shortcut icon" type="image/png" href="{% static "assets/img/favicon.png" %}">
+
     {% compress css %}
         <link rel="stylesheet" type="text/less" href="{% static "assets/stylesheet.less" %}">
     {% endcompress %}
@@ -53,6 +55,7 @@
     <script src="{% static "components/keystroke.directives.js" %}"></script>
     <script src="{% static "components/auth/user.service.js" %}"></script>
     <script src="{% static "components/auth/auth.service.js" %}"></script>
+    <script src="{% static "components/django-form/django-form.directive.js" %}"></script>
 {% endcompress %}
 
 </body>

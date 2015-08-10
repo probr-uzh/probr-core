@@ -1,0 +1,3 @@
+# probr
+
+With the vastly increased number of wireless enabled devices, the large amount of data produced by its packets contain large opportunities for usage in research and daily life. By passively listening to wireless signals, it is possible to gather information that can be used to answer interesting questions. This master project aims at developing a system, which uses wireless signals to provide a novel load and frequency display. The beauty of this approach is the fact that no active participation of users is needed. Such a system may help to achieve a more even distribution of students among libraries, canteens, study places, and lecture rooms. 

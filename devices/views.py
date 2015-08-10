@@ -6,14 +6,25 @@ from models import CommandTemplate
 from serializers import CommandTemplateSerializer
 from models import Device, Status, Command
 from authentication import ApikeyAuthentication
-from serializers import DeviceSerializer, StatusSerializer, CommandSerializer
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+from serializers import DeviceSerializer, StatusSerializer, CommandSerializer
+
 
 ### Endpoints for the frontend ###
 class DeviceListView(generics.ListCreateAPIView):
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
     authentication_classes = (JSONWebTokenAuthentication,)
+
+    def post(self, request, *args, **kwargs):
+        user = None
+        if request.user.is_authenticated():
+            user = request.user
+
+        request.data[u'user'] = user.id
+        return super(DeviceListView, self).post(request,*args,**kwargs)
+
+
 
 
 class DeviceDetailsView(generics.RetrieveUpdateDestroyAPIView):
@@ -52,12 +63,14 @@ class CommandDetails(generics.RetrieveUpdateDestroyAPIView):
 class CommandTemplateListView(generics.ListCreateAPIView):
     renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer]
     serializer_class = CommandTemplateSerializer
+    authentication_classes = (JSONWebTokenAuthentication,)
     queryset = CommandTemplate.objects.all()
     filter_fields = ('name','execute',)
 
 class CommandTemplateDetailsView(generics.RetrieveUpdateDestroyAPIView):
     renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer]
     serializer_class = CommandTemplateSerializer
+    authentication_classes = (JSONWebTokenAuthentication,)
     queryset = CommandTemplate.objects.all()
     parser_classes = (JSONParser,)
 

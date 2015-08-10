@@ -47,7 +47,6 @@ angular.module('probrApp')
     })
     .controller('DeviceStatusCtrl', function ($scope, $filter, $stateParams, Status, Device, Command, CommandTemplate, resourceSocket) {
 
-        var cmdLimit = 5;
         var statusLimit = 10;
         var deviceId = $stateParams.id;
 
@@ -55,7 +54,7 @@ angular.module('probrApp')
         $scope.commandTemplates = [];
         $scope.commandTemplate = {};
 
-        Command.byDevice({deviceId: deviceId, limit: cmdLimit}, function (resultObj) {
+        Command.byDevice({deviceId: deviceId}, function (resultObj) {
             $scope.commands = resultObj.results;
             resourceSocket.updateResource($scope, $scope.commands, 'command', 0, true, 'device', deviceId);
         });
@@ -74,7 +73,7 @@ angular.module('probrApp')
         });
 
         $scope.killCmd = function (uuid) {
-            new Command({execute: "kill $(<commands/"+uuid+".pid)", device: $scope.device.uuid}).$save();
+            new Command({execute: "kill_command '" + uuid + "'", device: $scope.device.uuid}).$save();
         };
 
         $scope.executeCommand = function () {
@@ -84,7 +83,7 @@ angular.module('probrApp')
         };
 
         $scope.saveCommandTemplate = function () {
-            if(_.has($scope.commandTemplate, 'uuid')){
+            if (_.has($scope.commandTemplate, 'uuid')) {
                 CommandTemplate.update({
                     name: $scope.commandTemplate.name,
                     execute: $scope.commandTemplate.execute,
@@ -93,23 +92,23 @@ angular.module('probrApp')
                 }, function (resultObj) {
                     $scope.commandTemplate = resultObj;
                 });
-            }else{
+            } else {
                 new CommandTemplate({
                     name: $scope.commandTemplate.name,
                     execute: $scope.commandTemplate.execute,
                     uuid: $scope.commandTemplate.uuid,
                     tags: []
                 }).$save(function (resultObj) {
-                    $scope.commandTemplate = resultObj;
-                    $scope.commandTemplates.push(resultObj);
-                });
+                        $scope.commandTemplate = resultObj;
+                        $scope.commandTemplates.push(resultObj);
+                    });
             }
         };
 
         $scope.deleteCommandTemplate = function () {
-            CommandTemplate.delete({commandTemplateId:$scope.commandTemplate.uuid}, function (resultObj) {
-                $scope.commandTemplates = $filter('filter')($scope.commandTemplates, {uuid: '!'+$scope.commandTemplate.uuid});
-                $scope.commandTemplate ={};
+            CommandTemplate.delete({commandTemplateId: $scope.commandTemplate.uuid}, function (resultObj) {
+                $scope.commandTemplates = $filter('filter')($scope.commandTemplates, {uuid: '!' + $scope.commandTemplate.uuid});
+                $scope.commandTemplate = {};
             });
         }
 
@@ -135,18 +134,66 @@ angular.module('probrApp')
             return "offline";
         };
 
+        // TODO: This doesn't work as intended, as the ACE-Editor is multi-line and therefore also uses keyUp/keyDown
+        /*
+        var newestCmd = {};
+        var displayedCmd = 0;
+
+        $scope.previousCommand = function () {
+            newestCmd = $scope.commandTemplate.execute;
+            $scope.commandTemplate.execute = $scope.commands[$scope.commands.length - displayedCmd].execute;
+
+            if ($scope.commands.length - displayedCmd > 0) {
+                displayedCmd++;
+            }
+        }
+
+        $scope.nextCommand = function () {
+            if (displayedCmd === 0) {
+                $scope.commandTemplate.execute = newestCmd;
+            }
+
+            $scope.commandTemplate.execute = $scope.commands[$scope.commands.length - displayedCmd].execute;
+
+            if ($scope.commands.length - displayedCmd !== $scope.commands.length) {
+                displayedCmd++;
+            }
+        }
+        */
+
     })
-    .controller('DeviceAddCtrl', function($scope, Device) {
-        $scope.deviceForm = {};
+    .controller('DeviceAddCtrl', function ($scope, Device) {
+
+        $scope.deviceForm = new Device();
         $scope.step = 1;
 
-        $scope.submitDevice = function () {
-            $scope.device = new Device($scope.deviceForm, function (resultObj) {
-                $scope.device = resultObj;
+        $scope.status = "Device not yet bootsrapped."
+        var currentURL = window.location.href;
+        $scope.hostURL = currentURL.split("/web")[0];
+        $scope.deviceURL = '';
+
+        $scope.createDevice = function (form) {
+            $scope.deviceForm.tags = $scope.deviceForm.formTags !== undefined ? $scope.deviceForm.formTags.split(',') : [];
+            $scope.deviceForm.$save(function (device) {
+                $scope.device = device;
                 $scope.step = 2;
+            }, function (err) {
+                $scope.errors = {};
+
+                // Update validity of form fields that match the django errors
+                angular.forEach(err.data, function (error, field) {
+                    form[field].$setValidity('django', false);
+                    $scope.errors[field] = error;
+                });
             });
         };
 
+        $scope.bootstrap = function () {
+            $scope.step = 3;
+            console.log('Bootstrapped the device succesfully.');
+            $scope.status = 'Bootstrapped the device succesfully.';
+            $scope.deviceURL = $scope.hostURL + '/web/device/' + $scope.device.uuid + '/status'
+        };
     })
     .controller('DeviceDeleteModalCtrl', function ($scope, $modalInstance) {
         $scope.ok = function () {

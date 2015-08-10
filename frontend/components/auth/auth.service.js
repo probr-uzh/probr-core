@@ -4,7 +4,7 @@ angular.module('probrApp')
     .factory('Auth', function Auth($location, $rootScope, $http, User, $cookies, $q) {
         var currentUser = {};
 
-        if ($cookies.getObject('token')) {
+        if ($cookies.get('token')) {
             currentUser = User.get();
         }
 
@@ -30,7 +30,9 @@ angular.module('probrApp')
                     password: user.password
                 }).
                     success(function (data) {
-                        $cookies.putObject('token', data.token);
+                        var expirationDate = new Date();
+                        expirationDate.setDate(expirationDate.getDate() + 30);
+                        $cookies.put('token', data.token, { expires: expirationDate });
                         currentUser = User.get();
                         deferred.resolve(data);
                         return cb();
@@ -66,7 +68,7 @@ angular.module('probrApp')
 
                 return User.save(user,
                     function (data) {
-                        $cookies.putObject('token', data.token);
+                        $cookies.put('token', data.token);
                         currentUser = User.get();
                         return cb(user);
                     },
