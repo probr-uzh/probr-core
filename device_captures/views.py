@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from devices.authentication import ApikeyAuthentication
 from devices.models import Device
 from models import DeviceCapture
+from captures.tasks import processCapture
 
 class DeviceCaptureUploadView(APIView):
     authentication_classes = (ApikeyAuthentication,)
@@ -25,5 +26,6 @@ class DeviceCaptureUploadView(APIView):
         deviceCapture.file.save(str(uuid.uuid4()) + ".pcap", file)
         deviceCapture.tags.add(*device.tags.all())
         deviceCapture.save()
+        processCapture.delay(deviceCapture.pk)
 
         return Response('DeviceCapture result saved')
