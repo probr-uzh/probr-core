@@ -11,7 +11,7 @@ BROKER_URL = 'redis://' + os.environ.get('REDIS_PORT_6379_TCP_ADDR', 'localhost'
 CELERY_ACCEPT_CONTENT = [ 'json', ]
 
 # MongoURI
-MONGO_URI = 'mongodb://' + os.environ.get('MONGO_PORT_27017_TCP_ADDR', 'localhost') + ':' + os.environ.get('MONGO_PORT_27017_TCP_PORT', '27017') + '/probr-core';
+MONGO_URI = 'mongodb://' + os.environ.get('MONGODB_PORT_27017_TCP_ADDR', 'localhost') + ':' + os.environ.get('MONGODB_PORT_27017_TCP_PORT', '27017') + '/probr-core';
 
 # Compress
 COMPRESS_PRECOMPILERS = (
