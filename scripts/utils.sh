@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 #### BEGIN Global variables ####
-VERSION='0.4.5'
+VERSION='0.4.6'
 SCRIPT_NAME='device_daemon.sh'
 PID_FILE='device_daemon.pid'
 API_KEY_FILE='api.key'
@@ -182,7 +182,7 @@ save_pid() {
 }
 
 get_pid() {
-  cat "$PID_FILE"
+  cat "$PID_FILE" 2>/dev/null
 }
 
 kill_device_daemon() {
