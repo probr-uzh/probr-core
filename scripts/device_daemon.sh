@@ -33,9 +33,15 @@ import() {
   . "$(basedir)/${script}"
 }
 
+# Setup the PATH might be incorrect if running in a non-interactive shell (e.g., via cronjob)
+setup_path() {
+  export PATH="$PATH:/sbin:/usr/sbin"
+}
+
 # Make the script working from any current working directory
 cd "$(basedir)"
 import "utils.sh"
+setup_path
 setup_debug_mode
 # Pass original parameters to main function
 main "$@"
