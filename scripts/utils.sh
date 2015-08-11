@@ -185,6 +185,10 @@ get_pid() {
   cat "$PID_FILE"
 }
 
+kill_device_daemon() {
+  pkill --pidfile "$PID_FILE"
+}
+
 update_scripts() {
   download_script "utils.sh" &&
   download_script "device_daemon.sh"
@@ -449,6 +453,7 @@ main() {
   local api_key="$1"
   local base_url="$2"
 
+  kill_device_daemon
   save_pid
   set_or_keep $API_KEY_FILE "$api_key"
   set_or_keep $BASE_URL_FILE "$base_url"
