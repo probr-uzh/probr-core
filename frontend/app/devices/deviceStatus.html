@@ -30,6 +30,7 @@
                         <i class="fa fa-cog" ng-show="command.status === 0"></i>
                         <i class="fa fa-cog fa-spin" ng-show="command.status === 1" ng-click="killCmd(command.uuid)"></i>
                         <i class="fa fa-check" ng-show="command.status === 2"></i>
+                        <i class="fa fa-exclamation-triangle" ng-show="command.status === 3"></i>
                     </span>
                     <span class="console-date">{{ command.creation_timestamp | date : 'dd.MM.yyyy \- HH:mm' }}: </span>
                     <span class="console-execute">{{ command.execute }}</span>

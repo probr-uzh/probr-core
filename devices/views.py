@@ -184,8 +184,5 @@ class CommandDetails_Devices(generics.RetrieveUpdateDestroyAPIView):
             else:
                 command.result = request.body;
 
-            command.status = 2
         command.save()
-        return Response('Command result saved')
-
-
+        return Response('Command updated')

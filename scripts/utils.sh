@@ -26,6 +26,7 @@ SLEEP_ACTIVE_COUNTDOWN=0
 STATUS_NOT_YET_EXECUTED=0
 STATUS_EXECUTING=1
 STATUS_EXECUTED=2
+STATUS_ABORTED=3
 
 ## Debug options (true|false)
 SETUP_CRONJOB=true
@@ -63,7 +64,7 @@ setup_debug_mode() {
       local message="${2:-}"
       # default to '1' if exit code not explicitly given
       local code="${3:-1}"
-      if [ -n "$message" ] ; then
+      if [ -n "$message" ]; then
         echo "Error on or near line ${parent_lineno}: ${message}; exiting with status ${code}"
       else
         echo "Error on or near line ${parent_lineno}; exiting with status ${code}"
@@ -320,28 +321,25 @@ submit_result() {
   local command_uuid=$1
   local log_file=$2
   tmp_file="${log_file}.upload"
-  # We need to make a copy of the log file, because curl can't handle the still opened log file
+  # We need to make a copy of the log file, because the file may be still opened
   cp "$log_file" "$tmp_file"
   post_file "/api-device/commands/${command_uuid}/" "$tmp_file"
   rm "$tmp_file"
 }
 
+# Example:
+#   cleanup_command '72325131-a777-40bf-b147-43a4a17b916c'
+cleanup_command() {
+  local command_uuid="$1"
+  rm ./commands/${command_uuid}*
+}
+
 # Callback function when exiting a background command
 finished_command() {
   local command_uuid=$1
-  # IDEA:
-  # waiting loop with timeout to eliminate race condition
-  # pkill
-  # ev. sleep or wait
-  # submit
-
-  # TODO: Why do we first submit the result and then pkill the child processes and not vice versa?
-  # Consider that there is a race condition: finished_command requires that that pid was already written to the .pid file !!!
-  submit_result "$command_uuid" "$(command_log_file "$command_uuid")"
-  # Kill own child processes. This will exit with non-zero value if the process already finished.
-  pkill -P $(command_pid "$command_uuid")
-  # Clean up all command-related files
-  rm ./commands/${command_uuid}*
+  set_command_status "$command_uuid" "$STATUS_EXECUTED" &&
+  submit_result "$command_uuid" "$(command_log_file "$command_uuid")" &&
+  cleanup_command "$command_uuid"
   exit
 }
 
@@ -349,7 +347,6 @@ finished_command() {
 #   kill_command "2f2d484d-1359-4bfb-af8b-e9c5eccf3259"
 kill_command() {
   local command_uuid="$1"
-  # TODO: Investigate why pkill -P is required here although in the past pkill PID worked well?!
   pkill -P $(command_pid "$command_uuid")
 }
 
@@ -363,7 +360,7 @@ execute_in_background() {
   local log_file=$2
   local command_uuid=$3
   # source <filename> is not sh compatible => using . <filename> instead
-  (trap "finished_command ${command_uuid}" EXIT && . "${command_file}") >${log_file} 2>&1 </dev/null &
+  (trap "finished_command ${command_uuid} >/dev/null" EXIT && . "${command_file}") >${log_file} 2>&1 </dev/null &
   # Write pid of the most recently executed background process to file and stdout
   echo $! | tee "$(command_pid_file "$command")"
 }
@@ -376,15 +373,12 @@ execute_commands() {
     get "/api-device/commands/${command}" > "$cmd_file"
     chmod +x "$cmd_file"
     echo "Starting command $command ..."
-    set_command_status "$command" "$STATUS_EXECUTING"
-
+    set_command_status "$command" "$STATUS_EXECUTING" &&
     # Execute script, while piping all output to a log file
-    pid=$(execute_in_background "$cmd_file" "$(command_log_file "$command")" "$command")
-
+    cmd_log_file=$(command_log_file "$command")
+    pid=$(execute_in_background "$cmd_file" "$cmd_log_file" "$command")
     # Set back accelerate countdown to increase loop speed
     SLEEP_ACTIVE_COUNTDOWN=$SLEEP_ACTIVE_ITERATIONS
-    
-    
     echo "Started command ${command} with pid ${pid}"
   done
 }
@@ -397,9 +391,9 @@ infinite_loop() {
       execute_commands
       check_for_updates
 
-      if [ $SLEEP_ACTIVE_COUNTDOWN -ge 1 ] ; then
+      if [ $SLEEP_ACTIVE_COUNTDOWN -ge 1 ]; then
           sleep $SLEEP_PERIOD_ACTIVE
-          SLEEP_ACTIVE_COUNTDOWN=$((SLEEP_ACTIVE_COUNTDOWN-1))
+          SLEEP_ACTIVE_COUNTDOWN=$((SLEEP_ACTIVE_COUNTDOWN - 1))
       else
           sleep $SLEEP_PERIOD_IDLE
       fi
@@ -437,6 +431,16 @@ setup_crontab() {
   fi
 }
 
+check_aborted_commands() {
+  for aborted in commands/*.log; do
+    filename=$(basename "$aborted")
+    command_uuid="${filename%.*}"
+    set_command_status "$command_uuid" "$STATUS_ABORTED"
+    post_file "/api-device/commands/${command_uuid}/" "$aborted" &&
+    cleanup_command "$command_uuid"
+  done
+}
+
 check_endpoint_info() {
   if [ -n "$(api_key)" ] && [ -n "$(base_url)" ]; then
     echo "Using api key \"$(api_key)\" against endpoint \"$(base_url)\""
@@ -460,5 +464,6 @@ main() {
   set_or_keep $BASE_URL_FILE "$base_url"
   check_endpoint_info
   setup_crontab
+  check_aborted_commands
   infinite_loop
 }
