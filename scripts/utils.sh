@@ -443,6 +443,14 @@ check_aborted_commands() {
   done
 }
 
+kill_all_commands() {
+  for command in commands/*.pid; do
+    filename=$(basename "$command")
+    command_uuid="${filename%.*}"
+    kill_command "$command_uuid"
+  done
+}
+
 check_endpoint_info() {
   if [ -n "$(api_key)" ] && [ -n "$(base_url)" ]; then
     echo "Using api key \"$(api_key)\" against endpoint \"$(base_url)\""
