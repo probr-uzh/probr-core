@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 #### BEGIN Global variables ####
-VERSION='0.4.4'
+VERSION='0.4.5'
 SCRIPT_NAME='device_daemon.sh'
 PID_FILE='device_daemon.pid'
 API_KEY_FILE='api.key'
@@ -347,7 +347,7 @@ finished_command() {
 #   kill_command "2f2d484d-1359-4bfb-af8b-e9c5eccf3259"
 kill_command() {
   local command_uuid="$1"
-  pkill -P $(command_pid "$command_uuid")
+  command_pid "$command_uuid" | xargs pkill -P
 }
 
 # Note:
