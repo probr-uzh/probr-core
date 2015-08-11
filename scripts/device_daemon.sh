@@ -8,7 +8,8 @@ abs_path() {
   local rel_path="$1"
   local cwd
   cwd=$(pwd)
-  cd $(dirname "$rel_path")
+  # Issues an error message on some systems although it works as intended
+  cd $(dirname "$rel_path") 2>/dev/null
   echo $(pwd)/$(basename "$rel_path")
   cd "$cwd"
 }
