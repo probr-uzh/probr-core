@@ -1,0 +1,18 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Docs: https://docs.vagrantup.com
+Vagrant.configure(2) do |config|
+  config.vm.box = "hryamzik/openwrt.12.09.1"
+
+  config.vm.define "wrt" do |wrt|
+    wrt.vm.network "private_network", ip: "192.168.71.44", name: "vboxnet1", adapter:2, auto_config: false
+    wrt.vm.network :forwarded_port, host: 9080, guest: 80
+    wrt.ssh.insert_key = false
+    wrt.vm.provider :virtualbox do |vb|
+      vb.name = "wrt"
+      # vb.gui = true
+    end
+    wrt.vm.synced_folder ".", "/vagrant", disabled: true
+  end
+end
