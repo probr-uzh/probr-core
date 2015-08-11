@@ -47,6 +47,7 @@ angular.module('probrApp')
     })
     .controller('DeviceStatusCtrl', function ($scope, $filter, $stateParams, Status, Device, Command, CommandTemplate, resourceSocket) {
 
+        var commandLimit = 20;
         var statusLimit = 10;
         var deviceId = $stateParams.id;
 
@@ -56,7 +57,7 @@ angular.module('probrApp')
 
         Command.byDevice({deviceId: deviceId}, function (resultObj) {
             $scope.commands = resultObj.results;
-            resourceSocket.updateResource($scope, $scope.commands, 'command', 0, true, 'device', deviceId);
+            resourceSocket.updateResource($scope, $scope.commands, 'command', commandLimit, true, 'device', deviceId);
         });
 
         CommandTemplate.get({}, function (resultObj) {
@@ -113,28 +114,6 @@ angular.module('probrApp')
             });
         }
 
-        var timeout;
-        $scope.onlineIndicator = function (statuses) {
-            var timeoutInterval = 60000;
-            if (statuses !== undefined && statuses.length > 0 && new Date(statuses[statuses.length - 1].creation_timestamp) > new Date(new Date().getTime() - timeoutInterval)) {
-
-                var tmpDate = statuses[statuses.length - 1].creation_timestamp;
-                clearTimeout(timeout);
-                timeout = setTimeout(function () {
-                    // haven't gotten new updates in 15 seconds
-                    if (tmpDate === statuses[statuses.length - 1].creation_timestamp) {
-                        $scope.$apply(function () {
-                            statuses[statuses.length - 1].creation_timestamp = new Date(new Date().getTime() - timeoutInterval).toISOString(); // change to force offline status
-                        });
-                    }
-                }, timeoutInterval);
-
-                return "online";
-            }
-
-            return "offline";
-        };
-
         // TODO: This doesn't work as intended, as the ACE-Editor is multi-line and therefore also uses keyUp/keyDown
         /*
         var newestCmd = {};
@@ -168,7 +147,7 @@ angular.module('probrApp')
         $scope.deviceForm = new Device();
         $scope.step = 1;
 
-        $scope.status = "Device not yet bootsrapped."
+        $scope.status = "Device not yet bootstrapped."
         var currentURL = window.location.href;
         $scope.hostURL = currentURL.split("/web")[0];
 
