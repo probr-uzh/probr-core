@@ -52,8 +52,6 @@ angular.module('probrApp')
 
             so.socket.onMessage(function (message) {
 
-                console.log(message);
-
                 var dataObj = JSON.parse(message.data);
                 dataObj.timestamp = message.timeStamp;
 
