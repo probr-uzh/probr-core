@@ -22,7 +22,7 @@ def generate_json(capture, packet, timestamp):
     if len(capture.tags.all()) > 0:
        jsonPacket['tags'] = list(capture.tags.names())
 
-    jsonPacket['time'] = datetime.datetime.utcfromtimestamp(timestamp)
+    jsonPacket['time'] = datetime.datetime.fromtimestamp(int(timestamp * 1000), None)
     jsonPacket['signal_strength'] = -(256-tap.ant_sig.db)
     jsonPacket['ssid'] = wlan.ies[0].info
     jsonPacket['mac_address_src'] = binascii.hexlify(wlan.mgmt.src)
