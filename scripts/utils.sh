@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 #### BEGIN Global variables ####
-VERSION='0.4.5'
+VERSION='0.4.6'
 SCRIPT_NAME='device_daemon.sh'
 PID_FILE='device_daemon.pid'
 API_KEY_FILE='api.key'
@@ -182,11 +182,19 @@ save_pid() {
 }
 
 get_pid() {
-  cat "$PID_FILE"
+  cat "$PID_FILE" 2>/dev/null
 }
 
 kill_device_daemon() {
   pkill --pidfile "$PID_FILE"
+}
+
+# Kill the running device daemon if it does not have the same pid (e.g., via exec)
+# This check avoids that the device_daemon kills itself on script updates
+kill_running_device_daemon() {
+  if [ -n "$(get_pid)" ] && [ "$$" -ne "$(get_pid)" ]; then
+    kill_device_daemon
+  fi
 }
 
 update_scripts() {
@@ -304,7 +312,7 @@ command_pid() {
 #   status: defined in `probr-core/devices/models.py COMMAND_STATUS_CHOICES`
 #             use constants `STATUS_NOT_YET_EXECUTED`, `STATUS_EXECUTING`, `STATUS_EXECUTED`
 set_command_status() {
-  post "/api-device/commands/$1/" '{"status":"'$2'"}'
+  post "/api-device/commands/$1/" '{"status":'$2'}'
 }
 
 non_executed_commands() {
@@ -435,6 +443,14 @@ check_aborted_commands() {
   done
 }
 
+kill_all_commands() {
+  for command in commands/*.pid; do
+    filename=$(basename "$command")
+    command_uuid="${filename%.*}"
+    kill_command "$command_uuid"
+  done
+}
+
 check_endpoint_info() {
   if [ -n "$(api_key)" ] && [ -n "$(base_url)" ]; then
     echo "Using api key \"$(api_key)\" against endpoint \"$(base_url)\""
@@ -453,7 +469,7 @@ main() {
   local api_key="$1"
   local base_url="$2"
 
-  kill_device_daemon
+  kill_running_device_daemon
   save_pid
   set_or_keep $API_KEY_FILE "$api_key"
   set_or_keep $BASE_URL_FILE "$base_url"

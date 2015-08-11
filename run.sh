@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+	#!/usr/bin/env bash
 open_browser=false
 host=0.0.0.0:8000
 
