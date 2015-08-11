@@ -44,8 +44,9 @@ angular.module('probrApp')
             });
         };
 
+
     })
-    .controller('DeviceStatusCtrl', function ($scope, $filter, $stateParams, Status, Device, Command, CommandTemplate, resourceSocket) {
+    .controller('DeviceStatusCtrl', function ($scope, $filter, $stateParams,$modal, Status, Device, Command, CommandTemplate, resourceSocket) {
 
         var statusLimit = 10;
         var deviceId = $stateParams.id;
@@ -162,6 +163,15 @@ angular.module('probrApp')
         }
         */
 
+        $scope.copyCommand = function (){
+            var modalInstance = $modal.open({
+                animation: true,
+                templateUrl: '/static/app/modals/bootstrapCommandModalContent.html',
+                controller: 'CopyCommandModalCtrl',
+            });
+
+        }
+
     })
     .controller('DeviceAddCtrl', function ($scope, Device,resourceSocket) {
 
@@ -171,11 +181,7 @@ angular.module('probrApp')
         $scope.status = "Device not yet bootsrapped."
         var currentURL = window.location.href;
         $scope.hostURL = currentURL.split("/web")[0];
-
         $scope.statuses = [];
-
-
-
 
         $scope.createDevice = function (form) {
             $scope.deviceForm.tags = $scope.deviceForm.formTags !== undefined ? $scope.deviceForm.formTags.split(',') : [];
@@ -237,6 +243,43 @@ angular.module('probrApp')
     })
     .controller('DeviceDeleteModalCtrl', function ($scope, $modalInstance) {
         $scope.ok = function () {
+            $modalInstance.close();
+        };
+
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    })
+    .controller('CopyCommandModalCtrl', function ($scope, $modalInstance, $stateParams, Device) {
+
+
+        var deviceId = $stateParams.id;
+        Device.get({deviceId: deviceId}, function (resultObj) {
+            $scope.device = resultObj;
+            console.log(JSON.stringify($scope.device));
+            var currentURL = window.location.href;
+            var hostURL = currentURL.split("/web")[0];
+            $scope.bootstrapCommand = "wget -qO- " + hostURL + "/static/bootstrap.sh | sh -s " + $scope.device.apikey + " " + hostURL;
+        });
+
+
+
+        $scope.copy = function () {
+        console.log("copy");
+            var range = document.createRange();
+            var selection = window.getSelection();
+
+            range.selectNodeContents(document.getElementById('copytext'));
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            try{
+                var successful = document.execCommand('copy');
+                var msg = successful ? 'successful' : 'unsuccessful';
+                console.log('Copying text command was ' + msg);
+            }catch(err){
+                console.log("Failed to copy the text.Copy it by hand.");
+            }
             $modalInstance.close();
         };
 
