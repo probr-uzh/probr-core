@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 #### BEGIN Global variables ####
-VERSION='0.4.4'
+VERSION='0.4.5'
 SCRIPT_NAME='device_daemon.sh'
 PID_FILE='device_daemon.pid'
 API_KEY_FILE='api.key'
@@ -185,14 +185,16 @@ get_pid() {
   cat "$PID_FILE"
 }
 
-# TODO: Remove because this doesn't work from within a remote command
-#       The device script would be killed when this command exits
-restart_device_daemon() {
-  old_pid=$(get_pid)
-  kill $old_pid
-  nohup ./device_daemon.sh >/dev/null 2>&1 </dev/null &
-  echo $!
-  sleep 20
+kill_device_daemon() {
+  pkill --pidfile "$PID_FILE"
+}
+
+# Kill the running device daemon if it does not have the same pid (e.g., via exec)
+# This check avoids that the device_daemon kills itself on script updates
+kill_running_device_daemon() {
+  if [ -n "$(get_pid)" ] && [ "$$" -ne "$(get_pid)" ]; then
+    kill_device_daemon
+  fi
 }
 
 update_scripts() {
@@ -310,7 +312,7 @@ command_pid() {
 #   status: defined in `probr-core/devices/models.py COMMAND_STATUS_CHOICES`
 #             use constants `STATUS_NOT_YET_EXECUTED`, `STATUS_EXECUTING`, `STATUS_EXECUTED`
 set_command_status() {
-  post "/api-device/commands/$1/" '{"status":"'$2'"}'
+  post "/api-device/commands/$1/" '{"status":'$2'}'
 }
 
 non_executed_commands() {
@@ -347,7 +349,7 @@ finished_command() {
 #   kill_command "2f2d484d-1359-4bfb-af8b-e9c5eccf3259"
 kill_command() {
   local command_uuid="$1"
-  pkill -P $(command_pid "$command_uuid")
+  command_pid "$command_uuid" | xargs pkill -P
 }
 
 # Note:
@@ -459,6 +461,7 @@ main() {
   local api_key="$1"
   local base_url="$2"
 
+  kill_running_device_daemon
   save_pid
   set_or_keep $API_KEY_FILE "$api_key"
   set_or_keep $BASE_URL_FILE "$base_url"

@@ -150,9 +150,9 @@ angular.module('probrApp')
         $scope.status = "Device not yet bootstrapped."
         var currentURL = window.location.href;
         $scope.hostURL = currentURL.split("/web")[0];
-        $scope.deviceURL = '';
 
         $scope.statuses = [];
+
 
 
 
@@ -161,6 +161,24 @@ angular.module('probrApp')
             $scope.deviceForm.$save(function (device) {
                 $scope.device = device;
                 $scope.step = 2;
+                $scope.isLoading = true;
+
+                $scope.deviceURL = $scope.hostURL + '/web/device/' + $scope.device.uuid + '/status';
+
+
+                $scope.$watch('statuses', function(newVal, oldVal){
+                    if(oldVal && newVal){
+                        if(oldVal.length < newVal.length){
+                            window.location.replace($scope.deviceURL);
+                        }
+                    }
+                },true);
+
+                Device.getStatus({deviceId: $scope.device.uuid, limit: 50}, function (resultObj) {
+                    $scope.statuses = resultObj.results;
+                    resourceSocket.updateResource($scope, $scope.statuses, 'status', 50, true, 'device', $scope.device.uuid);
+                });
+
             }, function (err) {
                 $scope.errors = {};
 
@@ -175,19 +193,6 @@ angular.module('probrApp')
         $scope.bootstrap = function () {
             $scope.step = 3;
             console.log('Bootstrapped the device succesfully.');
-            $scope.deviceURL = $scope.hostURL + '/web/device/' + $scope.device.uuid + '/status';
-
-            Device.getStatus({deviceId: $scope.device.uuid, limit: 50}, function (resultObj) {
-                $scope.statuses = resultObj.results;
-                resourceSocket.updateResource($scope, $scope.statuses, 'status', 50, true, 'device', $scope.device.uuid);
-            });
-
-            $scope.$watch('statuses', function(newVal, oldVal){
-                if(oldVal.length < newVal.length){
-                    window.location.replace($scope.deviceURL);
-                }
-            },true);
-
 
 
         };
