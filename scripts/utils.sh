@@ -304,7 +304,7 @@ command_pid() {
 #   status: defined in `probr-core/devices/models.py COMMAND_STATUS_CHOICES`
 #             use constants `STATUS_NOT_YET_EXECUTED`, `STATUS_EXECUTING`, `STATUS_EXECUTED`
 set_command_status() {
-  post "/api-device/commands/$1/" '{"status":"'$2'"}'
+  post "/api-device/commands/$1/" '{"status":'$2'}'
 }
 
 non_executed_commands() {
