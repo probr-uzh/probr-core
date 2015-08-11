@@ -185,16 +185,6 @@ get_pid() {
   cat "$PID_FILE"
 }
 
-# TODO: Remove because this doesn't work from within a remote command
-#       The device script would be killed when this command exits
-restart_device_daemon() {
-  old_pid=$(get_pid)
-  kill $old_pid
-  nohup ./device_daemon.sh >/dev/null 2>&1 </dev/null &
-  echo $!
-  sleep 20
-}
-
 update_scripts() {
   download_script "utils.sh" &&
   download_script "device_daemon.sh"
