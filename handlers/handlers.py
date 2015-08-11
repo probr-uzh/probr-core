@@ -2,6 +2,7 @@ import binascii
 import json
 import datetime
 import dpkt
+from bson import json_util
 from captures.models import Capture
 from utils.models import publishMessage
 from probr import mongodb
@@ -22,7 +23,7 @@ def generate_json(capture, packet, timestamp):
     if len(capture.tags.all()) > 0:
        jsonPacket['tags'] = list(capture.tags.names())
 
-    jsonPacket['time'] = datetime.datetime.fromtimestamp(int(timestamp * 1000), None)
+    jsonPacket['time'] = datetime.datetime.fromtimestamp(timestamp, None)
     jsonPacket['signal_strength'] = -(256-tap.ant_sig.db)
     jsonPacket['ssid'] = wlan.ies[0].info
     jsonPacket['mac_address_src'] = binascii.hexlify(wlan.mgmt.src)
@@ -57,4 +58,4 @@ class WebsocketHandler(object):
 
                 # broadcast to socket
                 jsonPacket["object_type"] = "packet:update"
-                publishMessage("socket", message=json.dumps(jsonPacket))
+                publishMessage("socket", message=json.dumps(jsonPacket, default=json_util.default))
