@@ -166,4 +166,5 @@ MEDIA_ROOT = BASE_DIR + MEDIA_URL
 PROBR_HANDLERS = [
     'handlers.handlers.WebsocketHandler',
     'handlers.handlers.MongoDBHandler',
+    'handlers.handlers.SocketIOHandler'
 ]

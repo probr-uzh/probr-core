@@ -38,6 +38,7 @@ RUN pip install scapy==2.3.1
 RUN pip install six==1.9.0
 RUN pip install uwsgi
 RUN pip install psycopg2==2.6.1
+RUN pip install socket.io-emitter==0.1.3
 
 ADD requirements.txt /app/
 RUN pip install -r requirements.txt
