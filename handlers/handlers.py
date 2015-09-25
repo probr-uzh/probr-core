@@ -71,4 +71,5 @@ class SocketIOHandler(object):
                 jsonPacket = generate_json(capture, packet, timestamp)
 
                 # broadcast to socket
+                socketioemitter.io.Emit("packet:" + jsonPacket['mac_address_src'], json.dumps(jsonPacket, default=json_util.default))
                 socketioemitter.io.Emit("packet:create", json.dumps(jsonPacket, default=json_util.default))

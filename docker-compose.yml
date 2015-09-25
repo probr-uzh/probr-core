@@ -1,9 +1,7 @@
 # probr-core, django app
 web:
-   build: .
-   command: sh run_web.sh
-   volumes:
-    - .:/app
+   image: probr/core:latest
+   command: sh install/docker/web/run.sh
    ports:
     - "8000:8000"
    links:
@@ -11,11 +9,10 @@ web:
     - redis
     - mongodb
 
+# probr-core, websockets
 websocket:
-   build: .
-   command: sh run_websocket.sh
-   volumes:
-    - .:/app
+   image: probr/core:latest
+   command: uwsgi --socket :8001 --module probr.wsgi_websocket:application --enable-threads
    ports:
     - "8001:8001"
    links:
@@ -25,10 +22,8 @@ websocket:
 
 # probr-core, celery worker
 worker:
-   build: .
-   command: sh run_celery.sh
-   volumes:
-    - .:/app
+   image: probr/core:latest
+   command: celery worker -A probr
    links:
     - postgres
     - redis
@@ -52,21 +47,6 @@ mongodb:
 # redis container
 redis:
    image: redis:2.8.19
-
-# nginx web server
-nginx:
-   restart: always
-   build: ./nginx/
-   ports:
-    - "80:80"
-   volumes:
-    - /www/static
-   volumes_from:
-    - web
-   links:
-    - web
-    - websocket
-    - worker
 
 # data container for postgres
 datapostgres:
