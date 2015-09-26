@@ -1,5 +1,5 @@
 docker build -t probr_core .
-docker build -t nginx ./install/docker/nginx-proxy/
+docker build -t nginx ./install/docker/nginx/
 
 docker stop probr_core_worker
 docker rm probr_core_worker
