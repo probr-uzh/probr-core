@@ -19,6 +19,4 @@ RUN bower install --allow-root
 
 ADD . /app/
 
-VOLUME /app/static
-
 RUN python manage.py collectstatic --noinput
