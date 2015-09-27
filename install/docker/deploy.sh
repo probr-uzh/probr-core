@@ -22,4 +22,4 @@ docker run -d --expose 8002 --volumes-from probr_data --name probr_core_ws --lin
 # nginx reverse-proxy
 docker stop nginx
 docker rm nginx
-docker run -d -p 80:80 --name nginx --volumes-from probr_data" --link probr_core:probr_core --link probr_core_ws:probr_core_ws --link probr_analysis:probr_analysis nginx
+docker run -d -p 80:80 --name nginx --volumes-from probr_data --link probr_core:probr_core --link probr_core_ws:probr_core_ws --link probr_analysis:probr_analysis nginx
