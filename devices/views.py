@@ -85,7 +85,8 @@ class StatusList_Devices(generics.ListCreateAPIView):
 
     def list(self, request, *args, **kwargs):
         device = Device.objects.get(apikey=request.META.get('HTTP_API_KEY',None))
-        queryset = Status.objects.filter(device_id=device.uuid)
+        queryset = Status.objects.filter(device_id=device.uuid).order_by('-modification_timestamp')[:1000]
+        Status.objects.exclude(pk__in=list(queryset)).delete()
         serializer = StatusSerializer(queryset, many=True)
         return Response(status=200, data=serializer.data)
 
@@ -182,7 +183,7 @@ class CommandDetails_Devices(generics.RetrieveUpdateDestroyAPIView):
             if hasattr(request.FILES,"result"):
                 command.result = request.FILES['result'].read()
             else:
-                command.result = request.body;
+                command.result = request.body
 
         command.save()
         return Response('Command updated')
