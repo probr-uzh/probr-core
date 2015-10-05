@@ -39,6 +39,7 @@ class DeviceDetailsView(generics.RetrieveUpdateDestroyAPIView):
 class StatusList(generics.ListAPIView):
     queryset = Status.objects.all()
     serializer_class = StatusSerializer
+
     authentication_classes = (JSONWebTokenAuthentication,)
     filter_fields = ('device',)
 
@@ -182,7 +183,7 @@ class CommandDetails_Devices(generics.RetrieveUpdateDestroyAPIView):
             if hasattr(request.FILES,"result"):
                 command.result = request.FILES['result'].read()
             else:
-                command.result = request.body;
+                command.result = request.body
 
         command.save()
         return Response('Command updated')

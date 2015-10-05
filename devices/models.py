@@ -94,10 +94,16 @@ class Status(BaseModel):
     used_disk = models.IntegerField(default=0)
 
     def memory_usage(self):
-        return float(self.used_memory)/float(self.total_memory)
-
+        if float(self.total_disk)>0:
+            return float(self.used_memory)/float(self.total_memory)
+        else:
+            return 0
+        
     def disk_usage(self):
-        return float(self.used_disk)/float(self.total_disk)
+        if float(self.total_disk)>0:
+            return float(self.used_disk)/float(self.total_disk)
+        else:
+            return 0
 
     def __unicode__(self):
         return unicode(self.device)+" memory:"+unicode(self.memory_usage())+""
