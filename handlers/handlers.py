@@ -8,6 +8,9 @@ from utils.models import publishMessage
 from probr import mongodb
 from probr import socketioemitter
 from probr.base_settings import WS4REDIS_CONNECTION
+from probr import influx_config
+from influxdb import InfluxDBClient
+
 
 __author__ = 'ale'
 
@@ -73,3 +76,19 @@ class SocketIOHandler(object):
                 # broadcast to socket
                 socketioemitter.io.Emit("packet:" + jsonPacket['mac_address_src'], json.dumps(jsonPacket, default=json_util.default))
                 socketioemitter.io.Emit("packet:create", json.dumps(jsonPacket, default=json_util.default))
+
+class InfluxDBHandler(object):
+    def handle(self,capture):
+
+        client = InfluxDBClient(influx_config.influx_host, influx_config.influx_port, influx_config.influx_user, influx_config.influx_pw, influx_config.influx_db)
+
+        if capture.file.size > 0:
+            capture.file.open()
+            pcapReader = dpkt.pcap.Reader(capture.file)
+
+            for timestamp, packet in pcapReader:
+                jsonPacket = generate_json(capture, packet, timestamp)
+                jsonPacket["measurement"] = "packet"
+
+                client.write_points(jsonPacket);
+
