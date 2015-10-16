@@ -78,7 +78,7 @@ class SocketIOHandler(object):
                 socketioemitter.io.Emit("packet:create", json.dumps(jsonPacket, default=json_util.default))
 
 class InfluxDBHandler(object):
-    def handle(self,capture):
+    def handle(self, capture):
 
         client = InfluxDBClient(influx_config.influx_host, influx_config.influx_port, influx_config.influx_user, influx_config.influx_pw, influx_config.influx_db)
 
@@ -88,7 +88,68 @@ class InfluxDBHandler(object):
 
             for timestamp, packet in pcapReader:
                 jsonPacket = generate_json(capture, packet, timestamp)
-                jsonPacket["measurement"] = "packet"
+                points = self.restructure(jsonPacket)
+                client.write_points(points)
 
-                client.write_points(jsonPacket);
 
+
+    #We have to rewrite the packet structure since
+    #for influxdb, the tags and fields in a packet must be in the form of:
+    '''
+    packet = {
+        tags : {
+            tagname1: tagValue,
+            tagname2: tagValue,
+            .
+            .
+        },
+        time: ..... ,
+        fields : {
+            ssid: ...,
+            mac_addr_src:....,
+            .
+            .
+            value: .....
+        }
+    }
+    '''
+
+    def restructure(self, jsonPacket):
+
+        new_packet = {}
+
+        # rewrite the tags
+        tags = jsonPacket["tags"]
+        influx_tags = {}
+
+        for tag in tags:
+            influx_tags[tag]=tag
+
+        # put tags in new packet
+        new_packet["tags"] = influx_tags
+
+
+
+        # rewrite fields
+        fields = {}
+        fields["capture_uuid"] = jsonPacket['capture_uuid']
+        fields["signal_strength"] = jsonPacket['signal_strength']
+        fields["ssid"] = jsonPacket['ssid']
+        fields["mac_address_src"] = jsonPacket['mac_address_src']
+        fields["mac_address_dst"] = jsonPacket['mac_address_dst']
+        fields["inserted_at"] = str(jsonPacket['inserted_at'])
+
+        fields["longitude"] = jsonPacket['location']["coordinates"][0]
+        fields["latitude"] = jsonPacket['location']["coordinates"][1]
+
+        # put fields in new packet
+        new_packet["fields"] = fields
+
+        # add necessary measurement field
+        new_packet["measurement"] = "packet"
+
+        # put the whole thing as a point in a list (required structure by influx)
+        points = []
+        points.append(new_packet)
+
+        return points
