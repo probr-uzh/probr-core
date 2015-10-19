@@ -25,8 +25,6 @@ class DeviceListView(generics.ListCreateAPIView):
         return super(DeviceListView, self).post(request,*args,**kwargs)
 
 
-
-
 class DeviceDetailsView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = DeviceSerializer
     authentication_classes = (JSONWebTokenAuthentication,)

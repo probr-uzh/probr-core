@@ -10,6 +10,7 @@
     "tests"
   ],
   "dependencies": {
+    "angular-file-upload": "2.1.4",
     "angular-bootstrap": "0.13.0",
     "angular-chart.js": "~0.7.1",
     "angular-cookies": "~1.4.2",

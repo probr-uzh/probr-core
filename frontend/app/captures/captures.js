@@ -7,6 +7,10 @@ angular.module('probrApp')
                 url: '/captures',
                 templateUrl: '/static/app/captures/captures.html',
                 controller: 'CapturesCtrl'
+            })
+            .state('capturesAdd', {
+                url: '/captures/add',
+                templateUrl: '/static/app/captures/capturesAdd.html',
+                controller: 'CapturesAddCtrl'
             });
-        ;
     });

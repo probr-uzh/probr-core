@@ -10,7 +10,8 @@ angular.module('probrApp', [
     'ui.ace',
     'angularMoment',
     'luegg.directives',
-    'boilerDjangoForm'
+    'boilerDjangoForm',
+    'angularFileUpload'
 ]).config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider, $resourceProvider) {
     $urlRouterProvider.otherwise('/devices');
     $locationProvider.html5Mode({enabled: true, requireBase: true, rewriteLinks: true});
