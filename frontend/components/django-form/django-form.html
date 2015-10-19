@@ -1,7 +1,7 @@
 <div class='form-group' ng-class="{ 'has-success': form[name].$valid && submitted, 'has-error': form[name].$invalid && submitted }">
     <label for="{{ name }}" class="sr-only">{{ label }}</label>
 
-    <div class="col-xs-4">
+    <div class="col-xs-12">
         <input type="text" dynamic-name="name" class="form-control" ng-model="model" placeholder="{{ label }}" django-error/>
 
         <p class="help-block" ng-show="form[name].$error.django">

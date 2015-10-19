@@ -1,0 +1,68 @@
+<div ng-include="'/static/components/navbar/navbar.html'"></div>
+
+<div class="container">
+
+    <h1>
+        Add Captures
+    </h1>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="col-xs-4">
+                <h2>Form</h2>
+                <div class="form-group">
+                    <div class="well" nv-file-drop uploader="uploader">
+                        Drag'n'Drop files here
+                    </div>
+                    <p class="text-center">- or -</p>
+                    <input type="file" nv-file-select="" uploader="uploader" multiple/>
+                </div>
+
+                <form class="form-horizontal" name="form">
+                    <django-form name="'tags'" model="tags" label="Tags" form="form"
+                                 errors="errors"></django-form>
+                    <django-form name="'latitude'" model="latitude" label="Latitude" form="form"
+                                 errors="errors" required></django-form>
+                    <django-form name="'longitude'" model="longitude" label="Longitude" form="form"
+                                 errors="errors" required></django-form>
+                </form>
+            </div>
+
+            <div class="col-xs-4">
+
+                <div class="col-xs-12">
+                    <h2>Queue</h2>
+
+                    <p ng-hide="uploader.queue.length > 0" class="text-center">no files in queue</p>
+                    <ul ng-show="uploader.queue.length > 0">
+                        <li ng-repeat="item in uploader.queue">
+                            {{ item.file.name }}
+                            <span ng-show="item.isSuccess" style="color: green" class="fa fa-check"></span>
+                            <span ng-show="item.isError" style="color: tomato" class="fa fa-remove"></span>
+                        </li>
+                    </ul>
+                </div>
+
+                <br/>
+
+                <div ng-show="uploader.queue.length > 0" class="col-xs-12">
+                    <h2>Progress</h2>
+
+                    <div class="progress" style="margin-bottom: 0;">
+                        <div class="progress-bar" role="progressbar"
+                             ng-style="{ 'width': uploader.progress + '%' }"></div>
+                    </div>
+
+                <br/>
+
+                </div>
+
+
+                <div ng-show="uploader.queue.length > 0" class="col-xs-12">
+                    <button class="btn btn-primary" ng-click="uploadCaptures(form)">Upload Captures</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
