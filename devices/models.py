@@ -112,6 +112,11 @@ class Status(BaseModel):
         verbose_name_plural = "statuses"
         ordering = ['-creation_timestamp']
 
+def statusThrottler(sender, instance, **kwargs):
+    statuses = Status.objects.order_by('-modification_timestamp')[:1000].values_list("uuid", flat=True)  # only retrieve ids.
+    Status.objects.exclude(pk__in=list(statuses)).delete()
+signals.post_save.connect(statusThrottler, sender=Status)
+
 signals.post_save.connect(publishPostSaveMessage, sender=Status)
 
 class Command(BaseModel):
