@@ -113,8 +113,8 @@ class Status(BaseModel):
         ordering = ['-creation_timestamp']
 
 def statusThrottler(sender, instance, **kwargs):
-    qs = Status.objects.order_by('-modification_timestamp')[5000:]
-    qs.delete()
+    statuses = Status.objects.order_by('-modification_timestamp')[:1000].values_list("uuid", flat=True)  # only retrieve ids.
+    Status.objects.exclude(pk__in=list(statuses)).delete()
 signals.post_save.connect(statusThrottler, sender=Status)
 
 signals.post_save.connect(publishPostSaveMessage, sender=Status)
