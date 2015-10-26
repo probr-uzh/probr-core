@@ -112,6 +112,11 @@ class Status(BaseModel):
         verbose_name_plural = "statuses"
         ordering = ['-creation_timestamp']
 
+def statusThrottler(sender, instance, **kwargs):
+    qs = Status.objects.order_by('-modification_timestamp')[5000:]
+    qs.delete()
+signals.post_save.connect(statusThrottler, sender=Status)
+
 signals.post_save.connect(publishPostSaveMessage, sender=Status)
 
 class Command(BaseModel):
