@@ -42,7 +42,7 @@ class StatusList(generics.ListAPIView):
     filter_fields = ('device',)
 
 class CommandList(generics.ListCreateAPIView):
-    queryset = Command.objects.all()
+    queryset = Command.objects.all().order_by('-creation_time')
     renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer,PlainTextCommandsRenderer]
     serializer_class = CommandSerializer
     authentication_classes = (JSONWebTokenAuthentication,)

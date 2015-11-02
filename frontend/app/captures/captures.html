@@ -38,7 +38,7 @@
                     <th>Lat / Lng</th>
                     <th>Uploaded</th>
                 </tr>
-                <tr ng-repeat="capture in captures | orderBy: '-creation_timestamp'">
+                <tr ng-repeat="capture in captures">
                     <td>{{ capture.uuid }}</td>
                     <td><a ng-href="{{ capture.file }}">{{ capture.file }}</a></td>
                     <td>{{ capture.latitude }} / {{ capture.longitude }}</td>

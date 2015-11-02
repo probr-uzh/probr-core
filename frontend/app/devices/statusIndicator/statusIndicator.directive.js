@@ -14,7 +14,7 @@ angular.module('probrApp')
                 var timeout;
 
                 scope.onlineIndicator = function () {
-                    var timeoutInterval = 60000;
+                    var timeoutInterval = 15000;
 
 
                     if (scope.statuses !== undefined && scope.statuses.length > 0) {
