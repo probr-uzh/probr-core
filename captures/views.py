@@ -9,7 +9,7 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 class CaptureUploadView(generics.ListCreateAPIView):
     authentication_classes = (JSONWebTokenAuthentication,)
-    queryset = Capture.objects.all().order_by('-creation_time')
+    queryset = Capture.objects.all()
     serializer_class = CaptureSerializer
     parser_classes = (MultiPartParser, FormParser,)
 
@@ -26,7 +26,7 @@ class CaptureUploadView(generics.ListCreateAPIView):
 class CaptureListView(generics.ListCreateAPIView):
 
     authentication_classes = (JSONWebTokenAuthentication,)
-    queryset = Capture.objects.all()
+    queryset = Capture.objects.all().order_by('-creation_timestamp')
     serializer_class = CaptureSerializer
     parser_classes = (MultiPartParser, FormParser,)
     filter_backends = (filters.OrderingFilter,)
