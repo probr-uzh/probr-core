@@ -29,4 +29,3 @@ class CaptureListView(generics.ListCreateAPIView):
     queryset = Capture.objects.all().order_by('-creation_timestamp')
     serializer_class = CaptureSerializer
     parser_classes = (MultiPartParser, FormParser,)
-    filter_backends = (filters.OrderingFilter,)
