@@ -142,6 +142,16 @@ angular.module('probrApp')
         }
         */
 
+        $scope.updateDeamonAction = function(){
+            $scope.commandTemplate.execute = "check_for_updates && update_scripts";
+            $scope.executeCommand();
+        };
+
+        $scope.killCommandsAction = function(){
+            $scope.commandTemplate.execute = "kill_all_commands";
+            $scope.executeCommand();
+        };
+
         $scope.copyCommand = function (){
             var modalInstance = $modal.open({
                 animation: true,
