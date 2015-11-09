@@ -8,29 +8,27 @@
         <small>
             last seen <span am-time-ago="statuses[0].creation_timestamp"></span>
         </small>
+
+        <div class="btn-group pull-right">
+            <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                Quick Actions <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a href="" ng-click="copyCommand()">Bootstrap command</a></li>
+                <li><a href="" ng-click="updateDeamonAction()">Update deamon script</a></li>
+                <li><a href="" ng-click="killCommandsAction()">Kill all running commands</a></li>
+            </ul>
+        </div>
     </h1>
 
-    <div class="row" style="margin-bottom: 30px;">
-        <div class="col-xs-6">
+    <div class="row">
+        <div class="col-xs-12">
             <p>
-                <strong>IP: </strong> {{ statuses[0].ip }}<br/>
-                <strong>OS: </strong> {{ device.os }}<br/>
+                <strong ng-show="statuses[0].ip">IP-Address: </strong> {{ statuses[0].ip }}<br/>
+                <strong ng-show="device.os">Operating System: </strong> {{ device.os }}<br/>
                 <i>{{ device.description }}</i><br/>
             </p>
-        </div>
-        <div class="col-xs-6">
-            <!-- Drpodown button -->
-            <div class="btn-group pull-right">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="false">
-                    Action <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a href="" ng-click="copyCommand()">Bootstrap command</a></li>
-                    <li><a href="" ng-click="updateDeamonAction()">Update deamon script</a></li>
-                    <li><a href="" ng-click="killCommandsAction()">Kill all running commands</a></li>
-                </ul>
-            </div>
         </div>
     </div>
 
@@ -55,46 +53,41 @@
         </div>
     </div>
 
-    <div class="row" style="margin-bottom: 30px;">
-        <div class="col-md-10">
+    <div class="row" style="margin-bottom: 5px;">
+        <div class="col-xs-12">
             <div ui-ace="{theme:'terminal',mode: 'sh'}" enter-submit="executeCommand()"
                  ng-model="commandTemplate.execute" placeholder="Enter your command"></div>
         </div>
-        <div class="col-md-2">
-            <button ng-click="executeCommand()" type="button" class="btn btn-primary btn-lg btn-block btn-terminal">
-                <span class="fa fa-terminal"></span>
-            </button>
-        </div>
     </div>
-    <div class="row">
-        <div class="col-xs-12">
+    <div class="row" style="margin-bottom: 5px;">
+        <div class="col-xs-12 col-sm-8 commandTemplate">
             <select class="pull-left" ng-model="commandTemplate"
                     ng-options="cmdTemplate.name for cmdTemplate in commandTemplates">
-                <option value="">-- choose or create template --</option>
+                <option value="">choose or create template</option>
             </select>
             <input type="text" ng-model="commandTemplate.name">
             </input>
-            <button ng-click="saveCommandTemplate()" type="button" class="btn btn-default btn-lg pull-right">
+            <button ng-click="saveCommandTemplate()" type="button" class="btn btn-primary">
                 <span class="fa fa-save"></span>
             </button>
-            <button ng-click="deleteCommandTemplate()" type="button" class="btn btn-default btn-lg pull-right">
+            <button ng-click="deleteCommandTemplate()" type="button" class="btn btn-warning">
                 <span class="fa fa-remove"></span>
             </button>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-12">
-            <button ng-click="deleteCommandTemplate()" type="button" class="btn btn-default btn-lg pull-right">
-                <span class="fa fa-remove"></span>
+        <div class="col-xs-12 col-sm-4">
+            <button ng-click="executeCommand()" type="button" class="btn btn-primary pull-right">
+                Execute Command
             </button>
         </div>
     </div>
 
-    <h1>CPU / Memory</h1>
-
-    <div class="row" style="margin-bottom: 30px;">
-        <div class="col-xs-12">
-            <device-cpu-chart statuses="statuses"></device-cpu-chart>
+    <h2 style="margin-top: 30px;">CPU-Utilization / Memory</h2>
+    <div collapse="cpuMemoryCollapsed">
+        <div class="row">
+            <div class="col-xs-12">
+                <device-cpu-chart statuses="statuses"></device-cpu-chart>
+            </div>
         </div>
     </div>
+
 </div>
