@@ -2,7 +2,33 @@
 
 <div class="container">
 
-    <h1>Registered Devices</h1>
+
+    <div class="row">
+
+        <div class="col-xs-6">
+            <h1>Registered Devices
+                <small ng-show="selectedDevices().length>0">({{ selectedDevices().length }} devices selected)</small>
+            </h1>
+        </div>
+
+        <div class="col-xs-6">
+            <!-- Drpodown button -->
+            <div class="btn-group pull-right" ng-show="selectedDevices().length>0">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false">
+                    Action <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="" ng-click="multiExecuteAction()">Multi-execute command</a></li>
+                    <li><a href="" ng-click="updateDeamonAction()">Update deamon script</a></li>
+                    <li><a href="" ng-click="killCommandsAction()">Kill all running commands</a></li>
+                    <li><a href="" ng-click="deleteDevices()">Delete devices</a></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
 
     <div class="row">
 
@@ -18,8 +44,8 @@
 
         <div class="col-xs-12 col-md-6 col-lg-3" ng-repeat="device in devices">
 
-            <div class="card">
-                <div class="card-content card-size-3">
+            <div class="card" ng-click="device.isSelected = !device.isSelected">
+                <div class="card-content card-size-3" ng-class="{ 'selected': device.isSelected }">
                     <span class="fa fa-trash-o pull-right" ng-click="deleteDevice(device)"></span>
                     <status-indicator device="device" statuses="device.statuses"></status-indicator>
                     <a ng-href="device/{{ device.uuid }}/status">
