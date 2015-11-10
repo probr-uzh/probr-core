@@ -21,6 +21,8 @@ SLEEP_ACTIVE_ITERATIONS=10
 # SLEEP_ACTIVE_ITERATIONS and then counts down until 0 in
 # after which idle SLEEP is used again
 SLEEP_ACTIVE_COUNTDOWN=0
+# Maximal size that the result file is truncated in bytes
+MAX_UPLOAD_SIZE=1000000
 
 ## Server constants
 STATUS_NOT_YET_EXECUTED=0
@@ -324,7 +326,8 @@ submit_result() {
   local log_file=$2
   tmp_file="${log_file}.upload"
   # We need to make a copy of the log file, because the file may be still opened
-  cp "$log_file" "$tmp_file"
+  # Truncate here to a configurable upper bound instead of copying the entire file
+  tail -c "$MAX_UPLOAD_SIZE" -- "$log_file" > "$tmp_file"
   post_file "/api-device/commands/${command_uuid}/" "$tmp_file"
   rm "$tmp_file"
 }
