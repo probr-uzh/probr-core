@@ -3,96 +3,45 @@
 <div class="container">
 
     <h1>
-        <status-indicator device="device" statuses="device.statuses"></status-indicator>
+        <status-indicator device="device" statuses="statuses"></status-indicator>
         {{ device.name }}
         <small>
             last seen <span am-time-ago="statuses[0].creation_timestamp"></span>
         </small>
+
+        <div class="btn-group pull-right">
+            <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Quick Actions <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a href="" ng-click="copyCommand()">Bootstrap command</a></li>
+                <li><a href="" ng-click="updateDeamonAction()">Update deamon script</a></li>
+                <li><a href="" ng-click="killCommandsAction()">Kill all running commands</a></li>
+            </ul>
+        </div>
     </h1>
 
-    <div class="row" style="margin-bottom: 30px;">
-        <div class="col-xs-6">
+    <div class="row">
+        <div class="col-xs-12">
             <p>
-                <strong>IP: </strong> {{ statuses[0].ip }}<br/>
-                <strong>OS: </strong> {{ device.os }}<br/>
+                <strong ng-show="statuses[0].ip">IP-Address: </strong> {{ statuses[0].ip }}<br/>
+                <strong ng-show="device.os">Operating System: </strong> {{ device.os }}<br/>
                 <i>{{ device.description }}</i><br/>
             </p>
-        </div>
-        <div class="col-xs-6">
-            <!-- Drpodown button -->
-            <div class="btn-group pull-right">
-              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Action <span class="caret"></span>
-              </button>
-              <ul class="dropdown-menu">
-                <li><a href="" ng-click="copyCommand()">Bootstrap command</a></li>
-                <li><a href="#">Another action</a></li>
-                <li><a href="#">Something else here</a></li>
-                <li role="separator" class="divider"></li>
-                <li><a href="#">Separated link</a></li>
-              </ul>
-            </div>
         </div>
     </div>
 
     <h1>Terminal</h1>
+    <terminal devices="[device]"></terminal>
 
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="console" scroll-glue>
-                <div ng-repeat="command in commands | orderBy: 'creation_timestamp' : false track by command.uuid">
-                    <span class="console-execute">
-                        <i class="fa fa-cog" ng-show="command.status === 0"></i>
-                        <i class="fa fa-cog fa-spin" ng-show="command.status === 1" ng-click="killCmd(command.uuid)"></i>
-                        <i class="fa fa-check" ng-show="command.status === 2"></i>
-                        <i class="fa fa-exclamation-triangle" ng-show="command.status === 3"></i>
-                    </span>
-                    <span class="console-date">{{ command.creation_timestamp | date : 'dd.MM.yyyy \- HH:mm' }}: </span>
-                    <span class="console-execute">{{ command.execute }}</span>
-                    <span class="console-result">{{ command.result }}</span>
-                </div>
+    <h2 style="margin-top: 30px;">CPU-Utilization / Memory</h2>
+
+    <div collapse="cpuMemoryCollapsed">
+        <div class="row">
+            <div class="col-xs-12">
+                <device-cpu-chart statuses="statuses"></device-cpu-chart>
             </div>
         </div>
     </div>
 
-    <div class="row" style="margin-bottom: 30px;">
-        <div class="col-md-10">
-            <div ui-ace="{theme:'terminal',mode: 'sh'}" enter-submit="executeCommand()" ng-model="commandTemplate.execute" placeholder="Enter your command"></div>
-        </div>
-        <div class="col-md-2">
-            <button ng-click="executeCommand()" type="button" class="btn btn-primary btn-lg btn-block btn-terminal">
-                <span class="fa fa-terminal"></span>
-            </button>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-12">
-            <select class="pull-left" ng-model="commandTemplate" ng-options="cmdTemplate.name for cmdTemplate in commandTemplates">
-                <option value="">-- choose or create template --</option>
-            </select>
-            <input type="text" ng-model="commandTemplate.name">
-            </input>
-            <button ng-click="saveCommandTemplate()" type="button" class="btn btn-default btn-lg pull-right">
-                <span class="fa fa-save"></span>
-            </button>
-            <button ng-click="deleteCommandTemplate()" type="button" class="btn btn-default btn-lg pull-right">
-                <span class="fa fa-remove"></span>
-            </button>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-12">
-            <button ng-click="deleteCommandTemplate()" type="button" class="btn btn-default btn-lg pull-right">
-                <span class="fa fa-remove"></span>
-            </button>
-        </div>
-    </div>
-
-    <h1>CPU / Memory</h1>
-
-    <div class="row" style="margin-bottom: 30px;">
-        <div class="col-xs-12">
-            <device-cpu-chart statuses="statuses"></device-cpu-chart>
-        </div>
-    </div>
 </div>

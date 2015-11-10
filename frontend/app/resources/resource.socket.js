@@ -52,6 +52,8 @@ angular.module('probrApp')
 
             so.socket.onMessage(function (message) {
 
+
+
                 var dataObj = JSON.parse(message.data);
                 dataObj.timestamp = message.timeStamp;
 
@@ -61,8 +63,11 @@ angular.module('probrApp')
 
                         // check if we have a custom query in place
                         if (resourceObj.uuidFilter.filter !== 'uuid') {
+
                             if (dataObj.hasOwnProperty([resourceObj.uuidFilter.filter]) && dataObj[resourceObj.uuidFilter.filter] === resourceObj.uuidFilter.uuid) {
+
                                 resources.push(resourceObj);
+                                console.log(resources.length);
                             }
                         } else {
                             resources.push(resourceObj);

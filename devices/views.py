@@ -25,8 +25,6 @@ class DeviceListView(generics.ListCreateAPIView):
         return super(DeviceListView, self).post(request,*args,**kwargs)
 
 
-
-
 class DeviceDetailsView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = DeviceSerializer
     authentication_classes = (JSONWebTokenAuthentication,)
@@ -39,11 +37,12 @@ class DeviceDetailsView(generics.RetrieveUpdateDestroyAPIView):
 class StatusList(generics.ListAPIView):
     queryset = Status.objects.all()
     serializer_class = StatusSerializer
+
     authentication_classes = (JSONWebTokenAuthentication,)
     filter_fields = ('device',)
 
 class CommandList(generics.ListCreateAPIView):
-    queryset = Command.objects.all()
+    queryset = Command.objects.all().order_by('-creation_timestamp')
     renderer_classes = [renderers.JSONRenderer,renderers.BrowsableAPIRenderer,PlainTextCommandsRenderer]
     serializer_class = CommandSerializer
     authentication_classes = (JSONWebTokenAuthentication,)
@@ -182,7 +181,7 @@ class CommandDetails_Devices(generics.RetrieveUpdateDestroyAPIView):
             if hasattr(request.FILES,"result"):
                 command.result = request.FILES['result'].read()
             else:
-                command.result = request.body;
+                command.result = request.body
 
         command.save()
         return Response('Command updated')

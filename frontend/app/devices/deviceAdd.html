@@ -9,11 +9,11 @@
     <h2>Step {{ step }}/3</h2>
 
     <div class="row" ng-hide="step !== 1">
-        <div class="col-xs-12">
+        <div class="col-xs-4">
             <form class="form-horizontal" name="form" ng-submit="createDevice(form)">
                 <django-form name="'name'" model="deviceForm.name" label="Name" form="form" errors="errors"></django-form>
                 <div class="form-group">
-                    <div class="col-xs-4">
+                    <div class="col-xs-12">
                         <select class="form-control" id="type" name="type" ng-model="deviceForm.type">
                             <option value="RPA">Raspberry Pi Model A</option>
                             <option value="RPB">Raspberry Pi Model B</option>

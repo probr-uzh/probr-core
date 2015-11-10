@@ -94,10 +94,16 @@ class Status(BaseModel):
     used_disk = models.IntegerField(default=0)
 
     def memory_usage(self):
-        return float(self.used_memory)/float(self.total_memory)
-
+        if float(self.total_disk)>0:
+            return float(self.used_memory)/float(self.total_memory)
+        else:
+            return 0
+        
     def disk_usage(self):
-        return float(self.used_disk)/float(self.total_disk)
+        if float(self.total_disk)>0:
+            return float(self.used_disk)/float(self.total_disk)
+        else:
+            return 0
 
     def __unicode__(self):
         return unicode(self.device)+" memory:"+unicode(self.memory_usage())+""
@@ -105,6 +111,11 @@ class Status(BaseModel):
     class Meta:
         verbose_name_plural = "statuses"
         ordering = ['-creation_timestamp']
+
+def statusThrottler(sender, instance, **kwargs):
+    statuses = Status.objects.order_by('-modification_timestamp')[:1000].values_list("uuid", flat=True)  # only retrieve ids.
+    Status.objects.exclude(pk__in=list(statuses)).delete()
+signals.post_save.connect(statusThrottler, sender=Status)
 
 signals.post_save.connect(publishPostSaveMessage, sender=Status)
 
