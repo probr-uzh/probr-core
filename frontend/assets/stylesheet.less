@@ -1,18 +1,19 @@
 @import '../bower_components/font-awesome/less/font-awesome.less';
 @import '../bower_components/bootstrap/less/bootstrap.less';
 @import '../bower_components/angular-chart.js/angular-chart.less';
+
 @import url(//fonts.googleapis.com/css?family=Roboto:300,400,500,700);
+@import url(//fonts.googleapis.com/css?family=Nunito:300,400,500,700);
 
 @icon-font-path: '../../../static/bower_components/bootstrap/fonts';
 @fa-font-path: '../../../static/bower_components/font-awesome/fonts';
 
-@accentcolor: #07426b;
-@accentcolor_contrast: #008cc4;
-@accentcolor_light: lighten(@accentcolor, 20%);
-@accentcolor_dark: darken(@accentcolor, 5%);
-
-@darkgrey: rgb(75, 75, 75);
-@lightgrey: rgb(250, 250, 250);
+@brand-primary: #008cc4;
+@brand-primary-light: lighten(@brand-primary, 20%);
+@brand-primary-dark: darken(@brand-primary, 5%);
+@brand-accent: @brand-primary-light;
+@brand-gray-dark: rgb(75, 75, 75);
+@brand-gray-light: rgb(250, 250, 250);
 
 html {
     overflow-y: scroll;
@@ -21,16 +22,16 @@ html {
 // Font
 body {
   font-family: "Roboto", Arial, Helvetica, sans-serif;
-  background-color: @lightgrey;
-  color: @darkgrey;
+  background-color: @brand-gray-light;
+  color: @brand-gray-dark;
 }
 
 a {
-  color: @darkgrey;
+  color: @brand-gray-dark;
 }
 
 a:hover {
-  color: @accentcolor_contrast;
+  color: @brand-primary-light;
   text-decoration: none;
 }
 
@@ -42,7 +43,7 @@ a:hover {
 }
 
 .stretch {
-  background-color: @accentcolor;
+  background-color: @brand-primary;
   color: white;
 }
 
@@ -58,9 +59,9 @@ a:hover {
 
 .card {
 
-  color: lighten(@lightgrey, 20%);
+  color: lighten(@brand-gray-light, 20%);
   background-color: white;
-  border: 1px solid darken(@lightgrey, 5%);
+  border: 1px solid darken(@brand-gray-light, 5%);
 
   .card-content {
 	padding: 15px;
@@ -78,7 +79,7 @@ a:hover {
 h1 {
   padding: 0px;
   font-size: 16px;
-  color: darken(@lightgrey, 50%);
+  color: darken(@brand-gray-light, 50%);
   margin-top: 10px;
   margin-bottom: 10px;
 }
@@ -86,7 +87,7 @@ h1 {
 h2 {
   padding: 0px;
   font-size: 14px;
-  color: darken(@lightgrey, 50%);
+  color: darken(@brand-gray-light, 50%);
   margin-top: 10px;
   margin-bottom: 10px;
 }

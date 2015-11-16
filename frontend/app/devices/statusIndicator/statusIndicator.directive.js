@@ -19,7 +19,8 @@ angular.module('probrApp')
 
                     if (scope.statuses !== undefined && scope.statuses.length > 0) {
                         var timeDifference = new Date().getTime() - new Date(scope.statuses[scope.statuses.length - 1].creation_timestamp);
-                        console.log(timeDifference);
+                        //console.log(timeDifference);
+
                         if (timeDifference<timeoutInterval) {
                             var tmpDate = scope.statuses[scope.statuses.length - 1].creation_timestamp;
                             clearTimeout(timeout);

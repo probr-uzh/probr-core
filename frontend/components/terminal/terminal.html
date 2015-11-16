@@ -1,7 +1,8 @@
 <div class="row">
     <div class="col-xs-12">
         <small>Connected to
-            <span ng-repeat="device in devices">{{ device.name }}<span ng-show="$index < devices.length - 1">, </span></span>
+            <span ng-repeat="device in devices">{{ device.name }}<span
+                    ng-show="$index < devices.length - 1">, </span></span>
         </small>
     </div>
 </div>
@@ -9,7 +10,7 @@
 <div class="row">
     <div class="col-xs-12">
         <div class="console" scroll-glue>
-            <div ng-repeat="command in commands | orderBy: 'creation_timestamp' : false track by command.uuid">
+            <div ng-repeat="command in commands track by command.uuid | orderBy: 'creation_timestamp' : false">
                     <span class="console-execute">
                         <i class="fa fa-cog" ng-show="command.status === 0"></i>
                         <i class="fa fa-cog fa-spin" ng-show="command.status === 1"

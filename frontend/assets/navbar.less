@@ -1,71 +1,78 @@
-@activeNavBarBG: transparent;
-@activeNavBarFontColor: @accentcolor_contrast;
-
-.hamster-cage {
-  height: 90px;
-  background-color: @accentcolor;
-  border-bottom: 1px darken(@lightgrey, 20%) solid;
-
-  .container {
-    background-color: white;
-    padding-left: 0px;
-    padding-right: 0px;
-  }
-}
+@activeNavBarBG: @brand-gray-dark;
+@activeNavBarFontColor: @brand-primary;
 
 .navbar {
 
-  padding-top: 100px;
-  height: 75px;
+  padding-top: 0px;
+  margin-bottom: 15px;
   border: none;
-  background-color: @lightgrey;
-  margin-bottom: 0px;
+  background-color: @activeNavBarBG;
 
   .navbar-brand {
-    padding-left: 0px;
-    color: @darkgrey;
+    padding-left: 15px;
+    color: @brand-primary;
+
+    font-family: 'Nunito';
+    font-weight: 300;
+    letter-spacing: 1px;
+    font-size: 12px;
+    text-transform: uppercase;
 
     img {
-      height: 40px;
-      margin-top: -15px;
+      height: 25px;
+      margin-top: -3px;
     }
   }
 
-  .navbar-brand .active {
+  .active {
     color: @activeNavBarFontColor;
-    background-color: @activeNavBarBG;
+    background-color: @brand-gray-dark;
   }
 
-  .navbar-text {
-    color: rgba(255, 255, 255, 0.7);
+  .navbar-collapse {
+    border-color: @activeNavBarBG;
+  }
+
+  .navbar-nav > .active > a {
+    color: @brand-primary;
+    background-color: @brand-gray-dark;
+  }
+
+  .navbar-nav > .active > a:hover {
+    color: @brand-primary;
+    background-color: @brand-gray-dark;
+  }
+
+  .navbar-nav > .active > a:focus {
+    color: @brand-primary;
+    background-color: @brand-gray-dark;
   }
 
   .navbar-nav {
-    background-color: @lightgrey;
+    background-color: @brand-gray-light;
     margin-top: 0px;
 
-    > li > a {
-      color: @accentcolor;
-    }
+    font-family: 'Nunito';
+    font-weight: 300;
+    letter-spacing: 1px;
+    font-size: 12px;
+    text-transform: uppercase;
 
-    > li > a:hover {
-      color: @activeNavBarFontColor;
-      background-color: @activeNavBarBG;
-    }
+    li {
+      a {
+        color: @brand-gray-light;
+        background-color: @brand-gray-dark;
+      }
 
-    .active > a {
-      color: @activeNavBarFontColor;
-      background-color: @activeNavBarBG;
-    }
+      a:hover {
+        color: @brand-primary;
+        background-color: @brand-gray-dark;
+      }
 
-    .active > a:hover {
-      color: @activeNavBarFontColor;
-      background-color: @activeNavBarBG;
-    }
-
-    .active a:focus {
-      color: @activeNavBarFontColor;
-      background-color: @activeNavBarBG;
+      a:focus {
+        color: @brand-primary;
+        background-color: @brand-gray-dark;
+      }
     }
 
   }
@@ -73,9 +80,11 @@
   .navbar-toggle {
     border: none;
     background-color: transparent;
+
     .icon-bar {
-      background-color: @accentcolor;
+      background-color: @brand-primary;
     }
+
   }
 
   .navbar-toggle:focus {
@@ -84,8 +93,21 @@
 
   .navbar-toggle:hover {
     background-color: transparent;
+
     .icon-bar {
       background-color: @activeNavBarBG;
     }
+
   }
+
+}
+
+.navbar-default .navbar-text {
+  font-family: 'Nunito';
+  font-weight: 300;
+  letter-spacing: 1px;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: @brand-primary-light;
+  line-height: 20px;
 }
