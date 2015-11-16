@@ -172,8 +172,6 @@ angular.module('probrApp')
         $scope.bootstrap = function () {
             $scope.step = 3;
             console.log('Bootstrapped the device succesfully.');
-
-
         };
 
         $scope.copyText = function () {
