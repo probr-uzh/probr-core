@@ -5,11 +5,16 @@ angular.module('probrApp')
 
         var protocol = $location.protocol();
         var host = $location.host();
+        var port = $location.port();
 
         var Device = $resource('/api/devices/:deviceId/', {deviceId: '@uuid'},
             {
                 query: {method: 'GET', isArray: false},
-                getStatus: {method: 'GET', url: protocol + '://' + host + '/api/statuses?device=:deviceId', isArray: false}
+                getStatus: {
+                    method: 'GET',
+                    url: protocol + '://' + host + ':' + port + '/api/statuses?device=:deviceId',
+                    isArray: false
+                }
             }
         );
         return Device;

@@ -67,7 +67,8 @@ angular.module('probrApp')
                             if (dataObj.hasOwnProperty([resourceObj.uuidFilter.filter]) && dataObj[resourceObj.uuidFilter.filter] === resourceObj.uuidFilter.uuid) {
 
                                 resources.push(resourceObj);
-                                console.log(resources.length);
+                                //console.log(resources.length);
+
                             }
                         } else {
                             resources.push(resourceObj);

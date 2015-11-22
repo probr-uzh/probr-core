@@ -1,5 +1,5 @@
-@activeNavBarBG: @lightgrey;
-@activeNavBarFontColor: @accentcolor;
+@activeNavBarBG: @brand-gray-dark;
+@activeNavBarFontColor: @brand-primary;
 
 .navbar {
 
@@ -10,7 +10,13 @@
 
   .navbar-brand {
     padding-left: 15px;
-    color: @darkgray;
+    color: @brand-primary;
+
+    font-family: 'Nunito';
+    font-weight: 300;
+    letter-spacing: 1px;
+    font-size: 12px;
+    text-transform: uppercase;
 
     img {
       height: 25px;
@@ -18,46 +24,55 @@
     }
   }
 
-  .navbar-brand .active {
+  .active {
     color: @activeNavBarFontColor;
-    background-color: @activeNavBarBG;
-  }
-
-  .navbar-text {
-    color: rgba(255, 255, 255, 0.7);
+    background-color: @brand-gray-dark;
   }
 
   .navbar-collapse {
     border-color: @activeNavBarBG;
   }
 
+  .navbar-nav > .active > a {
+    color: @brand-primary;
+    background-color: @brand-gray-dark;
+  }
+
+  .navbar-nav > .active > a:hover {
+    color: @brand-primary;
+    background-color: @brand-gray-dark;
+  }
+
+  .navbar-nav > .active > a:focus {
+    color: @brand-primary;
+    background-color: @brand-gray-dark;
+  }
+
   .navbar-nav {
-    background-color: @light_grey;
+    background-color: @brand-gray-light;
     margin-top: 0px;
 
-    > li > a {
-      color: @light_grey;
-      background-color: @activeNavBarBG;
-    }
+    font-family: 'Nunito';
+    font-weight: 300;
+    letter-spacing: 1px;
+    font-size: 12px;
+    text-transform: uppercase;
 
-    > li > a:hover {
-      color: @activeNavBarFontColor;
-      background-color: @activeNavBarBG;
-    }
+    li {
+      a {
+        color: @brand-gray-light;
+        background-color: @brand-gray-dark;
+      }
 
-    .active > a {
-      color: @activeNavBarFontColor;
-      background-color: @activeNavBarBG;
-    }
+      a:hover {
+        color: @brand-primary;
+        background-color: @brand-gray-dark;
+      }
 
-    .active > a:hover {
-      color: @activeNavBarFontColor;
-      background-color: @activeNavBarBG;
-    }
-
-    .active a:focus {
-      color: @activeNavBarFontColor;
-      background-color: @activeNavBarBG;
+      a:focus {
+        color: @brand-primary;
+        background-color: @brand-gray-dark;
+      }
     }
 
   }
@@ -84,4 +99,15 @@
     }
 
   }
+
+}
+
+.navbar-default .navbar-text {
+  font-family: 'Nunito';
+  font-weight: 300;
+  letter-spacing: 1px;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: @brand-primary-light;
+  line-height: 20px;
 }

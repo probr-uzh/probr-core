@@ -15,23 +15,19 @@ angular.module('probrApp')
                 $scope.commandTemplates = [];
                 $scope.commandTemplate = {};
 
-                $scope.commandQueue = [];
-                $scope.$watch("commandQueue.length", function () {
-                    while ($scope.commandQueue.length) {
-                        var command = $scope.commandQueue.pop();
-                        command.device = $filter('filter')($scope.devices, {uuid: command.device})[0];
-                        $scope.commands.push(command);
-                    }
-                });
+                $scope.getDevice = function (command) {
+                    return $filter('filter')($scope.devices, {uuid: command.device})[0];
+                };
 
                 $scope.$watchCollection("devices", function () {
                     angular.forEach($scope.devices, function (device) {
                         if (device !== undefined) {
                             Command.byDevice({deviceId: device.uuid}, function (resultObj) {
-                                var commands = resultObj.results;
-                                Array.prototype.push.apply($scope.commandQueue, commands);
+                                angular.forEach(resultObj.results, function (cmd) {
+                                    $scope.commands.push(cmd);
+                                });
+                                resourceSocket.updateResource($scope, $scope.commands, 'command', commandLimit, true, 'device', device.uuid);
                             });
-                            resourceSocket.updateResource($scope, $scope.commandQueue, 'command', commandLimit, true, 'device', device.uuid);
                         }
                     });
                 });
@@ -46,8 +42,8 @@ angular.module('probrApp')
                             execute: $scope.commandTemplate.execute,
                             device: device.uuid
                         }).$save(function (result) {
-                            $scope.commandTemplate = {};
-                        });
+                                $scope.commandTemplate = {};
+                            });
                     });
                 };
 
@@ -72,9 +68,9 @@ angular.module('probrApp')
                             uuid: $scope.commandTemplate.uuid,
                             tags: []
                         }).$save(function (resultObj) {
-                            $scope.commandTemplate = resultObj;
-                            $scope.commandTemplates.push(resultObj);
-                        });
+                                $scope.commandTemplate = resultObj;
+                                $scope.commandTemplates.push(resultObj);
+                            });
                     }
                 };
 

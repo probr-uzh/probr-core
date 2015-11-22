@@ -1,48 +1,47 @@
 # probr-core, django app
 web:
-   image: probr/core:latest
+   build: .
    command: sh install/docker/web/run.sh
    ports:
-    - "8000:8000"
-   links:
-    - postgres
-    - redis
-    - mongodb
+     - "8001:8001"
+   volumes_from:
+     - dataprobr
 
 # probr-core, websockets
 websocket:
-   image: probr/core:latest
-   command: uwsgi --socket :8001 --module probr.wsgi_websocket:application --enable-threads
+   build: .
+   command: sh install/docker/web/websocket.sh
    ports:
-    - "8001:8001"
-   links:
-    - postgres
-    - redis
-    - mongodb
+     - "8002:8002"
 
-# probr-core, celery worker
+# probr-core, websockets
 worker:
-   image: probr/core:latest
-   command: celery worker -A probr
-   links:
-    - postgres
-    - redis
-    - mongodb
+   build: .
+   command: sh install/docker/web/worker.sh
 
 # database container
 postgres:
-   image: postgres:9.5
+   image: postgres:9.4.5
    volumes_from:
-    - datapostgres
+     - datapostgres
    environment:
-      POSTGRES_USER: probr
-      POSTGRES_PASSWORD: probr
+     POSTGRES_USER: probr
+     POSTGRES_PASSWORD: probr
 
 # mongodb
 mongodb:
-  image: mongo:3.1.6
+  image: mongo:3.0.6
   volumes_from:
     - datamongodb
+
+# influxdb
+influxdb:
+  image: tutum/influxdb:0.9
+  ports:
+    - "8083:8083"
+    - "8086:8086"
+  volumes_from:
+    - datainflux
 
 # redis container
 redis:
@@ -59,3 +58,17 @@ datamongodb:
   image: cogniteev/echo
   volumes:
     - /data/db
+
+# data container for mongodb
+datainflux:
+  image: cogniteev/echo
+  volumes:
+    - /var/influxdb
+
+# data container for probr
+dataprobr:
+  image: cogniteev/echo
+  volumes:
+    - ./frontend:/app/frontend
+    - ./media:/app/media
+    - ./static:/app/static

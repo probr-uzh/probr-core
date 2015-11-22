@@ -1,4 +1,4 @@
-# Probr - A generic WiFi tracking system
+    # Probr - A generic WiFi tracking system
 
 With the vastly increased number of wireless enabled devices, the large amount of data produced by its packets contain large opportunities for usage in research and daily life. By passively listening to wireless signals, it is possible to gather information that can be used to answer interesting questions.
 This project aims at developing a system, which helps researches, developers and engineers collecting such data for analysis tasks.
@@ -82,6 +82,19 @@ python manage.py createsuperuser
 
 ```
 
+Make sure the mongodb deamon is running:
+
+```
+mongod &
+```
+
+Also, the redis-server must be running before you can use probr-core
+
+```
+redis-server &
+```
+
+
 ## Start-up
 
 Finally, you're ready to start your probr-core server by running:
@@ -89,6 +102,13 @@ Finally, you're ready to start your probr-core server by running:
 ```
 python manage.py runserver
 
+```
+
+In order for the data to be processed and entered into the database, you need to start
+the celery worker:
+
+```
+celery worker -A probr
 ```
 
 And you can check it out by visiting `http://localhost:8000`.
