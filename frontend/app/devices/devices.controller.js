@@ -44,34 +44,31 @@ angular.module('probrApp')
         };
 
         $scope.updateDeamonAction = function () {
-            var execute = "check_for_updates && update_scripts";
-            angular.forEach($scope.selectedDevices(), function (device) {
-                $scope.executeCommand(execute, device);
+            $scope.performAction(function () {
+                var execute = "check_for_updates && update_scripts";
+                angular.forEach($scope.selectedDevices(), function (device) {
+                    $scope.executeCommand(execute, device);
+                });
             });
         };
 
         $scope.killCommandsAction = function () {
-            var execute = "kill_all_commands";
-            angular.forEach($scope.selectedDevices(), function (device) {
-                $scope.executeCommand(execute, device);
+            $scope.performAction(function () {
+                var execute = "kill_all_commands";
+                angular.forEach($scope.selectedDevices(), function (device) {
+                    $scope.executeCommand(execute, device);
+                });
             });
         };
 
-        $scope.deleteDevices = function () {
-            var modalInstance = $modal.open({
-                animation: true,
-                templateUrl: '/static/app/modals/deleteModalContent.html',
-                controller: 'DeviceDeleteModalCtrl',
-            });
-
-            modalInstance.result.then(function () {
+        $scope.deleteDevicesAction = function () {
+            $scope.performAction(function () {
                 angular.forEach($scope.selectedDevices(), function (device) {
                     var deviceResource = new Device(device);
                     deviceResource.$delete(function (resultObj) {
                         $scope.devices.splice($scope.devices.indexOf(device), 1);
                     });
                 });
-
             });
         };
 
@@ -82,8 +79,8 @@ angular.module('probrApp')
         $scope.deleteDevice = function (device) {
             var modalInstance = $modal.open({
                 animation: true,
-                templateUrl: '/static/app/modals/deleteModalContent.html',
-                controller: 'DeviceDeleteModalCtrl',
+                templateUrl: '/static/app/modals/confirmationModalContent.html',
+                controller: 'ConfirmationModalCtrl',
             });
 
             modalInstance.result.then(function () {
@@ -96,6 +93,17 @@ angular.module('probrApp')
             });
         };
 
+        $scope.performAction = function (actionCB) {
+            var modalInstance = $modal.open({
+                animation: true,
+                templateUrl: '/static/app/modals/confirmationModalContent.html',
+                controller: 'ConfirmationModalCtrl',
+            });
+
+            modalInstance.result.then(actionCB, function () {
+
+            });
+        };
 
     })
     .controller('DeviceStatusCtrl', function ($scope, $filter, $stateParams, $modal, Status, Device, Command, CommandTemplate, resourceSocket) {
@@ -191,7 +199,7 @@ angular.module('probrApp')
             }
         }
     })
-    .controller('DeviceDeleteModalCtrl', function ($scope, $modalInstance) {
+    .controller('ConfirmationModalCtrl', function ($scope, $modalInstance) {
         $scope.ok = function () {
             $modalInstance.close();
         };
