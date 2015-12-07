@@ -29,13 +29,28 @@ def generate_json(capture, packet, timestamp):
     if len(capture.tags.all()) > 0:
        jsonPacket['tags'] = list(capture.tags.names())
 
-    jsonPacket['time'] = datetime.datetime.utcfromtimestamp(timestamp)
-    jsonPacket['signal_strength'] = -(256-tap.ant_sig.db)
-    jsonPacket['ssid'] = wlan.ies[0].info
-    jsonPacket['mac_address_src'] = binascii.hexlify(wlan.mgmt.src)
-    jsonPacket['mac_address_dst'] = binascii.hexlify(wlan.mgmt.dst)
     jsonPacket['inserted_at'] = datetime.datetime.utcnow()
     jsonPacket['location'] = { 'type': 'Point', 'coordinates': [capture.longitude, capture.latitude] }
+
+    jsonPacket['time'] = datetime.datetime.utcfromtimestamp(timestamp)
+    try:
+        jsonPacket['signal_strength'] = -(256-tap.ant_sig.db)
+    except:
+        pass
+    try:
+        jsonPacket['ssid'] = wlan.ies[0].info
+    except:
+        pass
+    try:
+        jsonPacket['mac_address_src'] = binascii.hexlify(wlan.mgmt.src)
+    except:
+        pass
+    try:
+        jsonPacket['mac_address_dst'] = binascii.hexlify(wlan.mgmt.dst)
+    except:
+        pass
+
+
 
     return jsonPacket
 
