@@ -1,23 +1,42 @@
+# nginx reverse-proxy
+nginx:
+  image: probr/core-nginx:latest
+  ports:
+    - "80:80"
+  volumes_from:
+    - dataprobr
+  links:
+    - web:probr_core
+    - websocket:probr_core_ws
+
 # probr-core, django app
 web:
-   build: .
+   image: probr/core:latest
    command: sh install/docker/web/run.sh
    ports:
      - "8001:8001"
    volumes_from:
      - dataprobr
+   links:
+     - postgres:postgres
+     - redis:redis
 
 # probr-core, websockets
 websocket:
-   build: .
+   image: probr/core:latest
    command: sh install/docker/web/websocket.sh
    ports:
      - "8002:8002"
 
 # probr-core, websockets
 worker:
-   build: .
+   image: probr/core:latest
    command: sh install/docker/web/worker.sh
+   volumes_from:
+     - dataprobr
+   links:
+     - postgres:postgres
+     - redis:redis
 
 # database container
 postgres:
@@ -69,6 +88,5 @@ datainflux:
 dataprobr:
   image: cogniteev/echo
   volumes:
-    - ./frontend:/app/frontend
     - ./media:/app/media
     - ./static:/app/static
