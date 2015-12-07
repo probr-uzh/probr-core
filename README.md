@@ -1,4 +1,4 @@
-    # Probr - A generic WiFi tracking system
+# Probr - A generic WiFi tracking system
 
 With the vastly increased number of wireless enabled devices, the large amount of data produced by its packets contain large opportunities for usage in research and daily life. By passively listening to wireless signals, it is possible to gather information that can be used to answer interesting questions.
 This project aims at developing a system, which helps researches, developers and engineers collecting such data for analysis tasks.
