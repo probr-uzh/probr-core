@@ -26,6 +26,7 @@
             <p>
                 <strong ng-show="statuses[0].ip">IP-Address: </strong> {{ statuses[0].ip }}<br/>
                 <strong ng-show="device.os">Operating System: </strong> {{ device.os }}<br/>
+                <strong ng-show="device.tags">Tags: </strong> {{ device.tags.join(', ') }}<br/>
                 <i>{{ device.description }}</i><br/>
             </p>
         </div>
