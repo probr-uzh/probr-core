@@ -22,8 +22,9 @@ def processCapture(captureUUID):
     capture = Capture.objects.get(pk=captureUUID)
     for handlerString in PROBR_HANDLERS:
         klass = recursiveImport(handlerString)
-        handler = klass()
+
         try:
+            handler = klass()
             handler.handle(capture)
         except:
            print handlerString+" handler failed"
