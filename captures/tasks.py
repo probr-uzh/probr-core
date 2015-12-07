@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from celery import shared_task
 from captures.models import Capture
-from probr.base_settings import PROBR_HANDLERS
+from probr.settings import PROBR_HANDLERS
 
 import importlib
 
