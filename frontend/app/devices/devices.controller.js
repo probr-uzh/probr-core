@@ -119,10 +119,22 @@ angular.module('probrApp')
             $scope.device = resultObj;
         });
 
+        $scope.editDevice = function () {
+            var modalInstance = $modal.open({
+                animation: true,
+                templateUrl: '/static/app/modals/deviceEditModalContent.html',
+                controller: 'DeviceEditModalCtrl',
+                resolve: {
+                    device: function () {
+                        return $scope.device;
+                    }
+                }
+            });
+        };
+
         $scope.executeCommand = function (execute) {
             new Command({execute: execute, device: $scope.device.uuid}).$save();
         };
-
 
         $scope.updateDeamonAction = function () {
             $scope.executeCommand("check_for_updates && update_scripts");
@@ -143,7 +155,7 @@ angular.module('probrApp')
         $scope.hostURL = currentURL.split("/web")[0];
         $scope.statuses = [];
 
-        $scope.createDevice = function (form) {
+        $scope.saveDevice = function (form) {
             $scope.deviceForm.tags = $scope.deviceForm.formTags !== undefined ? $scope.deviceForm.formTags.split(',') : [];
             $scope.deviceForm.$save(function (device) {
                 $scope.device = device;
@@ -212,6 +224,25 @@ angular.module('probrApp')
         $scope.devices = $modalInstance.devices;
         $scope.close = function () {
             $modalInstance.close();
+        };
+    })
+    .controller('DeviceEditModalCtrl', function ($scope, $modalInstance, device) {
+        $scope.deviceForm = device;
+        $scope.deviceForm.formTags = $scope.deviceForm.tags.join();
+        $scope.saveDevice = function (form) {
+            $scope.deviceForm.tags = $scope.deviceForm.formTags !== undefined ? $scope.deviceForm.formTags.split(',') : [];
+            console.log($scope.deviceForm.tags);
+            $scope.deviceForm.$update(function (device) {
+                $modalInstance.close();
+            }, function (err) {
+                $scope.errors = {};
+
+                // Update validity of form fields that match the django errors
+                angular.forEach(err.data, function (error, field) {
+                    form[field].$setValidity('django', false);
+                    $scope.errors[field] = error;
+                });
+            });
         };
     })
     .controller('CopyCommandModalCtrl', function ($scope, $modalInstance, $stateParams, Device) {

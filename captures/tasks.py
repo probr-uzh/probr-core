@@ -1,10 +1,11 @@
 from __future__ import absolute_import
 
-from celery import shared_task
-from captures.models import Capture
-from probr.settings import PROBR_HANDLERS
-
 import importlib
+
+from celery import shared_task
+
+from captures.models import Capture
+from probr.settings import PROBR_HANDLERS, STORE_CAPTURES
 
 def recursiveImport(full_class_string):
     """
@@ -17,6 +18,7 @@ def recursiveImport(full_class_string):
     # Finally, we retrieve the Class
     return getattr(module, class_str)
 
+
 @shared_task
 def processCapture(captureUUID):
     capture = Capture.objects.get(pk=captureUUID)
@@ -27,4 +29,6 @@ def processCapture(captureUUID):
             handler = klass()
             handler.handle(capture)
         except:
-           print handlerString+" handler failed"
+            print handlerString + " handler failed"
+    if not STORE_CAPTURES:
+        capture.delete()

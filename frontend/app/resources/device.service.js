@@ -14,7 +14,8 @@ angular.module('probrApp')
                     method: 'GET',
                     url: protocol + '://' + host + ':' + port + '/api/statuses?device=:deviceId',
                     isArray: false
-                }
+                },
+                update: { method: 'PUT', isArray: false },
             }
         );
         return Device;
