@@ -33,6 +33,7 @@ def generate_json(capture, packet, timestamp):
     jsonPacket['location'] = { 'type': 'Point', 'coordinates': [capture.longitude, capture.latitude] }
 
     jsonPacket['time'] = datetime.datetime.utcfromtimestamp(timestamp)
+
     try:
         jsonPacket['signal_strength'] = -(256-tap.ant_sig.db)
     except:
@@ -49,7 +50,10 @@ def generate_json(capture, packet, timestamp):
         jsonPacket['mac_address_dst'] = binascii.hexlify(wlan.mgmt.dst)
     except:
         pass
-
+    try:
+        jsonPacket['squence_number'] = wlan.tcp.seq
+    except:
+        pass
 
 
     return jsonPacket

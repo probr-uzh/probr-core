@@ -1,0 +1,31 @@
+<form class="form-horizontal" name="form" ng-submit="saveDevice(form)">
+    <django-form name="'name'" model="deviceForm.name" label="Name" form="form" errors="errors"></django-form>
+    <div class="form-group">
+        <div class="col-xs-12">
+            <select class="form-control" id="type" name="type" ng-model="deviceForm.type">
+                <option value="RPA">Raspberry Pi Model A</option>
+                <option value="RPB">Raspberry Pi Model B</option>
+                <option value="ODR">ODROID</option>
+                <option value="DWR">DD-WRT Router</option>
+                <option value="OWR">OpenWRT Router</option>
+            </select>
+        </div>
+    </div>
+    <django-form name="'wifichip'" model="deviceForm.wifichip" label="Wifi Chip" form="form"
+                 errors="errors"></django-form>
+    <django-form name="'os'" model="deviceForm.os" label="Operating System" form="form"
+                 errors="errors"></django-form>
+    <django-form name="'description'" model="deviceForm.description" label="Description" form="form"
+                 errors="errors"></django-form>
+    <django-form name="'tags'" model="deviceForm.formTags" label="Tags comma-separate" form="form"
+                 errors="errors"></django-form>
+    <django-form name="'longitude'" model="deviceForm.longitude" label="Longitude" form="form"
+                 errors="errors"></django-form>
+    <django-form name="'latitude'" model="deviceForm.latitude" label="Latitude" form="form"
+                 errors="errors"></django-form>
+    <div class="form-group">
+        <div class="col-xs-4">
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+    </div>
+</form>
