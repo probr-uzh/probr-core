@@ -42,9 +42,8 @@ server {
     }
 
 
-    location /analysis {
+    location /analysis/ {
 
-        rewrite           ^/analysis/(.*) /$1 break;
         proxy_pass         http://probr_analysis/;
 
 		proxy_set_header Upgrade $http_upgrade;
