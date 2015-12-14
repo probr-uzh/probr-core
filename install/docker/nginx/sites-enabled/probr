@@ -42,8 +42,9 @@ server {
     }
 
 
-    location /analysis/ {
+    location /analysis {
 
+        rewrite           ^/analysis/(.*) /$1 break;
         proxy_pass         http://probr_analysis/;
 
 		proxy_set_header Upgrade $http_upgrade;
@@ -58,7 +59,7 @@ server {
 
         include /etc/nginx/uwsgi_params;
 
-        uwsgi_pass probr_core;
+        uwsgi_pass         probr_core;
         proxy_redirect     off;
 
         proxy_set_header   Host $host;
