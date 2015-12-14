@@ -58,7 +58,7 @@ server {
 
         include /etc/nginx/uwsgi_params;
 
-        uwsgi_pass probr_core;
+        uwsgi_pass         probr_core;
         proxy_redirect     off;
 
         proxy_set_header   Host $host;
