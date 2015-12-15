@@ -1,0 +1,61 @@
+Vagrant.configure(2) do |config|
+  config.vm.box = "ubuntu/trusty64"
+  config.vm.network "private_network", ip: "192.168.100.10"
+  config.vm.provision "shell", inline: <<-SHELL
+    # Install node
+    curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
+    apt-get install -y nodejs
+
+    # Install python stuff
+    apt-get install -y python-dev python-pip
+
+    # Install git
+    apt-get install -y git
+
+    # Install postgres, mongo and redis
+    apt-get install -y postgresql libpq-dev mongodb redis-server
+
+    # Set up postgres user and db
+    echo "CREATE ROLE probr LOGIN ENCRYPTED PASSWORD 'probr';" | sudo -u postgres psql
+    su postgres -c "createdb probr --owner probr"
+    service postgresql reload
+
+    # Install bower
+    npm install -g bower less
+
+    # Create virtualenv and enable
+    pip install virtualenv
+    virutalenv .env_probr
+    source ./.env_probr/bin/activate
+
+    # Clone core
+    git clone https://github.com/probr/probr-core.git --depth 1
+    cd probr-core
+
+    # Set up settings
+    # debug to false (memory leak in celery otherwise)
+    # and add allowed host
+    cp probr/settings.example.py probr/settings.py
+    echo "DEBUG = False" >> probr/settings.py
+    echo "ALLOWED_HOSTS = ['192.168.100.10']" >> probr/settings.py
+
+    # Install bower packages (suppress user statistic input stuff)
+    bower install --allow-root --config.interactive=false
+
+    # Install all pip packages
+    pip install -r requirements.txt
+
+    # Migrate
+    python manage.py migrate
+
+    # Add a django admin/admin user
+    echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@test.com', 'admin')" | python manage.py shell
+
+    # Run worker in background
+    celery worker -A probr &
+
+    # Start server (insecure because serving of static assets disallowed when
+    # debug is set to False)
+    python manage.py runserver --insecure 0.0.0.0:8000 &
+  SHELL
+end
