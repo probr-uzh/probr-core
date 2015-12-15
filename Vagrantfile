@@ -49,11 +49,10 @@ Vagrant.configure(2) do |config|
     # Add a django admin/admin user
     echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@test.com', 'admin')" | python manage.py shell
 
-    # Run worker in background
-    celery worker -A probr &
+    # Run worker with screen (so we can reattach)
+    screen -d -m -S probrcoreworker bash -c 'celery worker -A probr'
 
-    # Start server (insecure because serving of static assets disallowed when
-    # debug is set to False)
-    python manage.py runserver 0.0.0.0:8000 &
+    # Start server with screen (so we can reattach)
+    screen -d -m -S probrcoreweb bash -c 'python manage.py runserver 0.0.0.0:8000'
   SHELL
 end
