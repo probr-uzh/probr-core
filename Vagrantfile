@@ -1,16 +1,59 @@
-VAGRANTFILE_API_VERSION = "2"
+Vagrant.configure(2) do |config|
+  config.vm.box = "ubuntu/trusty64"
+  config.vm.network "private_network", ip: "192.168.100.10"
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    # Install node
+    curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
+    sudo apt-get install -y nodejs
 
-Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  config.vm.box = "phusion-open-ubuntu-14.04-amd64"
-  config.vm.box_url = "https://oss-binaries.phusionpassenger.com/vagrant/boxes/latest/ubuntu-14.04-amd64-vbox.box"
+    # Install python stuff
+    sudo apt-get install -y python-dev python-pip
 
-  config.vm.network(:forwarded_port, guest: 80, host: 8080)
+    # Install git
+    sudo apt-get install -y git
 
-  config.vm.provision :docker
-  #config.vm.provision :docker_compose, yml: "/vagrant/docker-compose.yml", rebuild: false, run: "always"
-  
-  config.vm.provider "virtualbox" do |v|
-        v.memory = 2048
-        v.cpus = 2
-  end
+    # Install postgres, mongo and redis
+    sudo apt-get install -y postgresql libpq-dev mongodb redis-server
+
+    # Set up postgres user and db
+    echo "CREATE ROLE probr LOGIN ENCRYPTED PASSWORD 'probr';" | sudo -u postgres psql
+    sudo su postgres -c "createdb probr --owner probr"
+    sudo service postgresql reload
+
+    # Install bower
+    sudo npm install -g bower less
+
+    # Create virtualenv and enable
+    sudo pip install virtualenv
+    virtualenv .env_probr
+    source ./.env_probr/bin/activate
+
+    # Clone core
+    git clone https://github.com/probr/probr-core.git --depth 1
+    cd probr-core
+
+    # Set up settings
+    # => Use postgres
+    cp probr/settings.example.py probr/settings.py
+    echo "DATABASES = {'default': {'ENGINE': 'django.db.backends.postgresql_psycopg2','NAME': 'probr','USER': 'probr','PASSWORD': 'probr','HOST': os.environ.get('POSTGRES_PORT_5432_TCP_ADDR', 'localhost'),'PORT': os.environ.get('POSTGRES_PORT_5432_TCP_PORT', '5432'),}}" >> probr/settings.py
+
+    # Install bower packages (suppress user statistic input stuff)
+    bower install --config.interactive=false
+
+    # Install all pip packages
+    pip install -r requirements.txt
+
+    # Migrate
+    python manage.py migrate
+
+    # Add a django admin/admin user
+    echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@test.com', 'admin')" | python manage.py shell
+
+    # Run worker in background
+    celery worker -A probr &
+
+    # Start server (insecure because serving of static assets disallowed when
+    # debug is set to False)
+    python manage.py runserver 0.0.0.0:8000 &
+  SHELL
 end
