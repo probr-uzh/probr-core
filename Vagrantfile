@@ -1,6 +1,7 @@
 Vagrant.configure(2) do |config|
   config.vm.box = "ubuntu/trusty64"
   config.vm.network "private_network", ip: "192.168.100.10"
+
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     # Install node
     curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
@@ -14,6 +15,8 @@ Vagrant.configure(2) do |config|
 
     # Install postgres, mongo and redis
     sudo apt-get install -y postgresql libpq-dev mongodb redis-server
+    sudo sed -i '/bind_ip/d' /etc/mongodb.conf
+    sudo service mongodb restart
 
     # Set up postgres user and db
     echo "CREATE ROLE probr LOGIN ENCRYPTED PASSWORD 'probr';" | sudo -u postgres psql
