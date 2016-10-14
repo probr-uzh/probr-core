@@ -15,15 +15,20 @@ Vagrant.configure(2) do |config|
     # Install git
     sudo apt-get install -y git
 
-    # Install postgres, mongo and redis
-    sudo apt-get install -y postgresql libpq-dev mongodb redis-server
+    # Install postgres, redis
+    sudo apt-get install -y postgresql libpq-dev redis-server
 
     # Let redis be accessible from outside
     sudo sed -i 's/bind 127.0.0.1/bind 0.0.0.0/g' /etc/redis/redis.conf
     sudo service redis-server restart
 
-    # Let redis be accessible from outside
-    sudo sed -i 's/bind_ip = 127.0.0.1/bind_ip = 0.0.0.0/g' /etc/mongodb.conf
+    # Install mongo
+    sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+    echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+    sudo apt-get update
+
+    # Let mongo be accessible from outside
+    sudo sed -i 's/bindIp: 127.0.0.1/bindIp: 0.0.0.0/g' /etc/mongodb.conf
     sudo service mongodb restart
 
     # Set up postgres user and db
