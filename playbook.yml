@@ -1,0 +1,27 @@
+---
+- hosts: all
+  become: true
+
+  roles:
+    - Stouts.mongodb
+    - geerlingguy.redis
+    - ANXS.postgresql
+    - geerlingguy.nodejs
+    - Stouts.python
+    - geerlingguy.git
+    - probr
+
+  vars:
+    mongodb_conf_bind_ip: 0.0.0.0
+    redis_bind_interface: 0.0.0.0
+
+    postgresql_ext_install_dev_headers: yes
+
+    postgresql_users:
+      - name: "{{probr_psql_user}}"
+        pass: "{{probr_psql_pass}}"
+        encrypted: no
+
+    postgresql_databases:
+      - name: "{{probr_psql_dbname}}"
+        owner: "{{probr_psql_user}}"

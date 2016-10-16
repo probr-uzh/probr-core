@@ -1,0 +1,48 @@
+---
+- name: clone probr-core
+  git: 
+    repo: https://github.com/probr/probr-core.git
+    dest: "{{probr_path}}"
+
+- name: install pip requirements to new virtualenv with python 2.7
+  pip: 
+    requirements: "{{probr_path}}/requirements.txt"
+    virtualenv: /venv
+    virtualenv_python: python2.7
+
+- name: make settings.py file with psql settings
+  template:
+    src: "settings.py.j2"
+    dest: "{{probr_path}}/probr/settings.py"
+
+- name: install bower
+  npm:
+    name: bower
+    global: yes
+
+- name: install less
+  npm:
+    name: less
+    global: yes
+
+- name: install bower packages from bower.json
+  bower: 
+    path: "{{probr_path}}" 
+
+- name: collect static assets
+  django_manage:
+    command: collectstatic
+    app_path: "{{probr_path}}"
+    virtualenv: /venv
+
+- name: django migrate
+  django_manage:
+    command: migrate
+    app_path: "{{probr_path}}"
+    virtualenv: /venv
+
+- name: django create admin
+  django_manage:
+    command: "createsuperuser --noinput --username={{probr_admin_user}} --email={{probr_admin_email}}"
+    app_path: "{{probr_path}}"
+    virtualenv: /venv

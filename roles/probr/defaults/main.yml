@@ -1,0 +1,7 @@
+---
+probr_path: /probr-core
+probr_admin_user: admin
+probr_admin_email: admin@probr.ch
+probr_psql_user: probr
+probr_psql_pass: probr
+probr_psql_dbname: probr

@@ -1,0 +1,16 @@
+from base_settings import *
+
+DEBUG = False
+
+ALLOWED_HOSTS = ['*']
+
+DATABASES = {
+  'default': {
+    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    'NAME': '{{probr_psql_dbname}}',
+    'USER': '{{probr_psql_user}}',
+    'PASSWORD': '{{probr_psql_pass}}',
+    'HOST': 'localhost',
+    'PORT': '{{postgresql_port}}'
+  }
+}
