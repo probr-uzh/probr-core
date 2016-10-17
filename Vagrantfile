@@ -1,9 +1,10 @@
 Vagrant.configure(2) do |config|
   config.vm.box = "ubuntu/trusty64"
-
-  config.vm.network "forwarded_port", guest: 8000, host: 8000
-  config.vm.network "forwarded_port", guest: 6379, host: 6379
-  config.vm.network "forwarded_port", guest: 27017, host: 27017
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 8192
+    v.cpus = 4
+  end
+  config.vm.network "public_network"
 
   ENV['LC_ALL']="en_US.UTF-8"
 
