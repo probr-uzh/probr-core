@@ -168,5 +168,4 @@ PROBR_HANDLERS = [
     'handlers.handlers.WebsocketHandler',
     'handlers.handlers.MongoDBHandler',
     'handlers.handlers.SocketIOHandler',
-    'handlers.handlers.InfluxDBHandler'
 ]
