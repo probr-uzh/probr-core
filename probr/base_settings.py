@@ -86,7 +86,7 @@ DATABASES = {
     }
 }
 
-MONGO_URI = 'mongodb://localhost/probr_core'
+MONGO_URI = 'mongodb://localhost/probr-core'
 
 # Celery settings
 BROKER_URL = 'redis://localhost:6379/'
