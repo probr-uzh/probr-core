@@ -95,7 +95,7 @@ redis-server &
 ```
 
 
-## Start-up
+## Start-Up
 
 Finally, you're ready to start your probr-core server by running:
 
