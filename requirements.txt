@@ -30,4 +30,4 @@ requests==2.8.1
 scapy==2.3.1
 six==1.9.0
 socket.io-emitter==0.1.3
-uWSGI==2.0.11.1
+uWSGI==2.0.15
