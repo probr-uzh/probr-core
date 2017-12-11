@@ -1,6 +1,6 @@
 # probr-core, django app
 web:
-   build: .
+   image: registry.gitlab.papers.tech/papers/probr-core:master
    command: /bin/bash -c "/scripts/wait-for-it.sh postgres:5432 -- /usr/local/bin/ep -v /code/probr/settings.py; python /code/manage.py migrate; python /code/manage.py loaddata /code/initial.json; supervisord -n"
    ports:
      - "8001:8001"
@@ -14,7 +14,7 @@ web:
 
 # probr-core, websockets
 worker:
-   build: .
+   image: registry.gitlab.papers.tech/papers/probr-core:master
    command: /bin/bash -c "/scripts/wait-for-it.sh postgres:5432 -- /usr/local/bin/ep -v /code/probr/settings.py; python /code/manage.py migrate; celery worker --workdir /code/ -A probr -S django"
    volumes_from:
      - dataprobr
