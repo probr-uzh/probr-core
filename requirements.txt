@@ -12,8 +12,8 @@ django-filter==1.0.1
 django-taggit==0.21.3
 django-taggit-serializer==0.1.5
 django-websocket-redis==0.4.7
-djangorestframework==3.5.3
-djangorestframework-jwt==1.9.0
+djangorestframework==3.1.1
+djangorestframework-jwt==1.6.0
 dpkt==1.8.8
 gevent==1.2.1
 greenlet==0.4.11
