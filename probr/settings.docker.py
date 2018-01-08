@@ -50,3 +50,13 @@ MONGO_URI = os.getenv('MONGO_URL', 'mongodb://localhost/probr_core')
 
 # Celery settings
 BROKER_URL = os.getenv('BROKER_URL', 'redis://redis:6379/1')
+
+# Allowed Hosts
+ALLOWED_HOSTS = ['*']
+
+# Handlers
+PROBR_HANDLERS = [
+    'handlers.handlers.WebsocketHandler',
+    'handlers.handlers.MongoDBHandler',
+    'handlers.handlers.SocketIOHandler'
+]
