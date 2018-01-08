@@ -31,6 +31,6 @@ redis==2.10.5
 requests==2.12.4
 scapy==2.3.3
 six==1.10.0
-socket.io-emitter==0.1.3
+git+https://github.com/ziyasal/socket.io-python-emitter.git#master
 uWSGI==2.0.14
 vine==1.1.3
