@@ -14,7 +14,8 @@ django-taggit-serializer==0.1.5
 django-websocket-redis==0.4.7
 djangorestframework==3.1.1
 djangorestframework-jwt==1.6.0
-dpkt==1.8.8
+dpkt==1.9.1
+itamae==0.1.1
 gevent==1.2.1
 greenlet==0.4.11
 influxdb==4.0.0
