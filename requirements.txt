@@ -15,6 +15,7 @@ django-websocket-redis==0.4.4
 djangorestframework==3.1.1
 djangorestframework-jwt==1.6.0
 dpkt==1.8.6
+itamae==0.1.1
 gevent==1.0.2
 greenlet==0.4.6
 influxdb==2.9.2

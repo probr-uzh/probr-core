@@ -3,6 +3,7 @@ import datetime
 import json
 
 import dpkt
+import itamae.radiotap as rtap
 from bson import json_util
 from influxdb import InfluxDBClient
 from influxdb.exceptions import InfluxDBClientError
@@ -26,7 +27,7 @@ def parseSequenceControl(s):
 
 
 def generate_json(capture, packet, timestamp):
-    tap = dpkt.radiotap.Radiotap(packet)
+
     t_len = binascii.hexlify(packet[2:3])  # t_len field indicates the entire length of the radiotap data, including the radiotap header.
     t_len = int(t_len, 16)
     ieee80211Frame = packet[t_len:]
@@ -41,9 +42,11 @@ def generate_json(capture, packet, timestamp):
     jsonPacket['location'] = {'type': 'Point', 'coordinates': [capture.longitude, capture.latitude]}
     jsonPacket['time'] = datetime.datetime.utcfromtimestamp(timestamp)
     try:
-        jsonPacket['signal_strength'] = -(256 - tap.ant_sig.db)
+        radiotap = rtap.parse(packet)
+        jsonPacket['signal_strength'] = radiotap['antsignal']
     except:
-        pass
+        tap = dpkt.radiotap.Radiotap(packet)
+        jsonPacket['signal_strength'] = -(256 - tap.ant_sig.db)
     try:
         jsonPacket['ssid'] = wlan.ies[0].info
     except:
@@ -180,3 +183,4 @@ class InfluxDBHandler(object):
         points.append(new_packet)
 
         return points
+
