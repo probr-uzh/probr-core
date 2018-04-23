@@ -7,4 +7,5 @@ class CaptureSerializer(TaggitSerializer,ModelSerializer):
     tags = TagListSerializerField()
 
     class Meta:
+        exclude = []
         model = Capture

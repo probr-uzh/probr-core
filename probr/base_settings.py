@@ -9,11 +9,10 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os
 import datetime
+import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
@@ -27,7 +26,6 @@ DEBUG = True
 TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -75,7 +73,6 @@ WS4REDIS_EXPIRE = 0
 
 ROOT_URLCONF = 'probr.urls'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 
@@ -89,7 +86,8 @@ DATABASES = {
 MONGO_URI = 'mongodb://localhost/probr_core'
 
 # Celery settings
-BROKER_URL = 'redis://localhost:6379/'
+BROKER_URL = 'redis://{}:{}/'.format(os.environ.get('REDIS_PORT_6379_TCP_ADDR', 'localhost'),
+                                              os.environ.get('REDIS_PORT_6379_TCP_PORT', '6379'))
 
 # Redis Connection for Sockets
 WS4REDIS_CONNECTION = {

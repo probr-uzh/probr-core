@@ -27,7 +27,6 @@ def parseSequenceControl(s):
 
 
 def generate_json(capture, packet, timestamp):
-
     t_len = binascii.hexlify(packet[2:3])  # t_len field indicates the entire length of the radiotap data, including the radiotap header.
     t_len = int(t_len, 16)
     ieee80211Frame = packet[t_len:]

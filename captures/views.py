@@ -20,7 +20,7 @@ class CaptureUploadView(generics.ListCreateAPIView):
         for tag in tag_list:
             instance.tags.add(tag)
         instance.save()
-        processCapture.delay(instance.pk)
+        processCapture.apply_async([instance.pk], countdown=1)
         return Response('Capture upload successful')
 
 class CaptureListView(generics.ListCreateAPIView):

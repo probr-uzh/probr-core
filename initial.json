@@ -1,0 +1,20 @@
+[
+  {
+    "fields": {
+      "username": "admin",
+      "first_name": "",
+      "last_name": "",
+      "is_active": true,
+      "is_superuser": true,
+      "is_staff": true,
+      "last_login": null,
+      "groups": [],
+      "user_permissions": [],
+      "password": "pbkdf2_sha256$20000$gLbpudjc1UUr$JbUSTfuiGIZ5mPsa8kb0NTdQ3tns95NuSrm+ps4CkQo=",
+      "email": "probr@probr.ch",
+      "date_joined": "2017-12-12T07:41:42.227Z"
+    },
+    "model": "auth.user",
+    "pk": 1
+  }
+]
